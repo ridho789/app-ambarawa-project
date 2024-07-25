@@ -74,11 +74,31 @@
                     <div class="collapse" id="pembangunan">
                         <ul class="nav nav-collapse">
                             <li>
-                                <a href="#">
+                                <a data-bs-toggle="collapse" href="#kontruksi">
                                     <span class="sub-item">Kontruksi</span>
+                                    <span class="caret"></span>
                                 </a>
+                                <div class="collapse" id="kontruksi">
+                                    <ul class="nav nav-collapse subnav">
+                                        <li>
+                                            <a href="#">
+                                                <span class="sub-item">Batu</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#">
+                                                <span class="sub-item">Besi</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#">
+                                                <span class="sub-item">Pasir</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </li>
-                            <li>
+                            <li class="nav-item">
                                 <a href="#">
                                     <span class="sub-item">Pengerukan</span>
                                 </a>
