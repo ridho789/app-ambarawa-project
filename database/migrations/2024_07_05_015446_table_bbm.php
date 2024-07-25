@@ -1,0 +1,41 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('tbl_bbm', function (Blueprint $table) {
+            $table->id('id_bbm');
+            $table->string('nama');
+            $table->date('tanggal');
+            $table->string('kode_unit');
+            $table->string('nopol');
+            $table->string('jns_mobil');
+            $table->string('jns_bbm');
+            $table->string('liter');
+            $table->string('km_awal');
+            $table->string('km_isi');
+            $table->string('km_akhir');
+            $table->string('km_ltr');
+            $table->string('tot_harga');
+            $table->string('ket');
+            $table->string('tot_km');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('tbl_bbm');
+    }
+};

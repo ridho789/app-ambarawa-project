@@ -1,0 +1,881 @@
+@extends('layouts.base')
+<!-- @section('title', 'Operasional') -->
+@section('content')
+<!-- style custom -->
+<style>
+    th,
+    td {
+        white-space: nowrap;
+    }
+
+    div.dataTables_wrapper {
+        width: 100%;
+        margin: 0 auto;
+    }
+</style>
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+            <h3 class="fw-bold mb-3">Data Pengeluaran Operasional</h3>
+            <ul class="breadcrumbs mb-3">
+                <li class="nav-home">
+                    <a href="{{ url('/') }}">
+                        <i class="icon-home"></i>
+                    </a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="#">Operasional</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Modal Tambah data -->
+        <div class="modal fade" id="operasionalModal" tabindex="-1" role="dialog" aria-labelledby="operasionalModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0 mx-2" style="margin-bottom: -25px;">
+                        <h5 class="modal-title" id="operasionalModal">
+                            <span class="fw-light"> Data</span>
+                            <span class="fw-mediumbold"> Pengeluaran Operasional Baru </span>
+                        </h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="{{ url('operasional-store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-body">
+                            <p class="small mx-2">
+                                Buat data baru dengan formulir ini, pastikan Anda mengisi semuanya
+                            </p>
+
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Pemesanan</span>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4">
+                                    <label for="tanggal">Tanggal</label>
+                                    <input type="date" class="form-control" name="tanggal" id="tanggal" required />
+                                </div>
+                                <div class="col-8">
+                                    <label for="uraian">Uraian</label>
+                                    <input type="text" class="form-control" name="uraian" id="uraian" placeholder="Masukkan uraian.." required />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-8">
+                                    <label for="deskripsi">Deskripsi</label>
+                                    <input type="text" class="form-control" name="deskripsi" id="deskripsi" placeholder="Masukkan deskripsi.." required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="nama">Nama / Pemesan</label>
+                                    <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." required />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Metode Pembelian</label>
+                                <div class="d-flex align-items-center">
+                                    <div class="form-check mr-3">
+                                        <input class="form-check-input" type="radio" name="metode_pembelian" id="is_online" value="online" onclick="toggleFields()" />
+                                        <label class="form-check-label" for="is_online">
+                                            Online
+                                        </label>
+                                    </div>
+                                    <div class="form-check mr-3">
+                                        <input class="form-check-input" type="radio" name="metode_pembelian" id="is_offline" value="offline" onclick="toggleFields()" />
+                                        <label class="form-check-label" for="is_offline">
+                                            Offline
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <span type="button" class="badge badge-black" style="margin-bottom: 8px;" onclick="resetFields()">Reset</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Harga</span>
+                            </div>
+
+                            <div id="offlineFields" class="d-none">
+                                <div class="form-group row">
+                                    <div class="col-4">
+                                        <label for="qty_offline">Jumlah</label>
+                                        <input type="text" class="form-control" name="qty" id="qty_offline" placeholder="Masukkan jumlah.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="unit_offline">Satuan</label>
+                                        <input type="text" class="form-control" name="unit" id="unit_offline" placeholder="Masukkan satuan.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="harga_toko">Harga Toko</label>
+                                        <input type="text" class="form-control" name="harga_toko" id="harga_toko" placeholder="Masukkan harga toko.." />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="onlineFields" class="d-none">
+                                <div class="form-group row">
+                                    <div class="col-4">
+                                        <label for="qty_online">Jumlah</label>
+                                        <input type="text" class="form-control" name="qty_onl" id="qty_online" placeholder="Masukkan jumlah.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="unit_online">Satuan</label>
+                                        <input type="text" class="form-control" name="unit_onl" id="unit_online" placeholder="Masukkan satuan.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="harga_onl">Harga Online</label>
+                                        <input type="text" class="form-control" name="harga_onl" id="harga_onl" placeholder="Harga online.." />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-4">
+                                        <label for="diskon">Diskon</label>
+                                        <input type="text" class="form-control" name="diskon" id="diskon" placeholder="Diskon.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="ongkir">Ongkir</label>
+                                        <input type="text" class="form-control" name="ongkir" id="ongkir" placeholder="Ongkir.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="asuransi">Asuransi</label>
+                                        <input type="text" class="form-control" name="asuransi" id="asuransi" placeholder="Asuransi.." />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-4">
+                                        <label for="b_proteksi">Biaya Proteksi</label>
+                                        <input type="text" class="form-control" name="b_proteksi" id="b_proteksi" placeholder="Biaya proteksi.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="p_member">Potongan Member</label>
+                                        <input type="text" class="form-control" name="p_member" id="p_member" placeholder="Potongan member.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="b_aplikasi">Biaya Aplikasi</label>
+                                        <input type="text" class="form-control" name="b_aplikasi" id="b_aplikasi" placeholder="Biaya aplikasi.." />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="total">Total Harga</label>
+                                <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." style="background-color: #fff !important;" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="toko">Toko</label>
+                                <input type="text" class="form-control" name="toko" id="toko" placeholder="Masukkan toko.." required />
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 mx-2">
+                            <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Edit data -->
+        <div class="modal fade" id="operasionalEditModal" tabindex="-1" role="dialog" aria-labelledby="operasionalEditModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0 mx-2" style="margin-bottom: -25px;">
+                        <h5 class="modal-title" id="operasionalEditModal">
+                            <span class="fw-light"> Data</span>
+                            <span class="fw-mediumbold"> Pengeluaran Operasional </span>
+                        </h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="{{ url('operasional-update') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-body">
+                            <p class="small mx-2">
+                                Perbaharui data dengan formulir ini, pastikan Anda mengisi semuanya
+                            </p>
+
+                            <input type="hidden" id="edit-id" name="id_operasional">
+
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Pemesanan</span>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4">
+                                    <label for="tanggal">Tanggal</label>
+                                    <input type="date" class="form-control" name="tanggal" id="edit-tanggal" required />
+                                </div>
+                                <div class="col-8">
+                                    <label for="uraian">Uraian</label>
+                                    <input type="text" class="form-control" name="uraian" id="edit-uraian" placeholder="Masukkan uraian.." required />
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-8">
+                                    <label for="deskripsi">Deskripsi</label>
+                                    <input type="text" class="form-control" name="deskripsi" id="edit-deskripsi" placeholder="Masukkan deskripsi.." required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="nama">Nama / Pemesan</label>
+                                    <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." required />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Metode Pembelian</label>
+                                <div class="d-flex align-items-center">
+                                    <div class="form-check mr-3">
+                                        <input class="form-check-input" type="radio" name="metode_pembelian" id="edit-is_online" value="online" onclick="toggleFieldsEdit()" />
+                                        <label class="form-check-label" for="edit-is_online">
+                                            Online
+                                        </label>
+                                    </div>
+                                    <div class="form-check mr-3">
+                                        <input class="form-check-input" type="radio" name="metode_pembelian" id="edit-is_offline" value="offline" onclick="toggleFieldsEdit()" />
+                                        <label class="form-check-label" for="edit-is_offline">
+                                            Offline
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <span type="button" class="badge badge-black" style="margin-bottom: 8px;" onclick="resetFieldsEdit()">Reset</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Harga</span>
+                            </div>
+
+                            <div id="offlineFieldsEdit" class="d-none">
+                                <div class="form-group row">
+                                    <div class="col-4">
+                                        <label for="qty_offline">Jumlah</label>
+                                        <input type="text" class="form-control" name="qty" id="edit-qty_offline" placeholder="Masukkan jumlah.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="unit_offline">Satuan</label>
+                                        <input type="text" class="form-control" name="unit" id="edit-unit_offline" placeholder="Masukkan satuan.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="harga_toko">Harga Toko</label>
+                                        <input type="text" class="form-control" name="harga_toko" id="edit-harga_toko" placeholder="Masukkan harga toko.." />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="onlineFieldsEdit" class="d-none">
+                                <div class="form-group row">
+                                    <div class="col-4">
+                                        <label for="qty_online">Jumlah</label>
+                                        <input type="text" class="form-control" name="qty_onl" id="edit-qty_online" placeholder="Masukkan jumlah.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="unit_online">Satuan</label>
+                                        <input type="text" class="form-control" name="unit_onl" id="edit-unit_online" placeholder="Masukkan satuan.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="harga_onl">Harga Online</label>
+                                        <input type="text" class="form-control" name="harga_onl" id="edit-harga_onl" placeholder="Harga online.." />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-4">
+                                        <label for="diskon">Diskon</label>
+                                        <input type="text" class="form-control" name="diskon" id="edit-diskon" placeholder="Diskon.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="ongkir">Ongkir</label>
+                                        <input type="text" class="form-control" name="ongkir" id="edit-ongkir" placeholder="Ongkir.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="asuransi">Asuransi</label>
+                                        <input type="text" class="form-control" name="asuransi" id="edit-asuransi" placeholder="Asuransi.." />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-4">
+                                        <label for="b_proteksi">Biaya Proteksi</label>
+                                        <input type="text" class="form-control" name="b_proteksi" id="edit-b_proteksi" placeholder="Biaya proteksi.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="p_member">Potongan Member</label>
+                                        <input type="text" class="form-control" name="p_member" id="edit-p_member" placeholder="Potongan member.." />
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="b_aplikasi">Biaya Aplikasi</label>
+                                        <input type="text" class="form-control" name="b_aplikasi" id="edit-b_aplikasi" placeholder="Biaya aplikasi.." />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="total">Total Harga</label>
+                                <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." style="background-color: #fff !important;" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="toko">Toko</label>
+                                <input type="text" class="form-control" name="toko" id="edit-toko" placeholder="Masukkan toko.." required />
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 mx-2">
+                            <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- LogError -->
+        @if(session()->has('logErrors'))
+        <div class="row">
+            <div class="col-md-12" style="max-height: 350px; overflow-y: auto;">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-sm text-danger">Error Log</h5>
+                        @if(is_array(session('logErrors')))
+                        @foreach(session('logErrors') as $logError)
+                        {{ $logError }} <br>
+                        @endforeach
+                        @else
+                        {{ session('logErrors') }}
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Notify -->
+        @if(session()->has('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <div class="card-title">List Pengeluaran Operasional</div>
+                            <button id="editButton" class="btn btn-warning btn-round ms-5 btn-sm" data-bs-toggle="modal" data-bs-target="#operasionalEditModal" style="display: none;">
+                                <i class="fa fa-edit"></i>
+                                 Edit data
+                            </button>
+                            <form id="deleteForm" method="POST" action="{{ url('operasional-delete') }}" class="d-inline">
+                                @csrf
+                                <input type="hidden" id="allSelectRow" name="ids" value="">
+                                <button id="deleteButton" type="button" class="btn btn-danger btn-round ms-2 btn-sm" style="display: none;">
+                                    <i class="fa fa-trash"></i>
+                                    Delete data
+                                </button>
+                            </form>
+                            <button class="btn btn-primary btn-round ms-auto btn-sm" data-bs-toggle="modal" data-bs-target="#operasionalModal">
+                                <i class="fa fa-plus"></i>
+                                Tambah data
+                            </button>
+                        </div>
+                    </div>
+                    @if (count($operasional) > 0)
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="basic-datatables" class="display table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width=5%>
+                                            <input type="checkbox" id="selectAllCheckbox">
+                                        </th>
+                                        <th class="text-xxs-bold">No.</th>
+                                        <th class="text-xxs-bold">Tanggal</th>
+                                        <th class="text-xxs-bold">Uraian</th>
+                                        <!-- <th class="text-xxs-bold">Deskripsi</th> -->
+                                        <th class="text-xxs-bold">Nama</th>
+                                        <th class="text-xxs-bold">Jumlah</th>
+                                        <th class="text-xxs-bold">Satuan</th>
+                                        <!-- <th class="text-xxs-bold">Harga Toko</th>
+                                        <th class="text-xxs-bold">Diskon</th>
+                                        <th class="text-xxs-bold">Harga Online</th>
+                                        <th class="text-xxs-bold">Ongkir</th>
+                                        <th class="text-xxs-bold">Asuransi</th>
+                                        <th class="text-xxs-bold">Biaya Proteksi</th>
+                                        <th class="text-xxs-bold">Potongan Member</th>
+                                        <th class="text-xxs-bold">Biaya Aplikasi</th> -->
+                                        <th class="text-xxs-bold">Total Harga</th>
+                                        <th class="text-xxs-bold">Toko</th>
+                                        <th class="text-xxs-bold">Via</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($operasional as $o)
+                                    <tr data-id="{{ $o->id_operasional }}" 
+                                        data-tanggal="{{ $o->tanggal }}" 
+                                        data-uraian="{{ $o->uraian }}"
+                                        data-deskripsi="{{ $o->deskripsi }}"
+                                        data-nama="{{ $o->nama }}"
+                                        data-qty="{{ $o->qty }}"
+                                        data-unit="{{ $o->unit }}"
+                                        data-harga_toko="{{ 'Rp ' . number_format($o->harga_toko ?? 0, 0, ',', '.') }}"
+                                        data-harga_onl="{{ 'Rp ' . number_format($o->harga_onl ?? 0, 0, ',', '.') }}"
+                                        data-diskon="{{ 'Rp ' . number_format($o->diskon ?? 0, 0, ',', '.') }}"
+                                        data-ongkir="{{ 'Rp ' . number_format($o->ongkir ?? 0, 0, ',', '.') }}"
+                                        data-asuransi="{{ 'Rp ' . number_format($o->asuransi ?? 0, 0, ',', '.') }}"
+                                        data-b_proteksi="{{ 'Rp ' . number_format($o->b_proteksi ?? 0, 0, ',', '.') }}"
+                                        data-p_member="{{ 'Rp ' . number_format($o->p_member ?? 0, 0, ',', '.') }}"
+                                        data-b_aplikasi="{{ 'Rp ' . number_format($o->b_aplikasi ?? 0, 0, ',', '.') }}"
+                                        data-total="{{ 'Rp ' . number_format($o->total ?? 0, 0, ',', '.') }}"
+                                        data-toko="{{ $o->toko }}">
+                                        <td><input type="checkbox" class="select-checkbox"></td>
+                                        <td>{{ $loop->iteration }}.</td>
+                                        <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $o->tanggal)->format('d-M-Y') ?? '-' }}</td>
+                                        <td>{{ $o->uraian ?? '-' }}</td>
+                                        <!-- <td>{{ $o->deskripsi ?? '-' }}</td> -->
+                                        <td>{{ $o->nama ?? '-' }}</td>
+                                        <td>{{ $o->qty ?? '-' }}</td>
+                                        <td>{{ $o->unit ?? '-' }}</td>
+                                        <!-- <td>{{ 'Rp ' . number_format($o->harga_toko ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($o->diskon ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($o->harga_onl ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($o->ongkir ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($o->asuransi ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($o->b_proteksi ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($o->p_member ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($o->b_aplikasi ?? 0, 0, ',', '.') }}</td> -->
+                                        <td>{{ 'Rp ' . number_format($o->total ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ $o->toko ?? '-' }}</td>
+                                        <td>
+                                            @if ($o->harga_onl)
+                                                Online
+                                            @else
+                                                Offline
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="total-wrapper">
+                            <strong>Total Pengeluaran: </strong> <span id="total-sum">Rp 0</span>
+                        </div>
+                    </div>
+                    @else
+                    <div class="card-body">
+                        <div class="d-flex justify-content-center mb-0">
+                            <span class="text-xs mb-3"><i>Tidak ada data yang bisa ditampilkan..</i></span>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    // Currency
+    function formatCurrency(num) {
+        num = num.toString().replace(/[^\d-]/g, '');
+
+        num = num.replace(/-+/g, (match, offset) => offset > 0 ? "" : "-");
+
+        let isNegative = false;
+        if (num.startsWith("-")) {
+            isNegative = true;
+            num = num.slice(1);
+        }
+
+        let formattedNum = "Rp " + Math.abs(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+        if (isNegative) {
+            formattedNum = "-" + formattedNum;
+        }
+
+        return formattedNum;
+    }
+
+    // Sum total
+    function calculateTotal() {
+        let totalSum = 0;
+        document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
+            if (row.querySelector('td:nth-child(8)')) {
+                const totalText = row.querySelector('td:nth-child(8)').innerText;
+                const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
+                totalSum += totalValue;
+            }
+        });
+        if (document.getElementById('total-sum')) {
+            document.getElementById('total-sum').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(totalSum);
+        }
+    }
+
+    function toggleFields() {
+        const isOnlineChecked = document.getElementById('is_online').checked;
+        const offlineFields = document.getElementById('offlineFields');
+        const onlineFields = document.getElementById('onlineFields');
+
+        if (isOnlineChecked) {
+            setFieldsRequired(onlineFields, true);
+            setFieldsRequired(offlineFields, false);
+            offlineFields.classList.add('d-none');
+            onlineFields.classList.remove('d-none');
+
+        } else {
+            setFieldsRequired(onlineFields, false);
+            setFieldsRequired(offlineFields, true);
+            offlineFields.classList.remove('d-none');
+            onlineFields.classList.add('d-none');
+        }
+    }
+
+    function setFieldsRequired(fieldsContainer, isRequired) {
+        const inputs = fieldsContainer.querySelectorAll('input');
+        inputs.forEach(input => {
+            if (isRequired) {
+                input.setAttribute('required', 'required');
+            } else {
+                input.removeAttribute('required');
+            }
+        });
+    }
+
+    function resetFields() {
+        document.getElementById('is_online').checked = false;
+        document.getElementById('is_offline').checked = false;
+        setFieldsRequired(document.getElementById('offlineFields'), false);
+        setFieldsRequired(document.getElementById('onlineFields'), false);
+        document.getElementById('offlineFields').classList.add('d-none');
+        document.getElementById('onlineFields').classList.add('d-none');
+    }
+
+    // Modal Edit
+    function toggleFieldsEdit() {
+        const isOnlineCheckedEdit = document.getElementById('edit-is_online').checked;
+        const offlineFieldsEdit = document.getElementById('offlineFieldsEdit');
+        const onlineFieldsEdit = document.getElementById('onlineFieldsEdit');
+
+        if (isOnlineCheckedEdit) {
+            setFieldsRequired(onlineFieldsEdit, true);
+            setFieldsRequired(offlineFieldsEdit, false);
+            offlineFieldsEdit.classList.add('d-none');
+            onlineFieldsEdit.classList.remove('d-none');
+
+        } else {
+            setFieldsRequired(onlineFieldsEdit, false);
+            setFieldsRequired(offlineFieldsEdit, true);
+            offlineFieldsEdit.classList.remove('d-none');
+            onlineFieldsEdit.classList.add('d-none');
+        }
+    }
+
+    function resetFieldsEdit() {
+        document.getElementById('edit-is_online').checked = false;
+        document.getElementById('edit-is_offline').checked = false;
+        setFieldsRequired(document.getElementById('offlineFieldsEdit'), false);
+        setFieldsRequired(document.getElementById('onlineFieldsEdit'), false);
+        document.getElementById('offlineFieldsEdit').classList.add('d-none');
+        document.getElementById('onlineFieldsEdit').classList.add('d-none');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableData = $('#basic-datatables').DataTable();
+        tableData.on('draw.dt', function() {
+            calculateTotal();
+        });
+
+        calculateTotal();
+
+        function parseFraction(fraction) {
+            let parts = fraction.split('/');
+            if (parts.length === 2) {
+                return parseFloat(parts[0]) / parseFloat(parts[1]);
+            } else {
+                return parseFloat(fraction);
+            }
+        }
+
+        let jmlOnlineElements = document.querySelectorAll("#qty_online, #edit-qty_online");
+        let jmlOfflineElements = document.querySelectorAll("#qty_offline, #edit-qty_offline");
+        let hargaTokoElements = document.querySelectorAll("#harga_toko, #edit-harga_toko");
+        let hargaOnlElements = document.querySelectorAll("#harga_onl, #edit-harga_onl");
+        let diskonElements = document.querySelectorAll("#diskon, #edit-diskon");
+        let ongkirElements = document.querySelectorAll("#ongkir, #edit-ongkir");
+        let asuransiElements = document.querySelectorAll("#asuransi, #edit-asuransi");
+        let proteksiElements = document.querySelectorAll("#b_proteksi, #edit-b_proteksi");
+        let memberElements = document.querySelectorAll("#p_member, #edit-p_member");
+        let aplikasiElements = document.querySelectorAll("#b_aplikasi, #edit-b_aplikasi");
+        let totalElements = document.querySelectorAll("#total, #edit-total");
+
+        // Calculate price in method online
+        if (document.getElementById('is_online').checked == false || document.getElementById('edit-is_online').checked == false) {
+            function updateTotal(index) {
+                let hargaOnl = hargaOnlElements[index];
+                let jmlOnl = jmlOnlineElements[index];
+                let diskon = diskonElements[index];
+                let ongkir = ongkirElements[index];
+                let asuransi = asuransiElements[index];
+                let proteksi = proteksiElements[index];
+                let member = memberElements[index];
+                let aplikasi = aplikasiElements[index];
+                let total = totalElements[index];
+                
+                let jmlOnlValue = parseFraction(jmlOnl.value.replace(',', '.'));
+                let hargaOnlValue = parseInt(hargaOnl.value.replace(/[^0-9]/g, ""), 10) || 0;
+                let ongkirlValue = parseInt(ongkir.value.replace(/[^0-9]/g, ""), 10) || 0;
+                let asuransiValue = parseInt(asuransi.value.replace(/[^0-9]/g, ""), 10) || 0;
+                let proteksiValue = parseInt(proteksi.value.replace(/[^0-9]/g, ""), 10) || 0;
+                let memberValue = parseInt(member.value.replace(/[^0-9]/g, ""), 10) || 0;
+                let aplikasiValue = parseInt(aplikasi.value.replace(/[^0-9]/g, ""), 10) || 0;
+                let diskonValue = parseInt(diskon.value.replace(/[^0-9]/g, ""), 10) || 0;
+
+                let totalValue = ((hargaOnlValue * jmlOnlValue) - (diskonValue + memberValue)) + (ongkirlValue + asuransiValue + proteksiValue + aplikasiValue);
+                total.value = formatCurrency(totalValue);
+            }
+
+            function formatInput(element) {
+                let valueFormatted = element.value.replace(/[^0-9]/g, "") || 0;
+                element.value = formatCurrency(valueFormatted);
+            }
+
+            [jmlOnlineElements, hargaOnlElements, diskonElements, ongkirElements, asuransiElements, proteksiElements
+                , memberElements, aplikasiElements
+            ].forEach(function(elements, elementsIndex) {
+                elements.forEach(function(element, index) {
+                    element.addEventListener("input", function() {
+                        if (elementsIndex !== 0) formatInput(element);
+                        updateTotal(index);
+                    });
+                });
+            });
+        }
+
+        // Calculate price in method oflline
+        if (document.getElementById('is_offline').checked == false || document.getElementById('edit-is_offline').checked == false) {
+            jmlOfflineElements.forEach(function(jml, index) {
+                jml.addEventListener("input", function() {
+                    let harga = hargaTokoElements[index];
+                    let total = totalElements[index];
+                    let jmlValue = parseFraction(jml.value.replace(',', '.'));
+
+                    if (harga) {
+                        let hargaValue = parseInt(harga.value.replace(/[^0-9]/g, ""), 10) || 0;
+                        let totalValue = hargaValue * jmlValue;
+                        total.value = formatCurrency(totalValue);
+                    }
+                });
+            });
+
+            hargaTokoElements.forEach(function(harga, index) {
+                harga.addEventListener("input", function() {
+                    let jml = jmlOfflineElements[index];
+                    let total = totalElements[index];
+
+                    // Format input harga dengan mata uang
+                    let hargaValueFormatted = this.value.replace(/[^0-9]/g, "") || 0;
+                    this.value = formatCurrency(hargaValueFormatted);
+
+                    let jmlValue = parseFraction(jml.value.replace(',', '.'));
+                    if (jmlValue) {
+                        let hargaValue = parseInt(hargaValueFormatted, 10) || 0;
+                        let totalValue = hargaValue * jmlValue;
+                        total.value = formatCurrency(totalValue);
+                    }
+                });
+            });
+        }
+
+        // Format currency
+        function addCurrencyFormatter(elements) {
+            elements.forEach(function(element) {
+                element.addEventListener("input", function() {
+                    this.value = formatCurrency(this.value);
+                });
+            });
+        }
+
+        addCurrencyFormatter(hargaTokoElements);
+        addCurrencyFormatter(hargaOnlElements);
+        addCurrencyFormatter(diskonElements);
+        addCurrencyFormatter(ongkirElements);
+        addCurrencyFormatter(asuransiElements);
+        addCurrencyFormatter(proteksiElements);
+        addCurrencyFormatter(memberElements);
+        addCurrencyFormatter(aplikasiElements);
+        addCurrencyFormatter(totalElements);
+
+        // Checkbox
+        var table = document.getElementById('basic-datatables');
+        var checkboxes;
+        var selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        var allSelectRowInput = document.getElementById('allSelectRow');
+        var editButton = document.getElementById('editButton');
+        var deleteButton = document.getElementById('deleteButton');
+
+        if (table) {
+            checkboxes = table.getElementsByClassName('select-checkbox');
+
+            // Event listener untuk checkbox "Select All"
+            selectAllCheckbox.addEventListener('change', function () {
+                for (var i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = this.checked;
+                    var row = checkboxes[i].parentNode.parentNode;
+                    row.classList.toggle('selected', this.checked);
+                }
+
+                // Update button visibility
+                updateButtonVisibility();
+
+                // Ambil dan simpan ID semua baris yang terpilih ke dalam input hidden
+                updateAllSelectRow();
+            });
+
+            // Event listener untuk checkbox di setiap baris
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].addEventListener('change', function () {
+                    var row = this.parentNode.parentNode;
+                    row.classList.toggle('selected', this.checked);
+
+                    // Periksa apakah setidaknya satu checkbox terpilih
+                    var atLeastOneChecked = Array.from(checkboxes).some(function (checkbox) {
+                        return checkbox.checked;
+                    });
+
+                    // Update button visibility
+                    updateButtonVisibility();
+
+                    // Periksa apakah semua checkbox terpilih
+                    var allChecked = true;
+                    for (var j = 0; j < checkboxes.length; j++) {
+                        if (!checkboxes[j].checked) {
+                            allChecked = false;
+                            break;
+                        }
+                    }
+
+                    // Atur status checkbox "Select All"
+                    selectAllCheckbox.checked = allChecked;
+
+                    // Ambil dan simpan ID semua baris yang terpilih ke dalam input hidden
+                    updateAllSelectRow();
+                });
+            }
+
+            // Fungsi untuk mengambil dan menyimpan ID semua baris yang terpilih
+            function updateAllSelectRow() {
+                var selectedIds = Array.from(checkboxes)
+                    .filter(function (checkbox) {
+                        return checkbox.checked;
+                    })
+                    .map(function (checkbox) {
+                        return checkbox.closest('tr').getAttribute('data-id');
+                    });
+
+                allSelectRowInput.value = selectedIds.join(',');
+            }
+
+            // Fungsi untuk mengatur visibilitas tombol
+            function updateButtonVisibility() {
+                var selectedCheckboxes = Array.from(checkboxes).filter(function (checkbox) {
+                    return checkbox.checked;
+                }).length;
+
+                if (selectedCheckboxes === 1) {
+                    editButton.style.display = 'inline-block';
+                    deleteButton.style.display = 'inline-block';
+                    deleteButton.classList.remove('ms-5');
+                    deleteButton.classList.add('ms-3');
+
+                } else if (selectedCheckboxes > 1) {
+                    editButton.style.display = 'none';
+                    deleteButton.style.display = 'inline-block';
+                    deleteButton.classList.remove('ms-3');
+                    deleteButton.classList.add('ms-5');
+
+                } else {
+                    editButton.style.display = 'none';
+                    deleteButton.style.display = 'none';
+                }
+            }
+
+            // Event listener for the delete button
+            deleteButton.addEventListener('click', function () {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You won\'t be able to revert this!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        deleteForm.submit();
+                    }
+                });
+            });
+
+            editButton.addEventListener('click', function () {
+                var selectedId = allSelectRowInput.value.split(',')[0];
+                if (selectedId) {
+                    var row = $('tr[data-id="' + selectedId + '"]');
+
+                    $('#edit-id').val(selectedId);
+                    $('#edit-tanggal').val(row.data('tanggal'));
+                    $('#edit-uraian').val(row.data('uraian'));
+                    $('#edit-deskripsi').val(row.data('deskripsi'));
+                    $('#edit-nama').val(row.data('nama'));
+                    $('#edit-total').val(row.data('total'));
+                    $('#edit-toko').val(row.data('toko'));
+
+                    if (row.data('harga_onl') && row.data('harga_onl') != 'Rp 0') {
+                        $('#edit-is_online').prop('checked', true);
+                        toggleFieldsEdit();
+
+                        $('#edit-qty_online').val(row.data('qty'));
+                        $('#edit-unit_online').val(row.data('unit'));
+                        $('#edit-harga_onl').val(row.data('harga_onl'));
+                        $('#edit-diskon').val(row.data('diskon'));
+                        $('#edit-ongkir').val(row.data('ongkir'));
+                        $('#edit-asuransi').val(row.data('asuransi'));
+                        $('#edit-b_proteksi').val(row.data('b_proteksi'));
+                        $('#edit-p_member').val(row.data('p_member'));
+                        $('#edit-b_aplikasi').val(row.data('b_aplikasi'));
+                    }
+
+                    if (row.data('harga_toko') && row.data('harga_toko') != 'Rp 0') {
+                        $('#edit-is_offline').prop('checked', true);
+                        toggleFieldsEdit();
+
+                        $('#edit-qty').val(row.data('qty'));
+                        $('#edit-unit').val(row.data('unit'));
+                        $('#edit-harga_toko').val(row.data('harga_toko'));
+                    }
+                    
+                }
+            });
+        }
+
+    });
+</script>
+@endsection

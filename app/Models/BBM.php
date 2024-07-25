@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class BBM extends Model
+{
+    use HasFactory;
+    protected $table = 'tbl_bbm';
+    protected $primaryKey = 'id_bbm';
+
+    protected $fillable = [
+        'nama',
+        'tanggal',
+        'kode_unit',
+        'nopol',
+        'jns_mobil',
+        'jns_bbm',
+        'liter',
+        'km_awal',
+        'km_isi',
+        'km_akhir',
+        'km_ltr',
+        'tot_harga',
+        'ket',
+        'tot_km'
+    ];
+}
