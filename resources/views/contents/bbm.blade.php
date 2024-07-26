@@ -94,7 +94,7 @@
                             <div class="form-group row">
                                 <div class="col-3">
                                     <label for="liter">Liter</label>
-                                    <input type="number" class="form-control" name="liter" min="1" id="liter" placeholder="liter.." required />
+                                    <input type="text" class="form-control" name="liter" id="liter" placeholder="liter.." required />
                                 </div>
                                 <div class="col-2">
                                     <label for="km_awal">KM Awal</label>
@@ -115,11 +115,15 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-6">
+                                <div class="col-4">
+                                    <label for="harga">Harga</label>
+                                    <input type="text" class="form-control" name="harga" id="harga" placeholder="Masukkan harga.." required />
+                                </div>
+                                <div class="col-4">
                                     <label for="tot_harga">Total Harga</label>
                                     <input type="text" class="form-control" name="tot_harga" id="tot_harga" placeholder="Masukkan total harga.." required />
                                 </div>
-                                <div class="col-6">
+                                <div class="col-4">
                                     <label for="tot_km">Total KM</label>
                                     <input type="text" class="form-control" name="tot_km" id="tot_km" placeholder="Nilai Total KM.." style="background-color: #fff !important;" readonly />
                                 </div>
@@ -203,7 +207,7 @@
                             <div class="form-group row">
                                 <div class="col-3">
                                     <label for="liter">Liter</label>
-                                    <input type="number" class="form-control" name="liter" min="1" id="edit-liter" placeholder="liter.." required />
+                                    <input type="text" class="form-control" name="liter" id="edit-liter" placeholder="liter.." required />
                                 </div>
                                 <div class="col-2">
                                     <label for="km_awal">KM Awal</label>
@@ -224,11 +228,15 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-6">
+                                <div class="col-4">
+                                    <label for="harga">Harga</label>
+                                    <input type="text" class="form-control" name="harga" id="edit-harga" placeholder="Masukkan harga.." required />
+                                </div>
+                                <div class="col-4">
                                     <label for="tot_harga">Total Harga</label>
                                     <input type="text" class="form-control" name="tot_harga" id="edit-tot_harga" placeholder="Masukkan total harga.." required />
                                 </div>
-                                <div class="col-6">
+                                <div class="col-4">
                                     <label for="tot_km">Total KM</label>
                                     <input type="text" class="form-control" name="tot_km" id="edit-tot_km" placeholder="Nilai Total KM.." style="background-color: #fff !important;" readonly />
                                 </div>
@@ -316,14 +324,15 @@
                                         <th class="text-xxs-bold">Tanggal</th>
                                         <th class="text-xxs-bold">Kode Unit</th>
                                         <th class="text-xxs-bold">Nopol</th>
-                                        <th class="text-xxs-bold">Jenis Mobil</th>
-                                        <th class="text-xxs-bold">Jenis BBM</th>
+                                        <!-- <th class="text-xxs-bold">Jenis Mobil</th> -->
+                                        <!-- <th class="text-xxs-bold">Jenis BBM</th> -->
                                         <th class="text-xxs-bold">Liter</th>
-                                        <!-- <th class="text-xxs-bold">KM Awal</th> -->
-                                        <!-- <th class="text-xxs-bold">KM Pengisian</th> -->
-                                        <!-- <th class="text-xxs-bold">KM Akhir</th> -->
+                                        <th class="text-xxs-bold">KM Awal</th>
+                                        <th class="text-xxs-bold">KM Pengisian</th>
+                                        <th class="text-xxs-bold">KM Akhir</th>
                                         <th class="text-xxs-bold">KM/Liter</th>
                                         <th class="text-xxs-bold">Total KM</th>
+                                        <!-- <th class="text-xxs-bold">Harga</th> -->
                                         <th class="text-xxs-bold">Total Harga</th>
                                         <!-- <th class="text-xxs-bold">Keterangan</th> -->
                                     </tr>
@@ -351,14 +360,15 @@
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $b->tanggal)->format('d-M-Y') ?? '-' }}</td>
                                         <td>{{ $b->kode_unit ?? '-' }}</td>
                                         <td>{{ $b->nopol ?? '-' }}</td>
-                                        <td>{{ $b->jns_mobil ?? '-' }}</td>
-                                        <td>{{ $b->jns_bbm ?? '-' }}</td>
+                                        <!-- <td>{{ $b->jns_mobil ?? '-' }}</td> -->
+                                        <!-- <td>{{ $b->jns_bbm ?? '-' }}</td> -->
                                         <td>{{ $b->liter ?? '-' }}</td>
-                                        <!-- <td>{{ $b->km_awal ?? '-' }}</td> -->
-                                        <!-- <td>{{ $b->km_isi ?? '-' }}</td> -->
-                                        <!-- <td>{{ $b->km_akhir ?? '-' }}</td> -->
+                                        <td>{{ $b->km_awal ?? '-' }}</td>
+                                        <td>{{ $b->km_isi ?? '-' }}</td>
+                                        <td>{{ $b->km_akhir ?? '-' }}</td>
                                         <td>{{ $b->km_ltr ?? '-' }}</td>
                                         <td>{{ $b->tot_km ?? '-' }}</td>
+                                        <!-- <td>{{ 'Rp ' . number_format($b->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($b->tot_harga ?? 0, 0, ',', '.') }}</td>
                                         <!-- <td>{{ $b->ket ?? '-' }}</td> -->
                                     </tr>
@@ -411,8 +421,8 @@
     function calculateTotal() {
         let totalSum = 0;
         document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
-            if (row.querySelector('td:nth-child(12)')) {
-                const totalText = row.querySelector('td:nth-child(12)').innerText;
+            if (row.querySelector('td:nth-child(13)')) {
+                const totalText = row.querySelector('td:nth-child(13)').innerText;
                 const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
                 totalSum += totalValue;
             }
@@ -430,12 +440,22 @@
 
         calculateTotal();
 
+        function parseFraction(fraction) {
+            let parts = fraction.split('/');
+            if (parts.length === 2) {
+                return parseFloat(parts[0]) / parseFloat(parts[1]);
+            } else {
+                return parseFloat(fraction);
+            }
+        }
+
         let literElements = document.querySelectorAll("#liter, #edit-liter");
         let kmAwalElements = document.querySelectorAll("#km_awal, #edit-km_awal");
         let kmIsiElements = document.querySelectorAll("#km_isi, #edit-km_isi");
         let kmAkhirElements = document.querySelectorAll("#km_akhir, #edit-km_akhir");
         let kmLiterElements = document.querySelectorAll("#km_ltr, #edit-km_ltr");
         let totKMElements = document.querySelectorAll("#tot_km, #edit-tot_km");
+        let hargaBBM = document.querySelectorAll("#harga, #edit-harga");
         let totHargaBBM = document.querySelectorAll("#tot_harga, #edit-tot_harga");
     
         // Function to calculate km/liter
@@ -446,7 +466,8 @@
                 let kmAkhir = kmAkhirElements[index];
                 let kmLiter = kmLiterElements[index];
                 let totKM = totKMElements[index];
-                let literValue = parseFloat(liter.value.replace(',', '.'));
+                let harga = hargaBBM[index];
+                let literValue = parseFraction(liter.value.replace(',', '.'));
     
                 if (literValue && kmIsi.value && kmAkhir.value) {
                     let valueKmLiter = (kmAkhir.value - kmIsi.value) / literValue;
@@ -457,11 +478,29 @@
                 if (kmAwal.value && kmAkhir.value) {
                     totKM.value = kmAkhir.value - kmAwal.value;
                 }
+
+                if (harga.value && literValue) {
+                    let totalValue = (harga.value.replace(/[^0-9]/g, "")) * literValue;
+                    totHargaBBM[index].value = formatCurrency(totalValue);
+                }
             });
         }
     
         [...literElements, ...kmIsiElements, ...kmAkhirElements, ...kmAwalElements].forEach(element => {
             element.addEventListener("change", calculateKmLiter);
+        });
+
+        // Harga
+        hargaBBM.forEach(function(hargaB, index) {
+            hargaB.addEventListener("input", function() {
+                this.value = formatCurrency(this.value);
+
+                let literValue = parseFraction(literElements[index].value.replace(',', '.'));
+                if (literValue) {
+                    let totalValue = (this.value.replace(/[^0-9]/g, "")) * literValue;
+                    totHargaBBM[index].value = formatCurrency(totalValue);
+                }
+            });
         });
 
         // Harga

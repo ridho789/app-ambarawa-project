@@ -113,7 +113,7 @@
                                         <option value="">...</option>
                                         <option value="aset">Aset</option>
                                         <option value="stok">Stok</option>
-                                        <option value="langsung">Langsung</option>
+                                        <option value="langsung_pakai">Langsung Pakai</option>
                                         <option value="jasa">Jasa</option>
                                     </select>
                                 </div>
@@ -229,7 +229,7 @@
                                         <option value="">...</option>
                                         <option value="aset">Aset</option>
                                         <option value="stok">Stok</option>
-                                        <option value="langsung">Langsung</option>
+                                        <option value="langsung_pakai">Langsung Pakai</option>
                                         <option value="jasa">Jasa</option>
                                     </select>
                                 </div>
@@ -251,7 +251,7 @@
                             <div class="form-group row">
                                 <div class="col-3">
                                     <label for="jml">Jumlah</label>
-                                    <input type="number" class="form-control" name="jml" min="1" id="edit-jml" placeholder="Jumlah.." required />
+                                    <input type="number" class="form-control" name="jml" min="0" id="edit-jml" placeholder="Jumlah.." required />
                                 </div>
                                 <div class="col-3">
                                     <label for="unit">Satuan</label>

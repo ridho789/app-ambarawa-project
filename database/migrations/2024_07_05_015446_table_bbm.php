@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('km_awal');
             $table->string('km_isi');
             $table->string('km_akhir');
-            $table->string('km_ltr');
+            $table->string('km_ltr')->nullable();
+            $table->string('harga');
             $table->string('tot_harga');
             $table->string('ket');
             $table->string('tot_km');

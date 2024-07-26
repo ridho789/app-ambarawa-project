@@ -14,6 +14,7 @@ class BBMController extends Controller
     }
 
     public function store(Request $request) {
+        $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotalHarga = preg_replace("/[^0-9]/", "", explode(",", $request->tot_harga)[0]);
 
         $dataBBM = [
@@ -28,6 +29,7 @@ class BBMController extends Controller
             'km_isi' => $request->km_isi,
             'km_akhir' => $request->km_akhir,
             'km_ltr' => $request->km_ltr,
+            'harga' => $numericHarga,
             'tot_harga' => $numericTotalHarga,
             'ket' => $request->ket,
             'tot_km' => $request->tot_km
@@ -36,7 +38,7 @@ class BBMController extends Controller
         $exitingBBM = BBM::where('nama', $request->nama)->where('tanggal', $request->tanggal)->where('kode_unit', $request->kode_unit)
             ->where('nopol', $request->nopol)->where('jns_mobil', $request->jns_mobil)->where('jns_bbm', $request->jns_bbm)
             ->where('liter', $request->liter)->where('km_awal', $request->km_awal)->where('km_isi', $request->km_isi)->where('km_akhir', $request->km_akhir)
-            ->where('km_ltr', $request->km_ltr)->where('tot_harga', $numericTotalHarga)->where('ket', $request->ket)->where('tot_km', $request->tot_km)
+            ->where('km_ltr', $request->km_ltr)->where('harga', $numericHarga)->where('tot_harga', $numericTotalHarga)->where('ket', $request->ket)->where('tot_km', $request->tot_km)
             ->first();
 
         if ($exitingBBM) {
@@ -53,6 +55,7 @@ class BBMController extends Controller
     }
 
     public function update(Request $request) {
+        $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotalHarga = preg_replace("/[^0-9]/", "", explode(",", $request->tot_harga)[0]);
 
         $dataBBM = BBM::find($request->id_bbm);
@@ -68,6 +71,7 @@ class BBMController extends Controller
             $dataBBM->km_isi = $request->km_isi;
             $dataBBM->km_akhir = $request->km_akhir;
             $dataBBM->km_ltr = $request->km_ltr;
+            $dataBBM->harga = $numericHarga;
             $dataBBM->tot_harga = $numericTotalHarga;
             $dataBBM->ket = $request->ket;
             $dataBBM->tot_km = $request->tot_km;

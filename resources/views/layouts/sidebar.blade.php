@@ -100,7 +100,7 @@
                             </li>
                             <li class="nav-item">
                                 <a href="#">
-                                    <span class="sub-item">Pengerukan</span>
+                                    <span class="sub-item">Pengurugan</span>
                                 </a>
                             </li>
                         </ul>

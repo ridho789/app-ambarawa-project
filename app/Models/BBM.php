@@ -23,6 +23,7 @@ class BBM extends Model
         'km_isi',
         'km_akhir',
         'km_ltr',
+        'harga',
         'tot_harga',
         'ket',
         'tot_km'

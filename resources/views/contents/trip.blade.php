@@ -132,7 +132,7 @@
                                 </div>
                                 <div class="col-6">
                                     <label for="total">Total Harga</label>
-                                    <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." style="background-color: #fff !important;" readonly />
+                                    <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." />
                                 </div>
                             </div>
                         </div>
@@ -232,7 +232,7 @@
                                 </div>
                                 <div class="col-3">
                                     <label for="km_ltr">KM/Liter</label>
-                                    <input type="text" class="form-control" name="km_ltr" id="edit-km_ltr" placeholder="km per liter.." style="background-color: #fff !important;" readonly />
+                                    <input type="text" class="form-control" name="km_ltr" id="edit-km_ltr" placeholder="km per liter.." />
                                 </div>
                             </div>
 
@@ -331,12 +331,12 @@
                                         <th class="text-xxs-bold">Nopol</th>
                                         <th class="text-xxs-bold">Merk</th>
                                         <th class="text-xxs-bold">Jumlah</th>
-                                        <th class="text-xxs-bold">Satuan</th>
-                                        <!-- <th class="text-xxs-bold">KM Awal</th>
+                                        <!-- <th class="text-xxs-bold">Satuan</th> -->
+                                        <th class="text-xxs-bold">KM Awal</th>
                                         <th class="text-xxs-bold">KM Pengisian</th>
-                                        <th class="text-xxs-bold">KM Akhir</th> -->
+                                        <th class="text-xxs-bold">KM Akhir</th>
                                         <th class="text-xxs-bold">KM/Liter</th>
-                                        <th class="text-xxs-bold">Harga</th>
+                                        <!-- <th class="text-xxs-bold">Harga</th> -->
                                         <th class="text-xxs-bold">Total</th>
                                     </tr>
                                 </thead>
@@ -366,12 +366,12 @@
                                         <td>{{ $t->nopol ?? '-' }}</td>
                                         <td>{{ $t->merk ?? '-' }}</td>
                                         <td>{{ $t->qty ?? '-' }}</td>
-                                        <td>{{ $t->unit ?? '-' }}</td>
-                                        <!-- <td>{{ $t->km_awal ?? '-' }}</td>
+                                        <!-- <td>{{ $t->unit ?? '-' }}</td> -->
+                                        <td>{{ $t->km_awal ?? '-' }}</td>
                                         <td>{{ $t->km_isi ?? '-' }}</td>
-                                        <td>{{ $t->km_akhir ?? '-' }}</td> -->
+                                        <td>{{ $t->km_akhir ?? '-' }}</td>
                                         <td>{{ $t->km_ltr ?? '-' }}</td>
-                                        <td>{{ 'Rp ' . number_format($t->harga ?? 0, 0, ',', '.') }}</td>
+                                        <!-- <td>{{ 'Rp ' . number_format($t->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($t->total ?? 0, 0, ',', '.') }}</td>
                                     </tr>
                                     @endforeach
@@ -423,8 +423,8 @@
     function calculateTotal() {
         let totalSum = 0;
         document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
-            if (row.querySelector('td:nth-child(12)')) {
-                const totalText = row.querySelector('td:nth-child(12)').innerText;
+            if (row.querySelector('td:nth-child(13)')) {
+                const totalText = row.querySelector('td:nth-child(13)').innerText;
                 const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
                 totalSum += totalValue;
             }
@@ -446,7 +446,7 @@
         let kmIsiElements = document.querySelectorAll("#km_isi, #edit-km_isi");
         let kmAkhirElements = document.querySelectorAll("#km_akhir, #edit-km_akhir");
         let kmLiterElements = document.querySelectorAll("#km_ltr, #edit-km_ltr");
-        let hargaSpareparts = document.querySelectorAll("#harga, #edit-harga");
+        let hargaTrip = document.querySelectorAll("#harga, #edit-harga");
         let totalElements = document.querySelectorAll("#total, #edit-total");
     
         // Function to calculate km/liter
@@ -455,7 +455,7 @@
                 let kmIsi = kmIsiElements[index];
                 let kmAkhir = kmAkhirElements[index];
                 let kmLiter = kmLiterElements[index];
-                let harga = hargaSpareparts[index];
+                let harga = hargaTrip[index];
                 let qtyValue = parseFloat(qty.value.replace(',', '.'));
     
                 if (qtyValue && kmIsi.value && kmAkhir.value) {
@@ -475,7 +475,7 @@
         });
 
         // Harga
-        hargaSpareparts.forEach(function(hargaSp, index) {
+        hargaTrip.forEach(function(hargaSp, index) {
             hargaSp.addEventListener("input", function() {
                 this.value = formatCurrency(this.value);
 
@@ -484,6 +484,13 @@
                     let totalValue = (this.value.replace(/[^0-9]/g, "")) * qtyValue;
                     totalElements[index].value = formatCurrency(totalValue);
                 }
+            });
+        });
+
+        // Total harga
+        totalElements.forEach(function(totHarga, index) {
+            totHarga.addEventListener("input", function() {
+                this.value = formatCurrency(this.value);
             });
         });
 

@@ -113,7 +113,7 @@
                                         <option value="">...</option>
                                         <option value="aset">Aset</option>
                                         <option value="stok">Stok</option>
-                                        <option value="langsung">Langsung</option>
+                                        <option value="langsung_pakai">Langsung Pakai</option>
                                         <option value="jasa">Jasa</option>
                                     </select>
                                 </div>
@@ -315,7 +315,7 @@
                                         <option value="">...</option>
                                         <option value="aset">Aset</option>
                                         <option value="stok">Stok</option>
-                                        <option value="langsung">Langsung</option>
+                                        <option value="langsung_pakai">Langsung Pakai</option>
                                         <option value="jasa">Jasa</option>
                                     </select>
                                 </div>
