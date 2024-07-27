@@ -111,10 +111,10 @@
                                     <label for="kategori">Kategori</label>
                                     <select class="form-select form-control" id="kategori" name="kategori" required>
                                         <option value="">...</option>
-                                        <option value="aset">Aset</option>
-                                        <option value="stok">Stok</option>
-                                        <option value="langsung_pakai">Langsung Pakai</option>
-                                        <option value="jasa">Jasa</option>
+                                        <option value="Aset">Aset</option>
+                                        <option value="Stok">Stok</option>
+                                        <option value="Langsung Pakai">Langsung Pakai</option>
+                                        <option value="Jasa">Jasa</option>
                                     </select>
                                 </div>
                                 <div class="col-4">
@@ -227,10 +227,10 @@
                                     <label for="kategori">Kategori</label>
                                     <select class="form-select form-control" id="edit-kategori" name="kategori" required>
                                         <option value="">...</option>
-                                        <option value="aset">Aset</option>
-                                        <option value="stok">Stok</option>
-                                        <option value="langsung_pakai">Langsung Pakai</option>
-                                        <option value="jasa">Jasa</option>
+                                        <option value="Aset">Aset</option>
+                                        <option value="Stok">Stok</option>
+                                        <option value="Langsung Pakai">Langsung Pakai</option>
+                                        <option value="Jasa">Jasa</option>
                                     </select>
                                 </div>
                                 <div class="col-4">

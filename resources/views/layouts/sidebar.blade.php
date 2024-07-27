@@ -33,6 +33,18 @@
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
                     </span>
+                    <h4 class="text-section">Master Data</h4>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/proyek') }}">
+                        <i class="fas fa-warehouse"></i>
+                        <p>Proyek</p>
+                    </a>
+                </li>
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
                     <h4 class="text-section">Components</h4>
                 </li>
                 <li class="nav-item">
@@ -73,25 +85,25 @@
                     </a>
                     <div class="collapse" id="pembangunan">
                         <ul class="nav nav-collapse">
-                            <li>
+                            <li class="nav-item">
                                 <a data-bs-toggle="collapse" href="#kontruksi">
                                     <span class="sub-item">Kontruksi</span>
                                     <span class="caret"></span>
                                 </a>
                                 <div class="collapse" id="kontruksi">
                                     <ul class="nav nav-collapse subnav">
-                                        <li>
-                                            <a href="#">
+                                        <li class="nav-item">
+                                            <a href="{{ url('/batu') }}">
                                                 <span class="sub-item">Batu</span>
                                             </a>
                                         </li>
-                                        <li>
-                                            <a href="#">
+                                        <li class="nav-item">
+                                            <a href="{{ url('/besi') }}">
                                                 <span class="sub-item">Besi</span>
                                             </a>
                                         </li>
-                                        <li>
-                                            <a href="#">
+                                        <li class="nav-item">
+                                            <a href="{{ url('/pasir') }}">
                                                 <span class="sub-item">Pasir</span>
                                             </a>
                                         </li>
@@ -99,7 +111,7 @@
                                 </div>
                             </li>
                             <li class="nav-item">
-                                <a href="#">
+                                <a href="{{ url('/pengurugan') }}">
                                     <span class="sub-item">Pengurugan</span>
                                 </a>
                             </li>
@@ -137,21 +149,22 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const currentUrl = window.location.href;
-        const navLinks = document.querySelectorAll('.nav-item a');
-        
+        const navLinks = document.querySelectorAll('.nav-item a, .sub-item');
+
         navLinks.forEach(link => {
             if (link.href === currentUrl) {
-                const navItem = link.parentElement;
+                let navItem = link.closest('li');
                 navItem.classList.add('active');
 
-                // If the navItem is inside a collapse, open the collapse
-                const parentCollapse = navItem.closest('.collapse');
-                if (parentCollapse) {
+                // Open all parent collapses
+                let parentCollapse = navItem.closest('.collapse');
+                while (parentCollapse) {
                     parentCollapse.classList.add('show');
-                    const parentNavItem = parentCollapse.closest('.nav-item');
+                    const parentNavItem = parentCollapse.closest('li.nav-item');
                     if (parentNavItem) {
                         parentNavItem.classList.add('active');
                     }
+                    parentCollapse = parentNavItem ? parentNavItem.closest('.collapse') : null;
                 }
             }
         });
