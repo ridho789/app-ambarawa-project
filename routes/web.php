@@ -94,6 +94,7 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('sembako-store', [SembakoController::class, 'store']);
     Route::post('sembako-update', [SembakoController::class, 'update']);
     Route::post('sembako-delete', [SembakoController::class, 'delete']);
+    Route::post('sembako-export', [SembakoController::class, 'export']);
     
     // Sparepart AMB
     Route::get('/sparepartamb', [SparepartController::class, 'index']);

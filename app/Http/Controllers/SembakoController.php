@@ -4,12 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Sembako;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SembakoExport;
 
 class SembakoController extends Controller
 {
     public function index() {
         $sembako = Sembako::orderBy('tanggal', 'asc')->get();
-        return view('contents.sembako', compact('sembako'));
+        $periodes = Sembako::select(Sembako::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
+        return view('contents.sembako', compact('sembako', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -73,5 +80,24 @@ class SembakoController extends Controller
 
         Sembako::whereIn('id_sembako', $validatedIds)->delete();
         return redirect('sembako');
+    }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $periode = $request->periode;
+
+        if ($mode == 'all_data') {
+            $sembako = Sembako::orderBy('tanggal', 'asc')->get();
+            return Excel::download(new SembakoExport($mode, $sembako), 'Report Pengeluaran Sembako.xlsx');
+
+        } else {
+            $sembako = Sembako::whereYear('tanggal', '=', substr($periode, 0, 4))
+                ->whereMonth('tanggal', '=', substr($periode, 5, 2))
+                ->orderBy('tanggal', 'asc')
+                ->get();
+
+            $fileName = 'Report Pengeluaran Sembako Periode ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            return Excel::download(new SembakoExport($mode, $sembako), $fileName);
+        }
     }
 }
