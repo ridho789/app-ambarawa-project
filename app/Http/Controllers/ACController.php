@@ -4,12 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TagihanExport;
 
 class ACController extends Controller
 {
     public function index() {
-        $ac = TagihanAMB::where('keterangan', 'tagihan ac')->orderBy('lokasi')->get();
-        return view('contents.ac', compact('ac'));
+        $ac = TagihanAMB::where('keterangan', 'tagihan ac')->orderBy('lokasi')->orderBy('tgl_order', 'asc')->get();
+        $periodes = TagihanAMB::where('keterangan', 'tagihan ac')
+            ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
+        return view('contents.ac', compact('ac', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -92,5 +100,26 @@ class ACController extends Controller
 
         TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->delete();
         return redirect('ac');
+    }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $periode = $request->periode;
+        $infoTagihan = 'AC';
+
+        if ($mode == 'all_data') {
+            $tagihan = TagihanAMB::where('keterangan', 'tagihan ac')->orderBy('tgl_order', 'asc')->get();
+            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), 'Report AC.xlsx');
+
+        } else {
+            $tagihan = TagihanAMB::where('keterangan', 'tagihan ac')->whereYear('tgl_order', '=', substr($periode, 0, 4))
+                ->whereMonth('tgl_order', '=', substr($periode, 5, 2))
+                ->orderBy('lokasi')
+                ->orderBy('tgl_order', 'asc')
+                ->get();
+
+            $fileName = 'Report AC ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), $fileName);
+        }
     }
 }

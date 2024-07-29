@@ -88,7 +88,7 @@ class SembakoController extends Controller
 
         if ($mode == 'all_data') {
             $sembako = Sembako::orderBy('tanggal', 'asc')->get();
-            return Excel::download(new SembakoExport($mode, $sembako), 'Report Pengeluaran Sembako.xlsx');
+            return Excel::download(new SembakoExport($mode, $sembako), 'Report Sembako.xlsx');
 
         } else {
             $sembako = Sembako::whereYear('tanggal', '=', substr($periode, 0, 4))
@@ -96,7 +96,7 @@ class SembakoController extends Controller
                 ->orderBy('tanggal', 'asc')
                 ->get();
 
-            $fileName = 'Report Pengeluaran Sembako Periode ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            $fileName = 'Report Sembako ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
             return Excel::download(new SembakoExport($mode, $sembako), $fileName);
         }
     }

@@ -52,6 +52,7 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('ac-store', [ACController::class, 'store']);
     Route::post('ac-update', [ACController::class, 'update']);
     Route::post('ac-delete', [ACController::class, 'delete']);
+    Route::post('ac-export', [ACController::class, 'export']);
     
     // BBM
     Route::get('/bbm', [BBMController::class, 'index']);
@@ -64,12 +65,14 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('bubut-store', [BubutController::class, 'store']);
     Route::post('bubut-update', [BubutController::class, 'update']);
     Route::post('bubut-delete', [BubutController::class, 'delete']);
+    Route::post('bubut-export', [BubutController::class, 'export']);
     
     // Cat
     Route::get('/cat', [CatController::class, 'index']);
     Route::post('cat-store', [CatController::class, 'store']);
     Route::post('cat-update', [CatController::class, 'update']);
     Route::post('cat-delete', [CatController::class, 'delete']);
+    Route::post('cat-export', [CatController::class, 'export']);
 
     // Pengurugan
     Route::get('/pengurugan', [PenguruganController::class, 'index']);
@@ -88,6 +91,7 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('poles-store', [PolesKacaMobilController::class, 'store']);
     Route::post('poles-update', [PolesKacaMobilController::class, 'update']);
     Route::post('poles-delete', [PolesKacaMobilController::class, 'delete']);
+    Route::post('poles-export', [PolesKacaMobilController::class, 'export']);
     
     // Sembako
     Route::get('/sembako', [SembakoController::class, 'index']);

@@ -4,12 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TagihanExport;
 
 class BubutController extends Controller
 {
     public function index() {
-        $bubut = TagihanAMB::where('keterangan', 'tagihan bubut')->orderBy('lokasi')->get();
-        return view('contents.bubut', compact('bubut'));
+        $bubut = TagihanAMB::where('keterangan', 'tagihan bubut')->orderBy('lokasi')->orderBy('tgl_order', 'asc')->get();
+        $periodes = TagihanAMB::where('keterangan', 'tagihan bubut')
+            ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
+        return view('contents.bubut', compact('bubut', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -92,5 +100,26 @@ class BubutController extends Controller
 
         TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->delete();
         return redirect('bubut');
+    }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $periode = $request->periode;
+        $infoTagihan = 'Bubut';
+
+        if ($mode == 'all_data') {
+            $tagihan = TagihanAMB::where('keterangan', 'tagihan bubut')->orderBy('tgl_order', 'asc')->get();
+            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), 'Report Bubut.xlsx');
+
+        } else {
+            $tagihan = TagihanAMB::where('keterangan', 'tagihan bubut')->whereYear('tgl_order', '=', substr($periode, 0, 4))
+                ->whereMonth('tgl_order', '=', substr($periode, 5, 2))
+                ->orderBy('lokasi')
+                ->orderBy('tgl_order', 'asc')
+                ->get();
+
+            $fileName = 'Report Bubut ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), $fileName);
+        }
     }
 }

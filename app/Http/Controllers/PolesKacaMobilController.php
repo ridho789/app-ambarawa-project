@@ -4,12 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TagihanExport;
 
 class PolesKacaMobilController extends Controller
 {
     public function index() {
         $poles = TagihanAMB::where('keterangan', 'tagihan poles kaca mobil')->orderBy('lokasi')->get();
-        return view('contents.poles_kaca_mobil', compact('poles'));
+        $periodes = TagihanAMB::where('keterangan', 'tagihan poles kaca mobil')
+            ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
+        return view('contents.poles_kaca_mobil', compact('poles', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -92,5 +100,26 @@ class PolesKacaMobilController extends Controller
 
         TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->delete();
         return redirect('poles');
+    }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $periode = $request->periode;
+        $infoTagihan = 'Poles';
+
+        if ($mode == 'all_data') {
+            $tagihan = TagihanAMB::where('keterangan', 'tagihan poles kaca mobil')->orderBy('tgl_order', 'asc')->get();
+            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), 'Report Poles.xlsx');
+
+        } else {
+            $tagihan = TagihanAMB::where('keterangan', 'tagihan poles kaca mobil')->whereYear('tgl_order', '=', substr($periode, 0, 4))
+                ->whereMonth('tgl_order', '=', substr($periode, 5, 2))
+                ->orderBy('lokasi')
+                ->orderBy('tgl_order', 'asc')
+                ->get();
+
+            $fileName = 'Report Poles ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), $fileName);
+        }
     }
 }

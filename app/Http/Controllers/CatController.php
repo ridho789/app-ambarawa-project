@@ -4,12 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TagihanExport;
 
 class CatController extends Controller
 {
     public function index() {
         $cat = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])->orderBy('lokasi')->get();
-        return view('contents.cat_amb', compact('cat'));
+        $periodes = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])
+            ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
+        return view('contents.cat_amb', compact('cat', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -280,5 +288,26 @@ class CatController extends Controller
 
         TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->delete();
         return redirect('cat');
+    }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $periode = $request->periode;
+        $infoTagihan = 'Cat';
+
+        if ($mode == 'all_data') {
+            $tagihan = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])->orderBy('tgl_order', 'asc')->get();
+            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), 'Report Cat.xlsx');
+
+        } else {
+            $tagihan = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])->whereYear('tgl_order', '=', substr($periode, 0, 4))
+                ->whereMonth('tgl_order', '=', substr($periode, 5, 2))
+                ->orderBy('lokasi')
+                ->orderBy('tgl_order', 'asc')
+                ->get();
+
+            $fileName = 'Report Cat ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), $fileName);
+        }
     }
 }
