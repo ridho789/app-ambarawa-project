@@ -104,22 +104,35 @@ class ACController extends Controller
 
     public function export(Request $request) {
         $mode = $request->metode_export;
+        $metode_pembelian = 'offline';
+
         $periode = $request->periode;
         $infoTagihan = 'AC';
-
-        if ($mode == 'all_data') {
-            $tagihan = TagihanAMB::where('keterangan', 'tagihan ac')->orderBy('tgl_order', 'asc')->get();
-            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), 'Report AC.xlsx');
-
-        } else {
-            $tagihan = TagihanAMB::where('keterangan', 'tagihan ac')->whereYear('tgl_order', '=', substr($periode, 0, 4))
-                ->whereMonth('tgl_order', '=', substr($periode, 5, 2))
-                ->orderBy('lokasi')
-                ->orderBy('tgl_order', 'asc')
-                ->get();
-
-            $fileName = 'Report AC ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
-            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), $fileName);
+    
+        $hargaColumn = $metode_pembelian == 'online' ? 'harga_online' : null;
+        $query = TagihanAMB::where('keterangan', 'tagihan ac')
+        ->when($hargaColumn, function ($query, $hargaColumn) {
+            return $query->where($hargaColumn, '!=', null);
+        }, function ($query) {
+            return $query->whereNull('harga_online');
+        });
+        
+        if ($mode != 'all_data') {
+            $year = substr($periode, 0, 4);
+            $month = substr($periode, 5, 2);
+            $query->whereYear('tgl_order', '=', $year)
+                  ->whereMonth('tgl_order', '=', $month);
         }
+        
+        $tagihan = $query->orderBy('tgl_order', 'asc')->orderBy('lokasi', 'asc')->orderBy('nama', 'asc')->get();
+    
+        // Tentukan nama file
+        $fileName = $mode == 'all_data' 
+            ? ($metode_pembelian == 'online' ? 'Report AC Online.xlsx' : 'Report AC.xlsx') 
+            : ($metode_pembelian == 'online' 
+                ? 'Report AC Online ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx' 
+                : 'Report AC ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx');
+    
+        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian), $fileName);
     }
 }

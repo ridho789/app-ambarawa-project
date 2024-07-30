@@ -85,6 +85,7 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('operasional-store', [OperasionalController::class, 'store']);
     Route::post('operasional-update', [OperasionalController::class, 'update']);
     Route::post('operasional-delete', [OperasionalController::class, 'delete']);
+    Route::post('operasional-export', [OperasionalController::class, 'export']);
     
     // Poles Kaca Mobil
     Route::get('/poles', [PolesKacaMobilController::class, 'index']);
@@ -105,6 +106,7 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('sparepartamb-store', [SparepartController::class, 'store']);
     Route::post('sparepartamb-update', [SparepartController::class, 'update']);
     Route::post('sparepartamb-delete', [SparepartController::class, 'delete']);
+    Route::post('sparepartamb-export', [SparepartController::class, 'export']);
     
     // Trip
     Route::get('/trip', [TripController::class, 'index']);

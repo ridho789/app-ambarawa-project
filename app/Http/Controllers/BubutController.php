@@ -104,22 +104,35 @@ class BubutController extends Controller
 
     public function export(Request $request) {
         $mode = $request->metode_export;
+        $metode_pembelian = 'offline';
+
         $periode = $request->periode;
         $infoTagihan = 'Bubut';
-
-        if ($mode == 'all_data') {
-            $tagihan = TagihanAMB::where('keterangan', 'tagihan bubut')->orderBy('tgl_order', 'asc')->get();
-            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), 'Report Bubut.xlsx');
-
-        } else {
-            $tagihan = TagihanAMB::where('keterangan', 'tagihan bubut')->whereYear('tgl_order', '=', substr($periode, 0, 4))
-                ->whereMonth('tgl_order', '=', substr($periode, 5, 2))
-                ->orderBy('lokasi')
-                ->orderBy('tgl_order', 'asc')
-                ->get();
-
-            $fileName = 'Report Bubut ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
-            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), $fileName);
+    
+        $hargaColumn = $metode_pembelian == 'online' ? 'harga_online' : null;
+        $query = TagihanAMB::where('keterangan', 'tagihan bubut')
+        ->when($hargaColumn, function ($query, $hargaColumn) {
+            return $query->where($hargaColumn, '!=', null);
+        }, function ($query) {
+            return $query->whereNull('harga_online');
+        });
+        
+        if ($mode != 'all_data') {
+            $year = substr($periode, 0, 4);
+            $month = substr($periode, 5, 2);
+            $query->whereYear('tgl_order', '=', $year)
+                  ->whereMonth('tgl_order', '=', $month);
         }
+        
+        $tagihan = $query->orderBy('tgl_order', 'asc')->orderBy('lokasi', 'asc')->orderBy('nama', 'asc')->get();
+    
+        // Tentukan nama file
+        $fileName = $mode == 'all_data' 
+            ? ($metode_pembelian == 'online' ? 'Report Bubut Online.xlsx' : 'Report Bubut.xlsx') 
+            : ($metode_pembelian == 'online' 
+                ? 'Report Bubut Online ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx' 
+                : 'Report Bubut ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx');
+    
+        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian), $fileName);
     }
 }

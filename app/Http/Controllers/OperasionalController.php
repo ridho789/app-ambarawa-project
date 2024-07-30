@@ -4,12 +4,21 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Operasional;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\OperasionalExport;
 
 class OperasionalController extends Controller
 {
     public function index() {
-        $operasional = Operasional::orderBy('nama', 'asc')->get();
-        return view('contents.operasional', compact('operasional'));
+        $operasional = Operasional::orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
+        $opsOnline = Operasional::whereNotNull('harga_onl')->get();
+        $opsOffline = Operasional::whereNull('harga_onl')->get();
+        $periodes = Operasional::select(Operasional::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
+        return view('contents.operasional', compact('operasional', 'opsOnline', 'opsOffline', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -219,4 +228,37 @@ class OperasionalController extends Controller
         Operasional::whereIn('id_operasional', $validatedIds)->delete();
         return redirect('operasional');
     }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $metode_pembelian = $request->metode_pembelian;
+        $periode = $request->periode;
+        $infoTagihan = 'Ops';
+    
+        $hargaColumn = $metode_pembelian == 'online' ? 'harga_onl' : null;
+        $query = Operasional::when($hargaColumn, function ($query, $hargaColumn) {
+            return $query->where($hargaColumn, '!=', null);
+        }, function ($query) {
+            return $query->whereNull('harga_onl');
+        });
+        
+        if ($mode != 'all_data') {
+            $year = substr($periode, 0, 4);
+            $month = substr($periode, 5, 2);
+            $query->whereYear('tanggal', '=', $year)
+                  ->whereMonth('tanggal', '=', $month);
+        }
+        
+        $tagihan = $query->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
+    
+        // Tentukan nama file
+        $fileName = $mode == 'all_data' 
+            ? ($metode_pembelian == 'online' ? 'Report Ops Online.xlsx' : 'Report Ops.xlsx') 
+            : ($metode_pembelian == 'online' 
+                ? 'Report Ops Online ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx' 
+                : 'Report Ops ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx');
+    
+        return Excel::download(new OperasionalExport($mode, $tagihan, $infoTagihan, $metode_pembelian), $fileName);
+    }
+    
 }

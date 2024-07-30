@@ -18,12 +18,14 @@ class TagihanExport implements WithMultipleSheets
     protected $mode;
     protected $tagihan;
     protected $infoTagihan;
+    protected $metode_pembelian;
 
-    public function __construct($mode, $tagihan, $infoTagihan)
+    public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian)
     {
         $this->mode = $mode;
         $this->tagihan = $tagihan;
         $this->infoTagihan = $infoTagihan;
+        $this->metode_pembelian = $metode_pembelian;
     }
 
     public function sheets(): array
@@ -34,23 +36,21 @@ class TagihanExport implements WithMultipleSheets
                 return $date->format('Y-m');
             });
 
-            $sortedData = $groupedData->map(function ($items) {
-                return $items->sortBy('lokasi');
-            });
-
             $sheets = [];
-            foreach ($sortedData as $period => $data) {
-                $sheets[] = new class($period, $data, $this->infoTagihan) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+            foreach ($groupedData as $period => $data) {
+                $sheets[] = new class($period, $data, $this->infoTagihan, $this->metode_pembelian) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
                 {
                     protected $period;
                     protected $tagihan;
                     protected $infoTagihan;
+                    protected $metode_pembelian;
 
-                    public function __construct($period, $tagihan, $infoTagihan)
+                    public function __construct($period, $tagihan, $infoTagihan, $metode_pembelian)
                     {
                         $this->period = $period;
                         $this->tagihan = $tagihan;
                         $this->infoTagihan = $infoTagihan;
+                        $this->metode_pembelian = $metode_pembelian;
                     }
 
                     public function collection()
@@ -60,8 +60,240 @@ class TagihanExport implements WithMultipleSheets
                         });
 
                         $data = $this->tagihan->map(function ($item) {
-                            $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
                             $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
+
+                            if ($this->metode_pembelian == 'online') {
+                                $harga_online = 'Rp ' . number_format($item->harga_online ?? 0, 0, ',', '.');
+                                $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
+                                $diskon_ongkir = 'Rp ' . number_format($item->diskon_ongkir ?? 0, 0, ',', '.');
+                                $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
+                                $b_proteksi = 'Rp ' . number_format($item->b_proteksi ?? 0, 0, ',', '.');
+                                $b_jasa_aplikasi = 'Rp ' . number_format($item->b_jasa_aplikasi ?? 0, 0, ',', '.');
+
+                                return [
+                                    'lokasi' => $item->lokasi,
+                                    'pemesan' => $item->pemesan,
+                                    'tgl_order' => $item->tgl_order,
+                                    'tgl_invoice' => $item->tgl_invoice,
+                                    'no_inventaris' => $item->no_inventaris,
+                                    'nama' => $item->nama,
+                                    'kategori' => $item->kategori,
+                                    'dipakai_untuk' => $item->dipakai_untuk,
+                                    'masa_pakai' => $item->masa_pakai,
+                                    'jml' => $item->jml,
+                                    'unit' => $item->unit,
+                                    'harga_online' => $harga_online,
+                                    'ongkir' => $ongkir,
+                                    'diskon_ongkir' => $diskon_ongkir,
+                                    'asuransi' => $asuransi,
+                                    'b_proteksi' => $b_proteksi,
+                                    'b_jasa_aplikasi' => $b_jasa_aplikasi,
+                                    'toko' => $item->toko,
+                                    'total' => $total
+                                ];
+
+                            } else {
+                                $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
+
+                                return [
+                                    'lokasi' => $item->lokasi,
+                                    'pemesan' => $item->pemesan,
+                                    'tgl_order' => $item->tgl_order,
+                                    'tgl_invoice' => $item->tgl_invoice,
+                                    'no_inventaris' => $item->no_inventaris,
+                                    'nama' => $item->nama,
+                                    'kategori' => $item->kategori,
+                                    'dipakai_untuk' => $item->dipakai_untuk,
+                                    'masa_pakai' => $item->masa_pakai,
+                                    'jml' => $item->jml,
+                                    'unit' => $item->unit,
+                                    'harga' => $harga,
+                                    'toko' => $item->toko,
+                                    'total' => $total
+                                ];
+                            }
+                        });
+
+                        // Menambahkan baris total keseluruhan
+                        if ($this->metode_pembelian == 'online') {
+                            $data->push([
+                                'lokasi' => 'Total Keseluruhan',
+                                'pemesan' => '',
+                                'tgl_order' => '',
+                                'tgl_invoice' => '',
+                                'no_inventaris' => '',
+                                'nama' => '',
+                                'kategori' => '',
+                                'dipakai_untuk' => '',
+                                'masa_pakai' => '',
+                                'jml' => '',
+                                'unit' => '',
+                                'harga_online' => '',
+                                'ongkir' => '',
+                                'diskon_ongkir' => '',
+                                'asuransi' => '',
+                                'b_proteksi' => '',
+                                'b_jasa_aplikasi' => '',
+                                'toko' => '',
+                                'total' => 'Rp ' . number_format($totalKeseluruhan, 0, ',', '.'),
+                            ]);
+
+                        } else {
+                            $data->push([
+                                'lokasi' => 'Total Keseluruhan',
+                                'pemesan' => '',
+                                'tgl_order' => '',
+                                'tgl_invoice' => '',
+                                'no_inventaris' => '',
+                                'nama' => '',
+                                'kategori' => '',
+                                'dipakai_untuk' => '',
+                                'masa_pakai' => '',
+                                'jml' => '',
+                                'unit' => '',
+                                'harga' => '',
+                                'toko' => '',
+                                'total' => 'Rp ' . number_format($totalKeseluruhan, 0, ',', '.'),
+                            ]);
+                        }
+
+                        return $data;
+                    }
+
+                    public function headings(): array
+                    {
+                        if ($this->metode_pembelian == 'online') {
+                            return [
+                                'Lokasi',
+                                'Pemesan',
+                                'Tgl. Order',
+                                'Tgl. Invoice',
+                                'No. Inventaris',
+                                'Nama Barang',
+                                'Kategori',
+                                'Keperluan',
+                                'Masa Pakai',
+                                'Jumlah',
+                                'Satuan',
+                                'Harga',
+                                'Ongkir',
+                                'Diskon Ongkir',
+                                'Asuransi',
+                                'Biaya Proteksi',
+                                'Biaya Jasa Aplikasi',
+                                'Toko',
+                                'Total'
+                            ];
+
+                        } else {
+                            return [
+                                'Lokasi',
+                                'Pemesan',
+                                'Tgl. Order',
+                                'Tgl. Invoice',
+                                'No. Inventaris',
+                                'Nama Barang',
+                                'Kategori',
+                                'Keperluan',
+                                'Masa Pakai',
+                                'Jumlah',
+                                'Satuan',
+                                'Harga',
+                                'Toko',
+                                'Total'
+                            ];
+                        }
+                    }
+
+                    public function styles(Worksheet $sheet)
+                    {
+                        if ($this->metode_pembelian == 'online') {
+                            $sheet->getStyle('A1:S1')->getFont()->setBold(true);
+                            $sheet->getStyle('A:S')->getAlignment()->setHorizontal('center');
+                            $sheet->setTitle($this->infoTagihan . ' Online ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
+
+                            // Menyempurnakan styling baris total
+                            $totalRowIndex = $sheet->getHighestRow();
+                            $sheet->mergeCells("A$totalRowIndex:R$totalRowIndex");
+                            $sheet->getStyle("A$totalRowIndex:R$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("S$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("A$totalRowIndex:S$totalRowIndex")->getAlignment()->setHorizontal('center');
+
+                        } else {
+                            $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+                            $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
+                            $sheet->setTitle($this->infoTagihan . ' Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
+
+                            // Menyempurnakan styling baris total
+                            $totalRowIndex = $sheet->getHighestRow();
+                            $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
+                            $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        }
+                    }
+                };
+            }
+
+            return $sheets;
+        }
+
+        // Handle mode lain jika ada
+        return [
+            new class('All Data', $this->tagihan, $this->infoTagihan, $this->metode_pembelian) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+            {
+                protected $tagihan;
+                protected $infoTagihan;
+                protected $metode_pembelian;
+
+                public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian)
+                {
+                    $this->tagihan = $tagihan;
+                    $this->infoTagihan = $infoTagihan;
+                    $this->metode_pembelian = $metode_pembelian;
+                }
+
+                public function collection()
+                {
+                    $totalKeseluruhan = $this->tagihan->sum(function ($item) {
+                        return $item->total ?? 0;
+                    });
+
+                    $data = $this->tagihan->map(function ($item) {
+                        $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
+
+                        if ($this->metode_pembelian == 'online') {
+                            $harga_online = 'Rp ' . number_format($item->harga_online ?? 0, 0, ',', '.');
+                            $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
+                            $diskon_ongkir = 'Rp ' . number_format($item->diskon_ongkir ?? 0, 0, ',', '.');
+                            $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
+                            $b_proteksi = 'Rp ' . number_format($item->b_proteksi ?? 0, 0, ',', '.');
+                            $b_jasa_aplikasi = 'Rp ' . number_format($item->b_jasa_aplikasi ?? 0, 0, ',', '.');
+
+                            return [
+                                'lokasi' => $item->lokasi,
+                                'pemesan' => $item->pemesan,
+                                'tgl_order' => $item->tgl_order,
+                                'tgl_invoice' => $item->tgl_invoice,
+                                'no_inventaris' => $item->no_inventaris,
+                                'nama' => $item->nama,
+                                'kategori' => $item->kategori,
+                                'dipakai_untuk' => $item->dipakai_untuk,
+                                'masa_pakai' => $item->masa_pakai,
+                                'jml' => $item->jml,
+                                'unit' => $item->unit,
+                                'harga_online' => $harga_online,
+                                'ongkir' => $ongkir,
+                                'diskon_ongkir' => $diskon_ongkir,
+                                'asuransi' => $asuransi,
+                                'b_proteksi' => $b_proteksi,
+                                'b_jasa_aplikasi' => $b_jasa_aplikasi,
+                                'toko' => $item->toko,
+                                'total' => $total
+                            ];
+
+                        } else {
+                            $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
 
                             return [
                                 'lokasi' => $item->lokasi,
@@ -77,11 +309,36 @@ class TagihanExport implements WithMultipleSheets
                                 'unit' => $item->unit,
                                 'harga' => $harga,
                                 'toko' => $item->toko,
-                                'total' => $total,
+                                'total' => $total
                             ];
-                        });
+                        }
+                    });
 
-                        // Menambahkan baris total keseluruhan
+                    // Menambahkan baris total keseluruhan
+                    if ($this->metode_pembelian == 'online') {
+                        $data->push([
+                            'lokasi' => 'Total Keseluruhan',
+                            'pemesan' => '',
+                            'tgl_order' => '',
+                            'tgl_invoice' => '',
+                            'no_inventaris' => '',
+                            'nama' => '',
+                            'kategori' => '',
+                            'dipakai_untuk' => '',
+                            'masa_pakai' => '',
+                            'jml' => '',
+                            'unit' => '',
+                            'harga_online' => '',
+                            'ongkir' => '',
+                            'diskon_ongkir' => '',
+                            'asuransi' => '',
+                            'b_proteksi' => '',
+                            'b_jasa_aplikasi' => '',
+                            'toko' => '',
+                            'total' => 'Rp ' . number_format($totalKeseluruhan, 0, ',', '.'),
+                        ]);
+
+                    } else {
                         $data->push([
                             'lokasi' => 'Total Keseluruhan',
                             'pemesan' => '',
@@ -98,12 +355,37 @@ class TagihanExport implements WithMultipleSheets
                             'toko' => '',
                             'total' => 'Rp ' . number_format($totalKeseluruhan, 0, ',', '.'),
                         ]);
-
-                        return $data;
                     }
 
-                    public function headings(): array
-                    {
+                    return $data;
+                }
+
+                public function headings(): array
+                {
+                    if ($this->metode_pembelian == 'online') {
+                        return [
+                            'Lokasi',
+                            'Pemesan',
+                            'Tgl. Order',
+                            'Tgl. Invoice',
+                            'No. Inventaris',
+                            'Nama Barang',
+                            'Kategori',
+                            'Keperluan',
+                            'Masa Pakai',
+                            'Jumlah',
+                            'Satuan',
+                            'Harga',
+                            'Ongkir',
+                            'Diskon Ongkir',
+                            'Asuransi',
+                            'Biaya Proteksi',
+                            'Biaya Jasa Aplikasi',
+                            'Toko',
+                            'Total'
+                        ];
+
+                    } else {
                         return [
                             'Lokasi',
                             'Pemesan',
@@ -121,12 +403,26 @@ class TagihanExport implements WithMultipleSheets
                             'Total'
                         ];
                     }
+                }
 
-                    public function styles(Worksheet $sheet)
-                    {
+                public function styles(Worksheet $sheet)
+                {
+                    if ($this->metode_pembelian == 'online') {
+                        $sheet->getStyle('A1:S1')->getFont()->setBold(true);
+                        $sheet->getStyle('A:S')->getAlignment()->setHorizontal('center');
+                        $sheet->setTitle($this->infoTagihan . ' Online');
+
+                        // Menyempurnakan styling baris total
+                        $totalRowIndex = $sheet->getHighestRow();
+                        $sheet->mergeCells("A$totalRowIndex:R$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:R$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("S$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:S$totalRowIndex")->getAlignment()->setHorizontal('center');
+
+                    } else {
                         $sheet->getStyle('A1:N1')->getFont()->setBold(true);
                         $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
-                        $sheet->setTitle($this->infoTagihan . ' Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
+                        $sheet->setTitle($this->infoTagihan);
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
@@ -135,106 +431,6 @@ class TagihanExport implements WithMultipleSheets
                         $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
                         $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
                     }
-                };
-            }
-
-            return $sheets;
-        }
-
-        // Handle mode lain jika ada
-        return [
-            new class('All Data', $this->tagihan, $this->infoTagihan) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
-            {
-                protected $tagihan;
-                protected $infoTagihan;
-
-                public function __construct($mode, $tagihan, $infoTagihan)
-                {
-                    $this->tagihan = $tagihan;
-                    $this->infoTagihan = $infoTagihan;
-                }
-
-                public function collection()
-                {
-                    $totalKeseluruhan = $this->tagihan->sum(function ($item) {
-                        return $item->total ?? 0;
-                    });
-
-                    $data = $this->tagihan->map(function ($item) {
-                        $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
-                        $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
-
-                        return [
-                            'lokasi' => $item->lokasi,
-                            'pemesan' => $item->pemesan,
-                            'tgl_order' => $item->tgl_order,
-                            'tgl_invoice' => $item->tgl_invoice,
-                            'no_inventaris' => $item->no_inventaris,
-                            'nama' => $item->nama,
-                            'kategori' => $item->kategori,
-                            'dipakai_untuk' => $item->dipakai_untuk,
-                            'masa_pakai' => $item->masa_pakai,
-                            'jml' => $item->jml,
-                            'unit' => $item->unit,
-                            'harga' => $harga,
-                            'toko' => $item->toko,
-                            'total' => $total,
-                        ];
-                    });
-
-                    // Menambahkan baris total keseluruhan
-                    $data->push([
-                        'lokasi' => 'Total Keseluruhan',
-                        'pemesan' => '',
-                        'tgl_order' => '',
-                        'tgl_invoice' => '',
-                        'no_inventaris' => '',
-                        'nama' => '',
-                        'kategori' => '',
-                        'dipakai_untuk' => '',
-                        'masa_pakai' => '',
-                        'jml' => '',
-                        'unit' => '',
-                        'harga' => '',
-                        'toko' => '',
-                        'total' => 'Rp ' . number_format($totalKeseluruhan, 0, ',', '.'),
-                    ]);
-
-                    return $data;
-                }
-
-                public function headings(): array
-                {
-                    return [
-                        'Lokasi',
-                        'Pemesan',
-                        'Tgl. Order',
-                        'Tgl. Invoice',
-                        'No. Inventaris',
-                        'Nama Barang',
-                        'Kategori',
-                        'Keperluan',
-                        'Masa Pakai',
-                        'Jumlah',
-                        'Satuan',
-                        'Harga',
-                        'Toko',
-                        'Total'
-                    ];
-                }
-
-                public function styles(Worksheet $sheet)
-                {
-                    $sheet->getStyle('A1:N1')->getFont()->setBold(true);
-                    $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
-                    $sheet->setTitle('Pengeluaran ' . $this->infoTagihan);
-
-                    // Menyempurnakan styling baris total
-                    $totalRowIndex = $sheet->getHighestRow();
-                    $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
-                    $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
-                    $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
-                    $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
                 }
             }
         ];

@@ -10,14 +10,16 @@ use App\Exports\TagihanExport;
 class CatController extends Controller
 {
     public function index() {
-        $cat = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])->orderBy('lokasi')->get();
+        $cat = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])->orderBy('lokasi')->orderBy('tgl_order')->orderBy('nama')->get();
+        $catOnline = TagihanAMB::where('keterangan', 'tagihan cat online')->get();
+        $catOffline = TagihanAMB::where('keterangan', 'tagihan cat')->get();
         $periodes = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])
             ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))
             ->distinct()
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        return view('contents.cat_amb', compact('cat', 'periodes'));
+        return view('contents.cat_amb', compact('cat', 'catOnline', 'catOffline', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -292,22 +294,41 @@ class CatController extends Controller
 
     public function export(Request $request) {
         $mode = $request->metode_export;
+        $metode_pembelian = 'offline';
+        
+        if ($request->metode_pembelian) {
+            $metode_pembelian = $request->metode_pembelian;
+        }
+
         $periode = $request->periode;
         $infoTagihan = 'Cat';
-
-        if ($mode == 'all_data') {
-            $tagihan = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])->orderBy('tgl_order', 'asc')->get();
-            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), 'Report Cat.xlsx');
-
-        } else {
-            $tagihan = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])->whereYear('tgl_order', '=', substr($periode, 0, 4))
-                ->whereMonth('tgl_order', '=', substr($periode, 5, 2))
-                ->orderBy('lokasi')
-                ->orderBy('tgl_order', 'asc')
-                ->get();
-
-            $fileName = 'Report Cat ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
-            return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan), $fileName);
+    
+        $hargaColumn = $metode_pembelian == 'online' ? 'harga_online' : null;
+        $query = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])
+        ->when($hargaColumn, function ($query, $hargaColumn) {
+            return $query->where($hargaColumn, '!=', null)
+                        ->where('keterangan', 'tagihan cat online');
+        }, function ($query) {
+            return $query->whereNull('harga_online')
+                        ->where('keterangan', 'tagihan cat');
+        });
+        
+        if ($mode != 'all_data') {
+            $year = substr($periode, 0, 4);
+            $month = substr($periode, 5, 2);
+            $query->whereYear('tgl_order', '=', $year)
+                  ->whereMonth('tgl_order', '=', $month);
         }
+        
+        $tagihan = $query->orderBy('tgl_order', 'asc')->orderBy('lokasi', 'asc')->orderBy('nama', 'asc')->get();
+    
+        // Tentukan nama file
+        $fileName = $mode == 'all_data' 
+            ? ($metode_pembelian == 'online' ? 'Report Cat Online.xlsx' : 'Report Cat.xlsx') 
+            : ($metode_pembelian == 'online' 
+                ? 'Report Cat Online ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx' 
+                : 'Report Cat ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx');
+    
+        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian), $fileName);
     }
 }

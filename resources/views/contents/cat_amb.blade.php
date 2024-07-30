@@ -455,6 +455,19 @@
                             </p>
 
                             <div class="form-group">
+                                <label>Metode Pembelian</label>
+                                <select class="form-select form-control" id="metode_pembelian" name="metode_pembelian" required>
+                                    <option value="">...</option>
+                                    @if (count($catOnline) > 0)
+                                        <option value="online">Online</option>
+                                    @endif
+                                    @if (count($catOffline) > 0)
+                                        <option value="offline">Offline</option>
+                                    @endif
+                                </select>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Metode Export Data</label>
                                 <div id="radioError" class="text-danger d-none">Silakan pilih salah satu metode export data.</div>
                                 <div class="d-flex align-items-center">
@@ -772,11 +785,11 @@
         const customFields = document.getElementById('customFields');
 
         if (isCustomChecked) {
-            setFieldsRequired(customFields, true);
+            setSelectFieldsRequired(customFields, true);
             customFields.classList.remove('d-none');
 
         } else {
-            setFieldsRequired(customFields, false);
+            setSelectFieldsRequired(customFields, false);
             customFields.classList.add('d-none');
         }
     }

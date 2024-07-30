@@ -4,11 +4,21 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TagihanExport;
 
 class SparepartController extends Controller
 {
     public function index() {
         $sparepartamb = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])->orderBy('lokasi')->get();
+        $sparepartOnline = TagihanAMB::where('keterangan', 'tagihan sparepart online')->get();
+        $sparepartOffline = TagihanAMB::where('keterangan', 'tagihan sparepart')->get();
+        $periodes = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
+            ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
         $sparepartambgroup = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
             ->selectRaw('lokasi, YEAR(tgl_order) as year, MONTHNAME(tgl_order) as month_name, SUM(total) as total_sum')
             ->groupBy('lokasi', 'year', 'month_name')
@@ -17,7 +27,7 @@ class SparepartController extends Controller
             ->orderByRaw('MONTH(tgl_order)')
             ->get();
 
-        return view('contents.sparepart_amb', compact('sparepartamb', 'sparepartambgroup'));
+        return view('contents.sparepart_amb', compact('sparepartamb', 'sparepartOnline', 'sparepartOffline', 'periodes', 'sparepartambgroup'));
     }
 
     public function store(Request $request) {
@@ -299,6 +309,46 @@ class SparepartController extends Controller
 
         TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->delete();
         return redirect('sparepartamb');
+    }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $metode_pembelian = 'offline';
+        
+        if ($request->metode_pembelian) {
+            $metode_pembelian = $request->metode_pembelian;
+        }
+
+        $periode = $request->periode;
+        $infoTagihan = 'Sparepart';
+    
+        $hargaColumn = $metode_pembelian == 'online' ? 'harga_online' : null;
+        $query = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
+        ->when($hargaColumn, function ($query, $hargaColumn) {
+            return $query->where($hargaColumn, '!=', null)
+                        ->where('keterangan', 'tagihan sparepart online');
+        }, function ($query) {
+            return $query->whereNull('harga_online')
+                        ->where('keterangan', 'tagihan sparepart');
+        });
+        
+        if ($mode != 'all_data') {
+            $year = substr($periode, 0, 4);
+            $month = substr($periode, 5, 2);
+            $query->whereYear('tgl_order', '=', $year)
+                  ->whereMonth('tgl_order', '=', $month);
+        }
+        
+        $tagihan = $query->orderBy('tgl_order', 'asc')->orderBy('lokasi', 'asc')->orderBy('nama', 'asc')->get();
+    
+        // Tentukan nama file
+        $fileName = $mode == 'all_data' 
+            ? ($metode_pembelian == 'online' ? 'Report Sparepart Online.xlsx' : 'Report Sparepart.xlsx') 
+            : ($metode_pembelian == 'online' 
+                ? 'Report Sparepart Online ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx' 
+                : 'Report Sparepart ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx');
+    
+        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian), $fileName);
     }
 
 }
