@@ -59,6 +59,7 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('bbm-store', [BBMController::class, 'store']);
     Route::post('bbm-update', [BBMController::class, 'update']);
     Route::post('bbm-delete', [BBMController::class, 'delete']);
+    Route::post('bbm-export', [BBMController::class, 'export']);
     
     // Bubut
     Route::get('/bubut', [BubutController::class, 'index']);
@@ -113,6 +114,7 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('trip-store', [TripController::class, 'store']);
     Route::post('trip-update', [TripController::class, 'update']);
     Route::post('trip-delete', [TripController::class, 'delete']);
+    Route::post('trip-export', [TripController::class, 'export']);
 
     // Kontruksi - Batu
     Route::get('/batu', [BatuController::class, 'index']);

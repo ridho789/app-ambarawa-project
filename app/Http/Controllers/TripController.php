@@ -4,12 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Trip;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TripExport;
 
 class TripController extends Controller
 {
     public function index() {
-        $trips = Trip::orderBy('tanggal', 'asc')->get();
-        return view('contents.trip', compact('trips'));
+        $trips = Trip::orderBy('tanggal', 'asc')->orderBy('nopol', 'asc')->orderBy('kota', 'asc')->get();
+        $periodes = Trip::select(Trip::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
+        return view('contents.trip', compact('trips', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -91,5 +98,26 @@ class TripController extends Controller
 
         Trip::whereIn('id_trip', $validatedIds)->delete();
         return redirect('trip');
+    }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $periode = $request->periode;
+
+        if ($mode == 'all_data') {
+            $trip = Trip::orderBy('tanggal', 'asc')->orderBy('nopol', 'asc')->orderBy('kota', 'asc')->get();
+            return Excel::download(new TripExport($mode, $trip), 'Report Trip.xlsx');
+
+        } else {
+            $trip = Trip::whereYear('tanggal', '=', substr($periode, 0, 4))
+                ->whereMonth('tanggal', '=', substr($periode, 5, 2))
+                ->orderBy('tanggal', 'asc')
+                ->orderBy('nopol', 'asc')
+                ->orderBy('kota', 'asc')
+                ->get();
+
+            $fileName = 'Report Trip ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            return Excel::download(new TripExport($mode, $trip), $fileName);
+        }
     }
 }

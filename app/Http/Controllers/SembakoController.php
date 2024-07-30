@@ -10,7 +10,7 @@ use App\Exports\SembakoExport;
 class SembakoController extends Controller
 {
     public function index() {
-        $sembako = Sembako::orderBy('tanggal', 'asc')->get();
+        $sembako = Sembako::orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
         $periodes = Sembako::select(Sembako::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
             ->distinct()
             ->orderBy('periode', 'desc')
@@ -87,13 +87,14 @@ class SembakoController extends Controller
         $periode = $request->periode;
 
         if ($mode == 'all_data') {
-            $sembako = Sembako::orderBy('tanggal', 'asc')->get();
+            $sembako = Sembako::orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
             return Excel::download(new SembakoExport($mode, $sembako), 'Report Sembako.xlsx');
 
         } else {
             $sembako = Sembako::whereYear('tanggal', '=', substr($periode, 0, 4))
                 ->whereMonth('tanggal', '=', substr($periode, 5, 2))
                 ->orderBy('tanggal', 'asc')
+                ->orderBy('nama', 'asc')
                 ->get();
 
             $fileName = 'Report Sembako ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';

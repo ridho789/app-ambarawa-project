@@ -71,19 +71,23 @@
                             <div class="form-group row">
                                 <div class="col-3">
                                     <label for="kode_unit">Kode Unit</label>
-                                    <input type="text" class="form-control" name="kode_unit" id="kode_unit" placeholder="Masukkan kd unit.." required />
+                                    <input type="text" class="form-control" name="kode_unit" id="kode_unit" placeholder="Masukkan kd unit.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                                 <div class="col-3">
                                     <label for="nopol">Nopol</label>
-                                    <input type="text" class="form-control" name="nopol" id="nopol" placeholder="Masukkan nopol.." required />
+                                    <input type="text" class="form-control" name="nopol" id="nopol" placeholder="Masukkan nopol.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                                 <div class="col-3">
                                     <label for="jns_mobil">Jenis Mobil</label>
-                                    <input type="text" class="form-control" name="jns_mobil" id="jns_mobil" placeholder="Jenis mobil.." required />
+                                    <input type="text" class="form-control" name="jns_mobil" id="jns_mobil" placeholder="Jenis mobil.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                                 <div class="col-3">
                                     <label for="jns_bbm">Jenis BBM</label>
-                                    <input type="text" class="form-control" name="jns_bbm" id="jns_bbm" placeholder="Jenis bbm.." required />
+                                    <input type="text" class="form-control" name="jns_bbm" id="jns_bbm" placeholder="Jenis bbm.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                             </div>
 
@@ -184,19 +188,23 @@
                             <div class="form-group row">
                                 <div class="col-3">
                                     <label for="kode_unit">Kode Unit</label>
-                                    <input type="text" class="form-control" name="kode_unit" id="edit-kode_unit" placeholder="Masukkan kd unit.." required />
+                                    <input type="text" class="form-control" name="kode_unit" id="edit-kode_unit" placeholder="Masukkan kd unit.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                                 <div class="col-3">
                                     <label for="nopol">Nopol</label>
-                                    <input type="text" class="form-control" name="nopol" id="edit-nopol" placeholder="Masukkan nopol.." required />
+                                    <input type="text" class="form-control" name="nopol" id="edit-nopol" placeholder="Masukkan nopol.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                                 <div class="col-3">
                                     <label for="jns_mobil">Jenis Mobil</label>
-                                    <input type="text" class="form-control" name="jns_mobil" id="edit-jns_mobil" placeholder="Jenis mobil.." required />
+                                    <input type="text" class="form-control" name="jns_mobil" id="edit-jns_mobil" placeholder="Jenis mobil.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                                 <div class="col-3">
                                     <label for="jns_bbm">Jenis BBM</label>
-                                    <input type="text" class="form-control" name="jns_bbm" id="edit-jns_bbm" placeholder="Jenis bbm.." required />
+                                    <input type="text" class="form-control" name="jns_bbm" id="edit-jns_bbm" placeholder="Jenis bbm.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                             </div>
 
@@ -256,6 +264,69 @@
             </div>
         </div>
 
+        <!-- Modal Export data -->
+        <div class="modal fade" id="bbmExportModal" tabindex="-1" role="dialog" aria-labelledby="bbmExportModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0 mx-2" style="margin-bottom: -25px;">
+                        <h5 class="modal-title" id="bbmExportModal">
+                            <span class="fw-light"> Export Data</span>
+                            <span class="fw-mediumbold"> Pengeluaran BBM </span>
+                        </h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="{{ url('bbm-export') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+                        @csrf
+                        <div class="modal-body">
+                            <p class="small mx-2">
+                                Pengaturan untuk menentukan format data pengeluaran sesuai keinginan
+                            </p>
+
+                            <div class="form-group">
+                                <label>Metode Export Data</label>
+                                <div id="radioError" class="text-danger d-none">Silakan pilih salah satu metode export data.</div>
+                                <div class="d-flex align-items-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="metode_export" id="all_data" value="all_data" onclick="toggleCustomFields()" />
+                                        <label class="form-check-label" for="all_data">
+                                            Tampilkan semua data
+                                        </label>
+                                    </div>
+                                    <div class="form-check ms-3">
+                                        <input class="form-check-input" type="radio" name="metode_export" id="custom" value="custom" onclick="toggleCustomFields()" />
+                                        <label class="form-check-label" for="custom">
+                                            Custom
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="customFields" class="d-none">
+                                <div class="form-group">
+                                    <label for="periode">Periode</label>
+                                    <select class="form-control" name="periode" id="periode">
+                                        <option value="">...</option>
+                                        @foreach ($periodes as $periode)
+                                            <option 
+                                                value="{{ $periode }}">{{ \Carbon\Carbon::createFromFormat('Y-m', $periode)->translatedFormat('F Y') }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer border-0 mx-2">
+                            <button type="submit" class="btn btn-primary btn-sm">Export</button>
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- LogError -->
         @if(session()->has('logErrors'))
         <div class="row">
@@ -304,10 +375,18 @@
                                     Delete data
                                 </button>
                             </form>
-                            <button class="btn btn-primary btn-round ms-auto btn-sm" data-bs-toggle="modal" data-bs-target="#bbmModal">
-                                <i class="fa fa-plus"></i>
-                                Tambah data
-                            </button>
+                            <div class="ms-auto d-flex align-items-center">
+                                @if (count($bbm) > 0)
+                                    <button class="btn btn-success btn-round ms-2 btn-sm" data-bs-toggle="modal" data-bs-target="#bbmExportModal">
+                                        <i class="fa fa-file-excel"></i>
+                                        Export data
+                                    </button>
+                                @endif
+                                <button class="btn btn-primary btn-round ms-3 btn-sm" data-bs-toggle="modal" data-bs-target="#bbmModal">
+                                    <i class="fa fa-plus"></i>
+                                    Tambah data
+                                </button>
+                            </div>
                         </div>
                     </div>
                     @if (count($bbm) > 0)
@@ -430,6 +509,45 @@
         if (document.getElementById('total-sum')) {
             document.getElementById('total-sum').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(totalSum);
         }
+    }
+
+    function toggleCustomFields() {
+        const isCustomChecked = document.getElementById('custom').checked;
+        const customFields = document.getElementById('customFields');
+
+        if (isCustomChecked) {
+            setFieldsRequired(customFields, true);
+            customFields.classList.remove('d-none');
+
+        } else {
+            setFieldsRequired(customFields, false);
+            customFields.classList.add('d-none');
+        }
+    }
+
+    function setFieldsRequired(fieldsContainer, isRequired) {
+        const selects = fieldsContainer.querySelectorAll('select');
+        selects.forEach(select => {
+            if (isRequired) {
+                select.setAttribute('required', 'required');
+            } else {
+                select.removeAttribute('required');
+            }
+        });
+    }
+
+    function validateForm() {
+        const allData = document.getElementById('all_data');
+        const custom = document.getElementById('custom');
+        const radioError = document.getElementById('radioError');
+
+        if (!allData.checked && !custom.checked) {
+            radioError.classList.remove('d-none');
+            return false;
+        }
+
+        radioError.classList.add('d-none');
+        return true;
     }
 
     document.addEventListener('DOMContentLoaded', function() {

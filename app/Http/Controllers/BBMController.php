@@ -4,13 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\BBM;
-use App\Models\TagihanAMB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\BBMExport;
 
 class BBMController extends Controller
 {
     public function index() {
-        $bbm = BBM::orderBy('nama', 'asc')->get();
-        return view('contents.bbm', compact('bbm'));
+        $bbm = BBM::orderBy('tanggal', 'asc')->orderBy('nopol', 'asc')->orderBy('nama', 'asc')->get();
+        $periodes = BBM::select(BBM::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
+        return view('contents.bbm', compact('bbm', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -94,5 +100,26 @@ class BBMController extends Controller
 
         BBM::whereIn('id_bbm', $validatedIds)->delete();
         return redirect('bbm');
+    }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $periode = $request->periode;
+
+        if ($mode == 'all_data') {
+            $bbm = BBM::orderBy('tanggal', 'asc')->orderBy('nopol', 'asc')->orderBy('nama', 'asc')->get();
+            return Excel::download(new BBMExport($mode, $bbm), 'Report BBM.xlsx');
+
+        } else {
+            $bbm = BBM::whereYear('tanggal', '=', substr($periode, 0, 4))
+                ->whereMonth('tanggal', '=', substr($periode, 5, 2))
+                ->orderBy('tanggal', 'asc')
+                ->orderBy('nopol', 'asc')
+                ->orderBy('nama', 'asc')
+                ->get();
+
+            $fileName = 'Report BBM ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            return Excel::download(new BBMExport($mode, $bbm), $fileName);
+        }
     }
 }
