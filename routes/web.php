@@ -80,6 +80,7 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('pengurugan-store', [PenguruganController::class, 'store']);
     Route::post('pengurugan-update', [PenguruganController::class, 'update']);
     Route::post('pengurugan-delete', [PenguruganController::class, 'delete']);
+    Route::post('pengurugan-export', [PenguruganController::class, 'export']);
     
     // Operasional
     Route::get('/operasional', [OperasionalController::class, 'index']);
@@ -121,18 +122,21 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('batu-store', [BatuController::class, 'store']);
     Route::post('batu-update', [BatuController::class, 'update']);
     Route::post('batu-delete', [BatuController::class, 'delete']);
+    Route::post('batu-export', [BatuController::class, 'export']);
 
     // Kontruksi - Besi
     Route::get('/besi', [BesiController::class, 'index']);
     Route::post('besi-store', [BesiController::class, 'store']);
     Route::post('besi-update', [BesiController::class, 'update']);
     Route::post('besi-delete', [BesiController::class, 'delete']);
+    Route::post('besi-export', [BesiController::class, 'export']);
 
     // Kontruksi - Pasir
     Route::get('/pasir', [PasirController::class, 'index']);
     Route::post('pasir-store', [PasirController::class, 'store']);
     Route::post('pasir-update', [PasirController::class, 'update']);
     Route::post('pasir-delete', [PasirController::class, 'delete']);
+    Route::post('pasir-export', [PasirController::class, 'export']);
 
     // Master data - Proyek
     Route::get('/proyek', [ProyekController::class, 'index']);

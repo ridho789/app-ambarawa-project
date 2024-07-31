@@ -5,14 +5,22 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pembangunan;
 use App\Models\Proyek;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PembangunanExport;
 
 class PasirController extends Controller
 {
     public function index() {
-        $pasir = Pembangunan::where('ket', 'pengeluaran pasir')->orderBy('tanggal')->get();
+        $pasir = Pembangunan::where('ket', 'pengeluaran pasir')->orderBy('tanggal')->orderBy('nama')->get();
+        $periodes = Pembangunan::where('ket', 'pengeluaran pasir')
+            ->select(Pembangunan::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
         $proyek = Proyek::all();
         $namaProyek = Proyek::pluck('nama', 'id_proyek');
-        return view('contents.pembangunan.kontruksi.pasir', compact('pasir', 'proyek', 'namaProyek'));
+        return view('contents.pembangunan.kontruksi.pasir', compact('pasir', 'proyek', 'namaProyek', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -89,5 +97,26 @@ class PasirController extends Controller
 
         Pembangunan::whereIn('id_pembangunan', $validatedIds)->delete();
         return redirect('pasir');
+    }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $periode = $request->periode;
+        $nama = 'Pasir';
+
+        if ($mode == 'all_data') {
+            $pasir = Pembangunan::where('ket', 'pengeluaran pasir')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
+            return Excel::download(new PembangunanExport($mode, $pasir, $nama), 'Report Pasir.xlsx');
+
+        } else {
+            $pasir = Pembangunan::where('ket', 'pengeluaran pasir')->whereYear('tanggal', '=', substr($periode, 0, 4))
+                ->whereMonth('tanggal', '=', substr($periode, 5, 2))
+                ->orderBy('tanggal', 'asc')
+                ->orderBy('nama', 'asc')
+                ->get();
+
+            $fileName = 'Report Pasir ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            return Excel::download(new PembangunanExport($mode, $pasir, $nama), $fileName);
+        }
     }
 }

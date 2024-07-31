@@ -5,14 +5,22 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pembangunan;
 use App\Models\Proyek;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PembangunanExport;
 
 class BatuController extends Controller
 {
     public function index() {
-        $batu = Pembangunan::where('ket', 'pengeluaran batu')->orderBy('tanggal')->get();
+        $batu = Pembangunan::where('ket', 'pengeluaran batu')->orderBy('tanggal')->orderBy('nama')->get();
+        $periodes = Pembangunan::where('ket', 'pengeluaran batu')
+            ->select(Pembangunan::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
         $proyek = Proyek::all();
         $namaProyek = Proyek::pluck('nama', 'id_proyek');
-        return view('contents.pembangunan.kontruksi.batu', compact('batu', 'proyek', 'namaProyek'));
+        return view('contents.pembangunan.kontruksi.batu', compact('batu', 'proyek', 'namaProyek', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -89,5 +97,26 @@ class BatuController extends Controller
 
         Pembangunan::whereIn('id_pembangunan', $validatedIds)->delete();
         return redirect('batu');
+    }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $periode = $request->periode;
+        $nama = 'Batu';
+
+        if ($mode == 'all_data') {
+            $batu = Pembangunan::where('ket', 'pengeluaran batu')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
+            return Excel::download(new PembangunanExport($mode, $batu, $nama), 'Report Batu.xlsx');
+
+        } else {
+            $batu = Pembangunan::where('ket', 'pengeluaran batu')->whereYear('tanggal', '=', substr($periode, 0, 4))
+                ->whereMonth('tanggal', '=', substr($periode, 5, 2))
+                ->orderBy('tanggal', 'asc')
+                ->orderBy('nama', 'asc')
+                ->get();
+
+            $fileName = 'Report Batu ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            return Excel::download(new PembangunanExport($mode, $batu, $nama), $fileName);
+        }
     }
 }

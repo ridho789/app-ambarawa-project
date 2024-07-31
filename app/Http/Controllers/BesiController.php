@@ -5,14 +5,22 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pembangunan;
 use App\Models\Proyek;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PembangunanExport;
 
 class BesiController extends Controller
 {
     public function index() {
-        $besi = Pembangunan::where('ket', 'pengeluaran besi')->orderBy('tanggal')->get();
+        $besi = Pembangunan::where('ket', 'pengeluaran besi')->orderBy('tanggal')->orderBy('nama')->get();
+        $periodes = Pembangunan::where('ket', 'pengeluaran besi')
+            ->select(Pembangunan::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->get()
+            ->pluck('periode');
         $proyek = Proyek::all();
         $namaProyek = Proyek::pluck('nama', 'id_proyek');
-        return view('contents.pembangunan.kontruksi.besi', compact('besi', 'proyek', 'namaProyek'));
+        return view('contents.pembangunan.kontruksi.besi', compact('besi', 'proyek', 'namaProyek', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -89,5 +97,26 @@ class BesiController extends Controller
 
         Pembangunan::whereIn('id_pembangunan', $validatedIds)->delete();
         return redirect('besi');
+    }
+
+    public function export(Request $request) {
+        $mode = $request->metode_export;
+        $periode = $request->periode;
+        $nama = 'Besi';
+
+        if ($mode == 'all_data') {
+            $besi = Pembangunan::where('ket', 'pengeluaran besi')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
+            return Excel::download(new PembangunanExport($mode, $besi, $nama), 'Report Besi.xlsx');
+
+        } else {
+            $besi = Pembangunan::where('ket', 'pengeluaran besi')->whereYear('tanggal', '=', substr($periode, 0, 4))
+                ->whereMonth('tanggal', '=', substr($periode, 5, 2))
+                ->orderBy('tanggal', 'asc')
+                ->orderBy('nama', 'asc')
+                ->get();
+
+            $fileName = 'Report Besi ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            return Excel::download(new PembangunanExport($mode, $besi, $nama), $fileName);
+        }
     }
 }
