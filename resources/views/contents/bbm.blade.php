@@ -579,6 +579,26 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        var rows = document.querySelectorAll('#basic-datatables tbody tr');
+        var previousRow = null;
+
+        rows.forEach(function(row, index) {
+            var currentIdKendaraan = row.getAttribute('data-kendaraan');
+            var currentKmAwal = parseFloat(row.getAttribute('data-km_awal'));
+            var currentKmAkhir = parseFloat(row.getAttribute('data-km_akhir'));
+            
+            if (previousRow) {
+                var previousIdKendaraan = previousRow.getAttribute('data-kendaraan');
+                var previousKmAkhir = parseFloat(previousRow.getAttribute('data-km_akhir'));
+                
+                if (currentIdKendaraan === previousIdKendaraan && currentKmAwal !== previousKmAkhir) {
+                    row.querySelector('td:nth-child(8)').classList.add('text-danger');
+                }
+            }
+
+            previousRow = row;
+        });
+
         const tableData = $('#basic-datatables').DataTable();
         tableData.on('draw.dt', function() {
             calculateTotal();
