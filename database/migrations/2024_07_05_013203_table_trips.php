@@ -17,8 +17,6 @@ return new class extends Migration
             $table->string('kota');
             $table->string('ket');
             $table->string('uraian');
-            $table->string('nopol');
-            $table->string('merk');
             $table->string('qty');
             $table->string('unit');
             $table->string('km_awal');

@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Carbon\Carbon;
+use App\Models\Kendaraan;
 
 class BBMExport implements WithMultipleSheets
 {
@@ -52,16 +53,17 @@ class BBMExport implements WithMultipleSheets
                             return $item->tot_harga ?? 0;
                         });
 
+                        
                         $data = $this->bbm->map(function ($item) {
+                            $kendaraan = Kendaraan::find($item->id_kendaraan);
                             $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
                             $tot_harga = 'Rp ' . number_format($item->tot_harga ?? 0, 0, ',', '.');
 
                             return [
                                 'nama' => $item->nama,
                                 'tanggal' => $item->tanggal,
-                                'kode_unit' => $item->kode_unit,
-                                'nopol' => $item->nopol,
-                                'jns_mobil' => $item->jns_mobil,
+                                'nopol' => $kendaraan->nopol ?? '-',
+                                'jns_mobil' => $kendaraan->merk ?? '-',
                                 'jns_bbm' => $item->jns_bbm,
                                 'liter' => $item->liter,
                                 'km_awal' => $item->km_awal,
@@ -79,7 +81,6 @@ class BBMExport implements WithMultipleSheets
                         $data->push([
                             'nama' => 'Total Keseluruhan',
                             'tanggal' => '',
-                            'kode_unit' => '',
                             'nopol' => '',
                             'jns_mobil' => '',
                             'jns_bbm' => '',
@@ -102,8 +103,7 @@ class BBMExport implements WithMultipleSheets
                         return [
                             'Nama',
                             'Tanggal',
-                            'Kode Unit',
-                            'Nopol',
+                            'Nopol / Kode Unit',
                             'Jenis Mobil',
                             'Jenis BBM',
                             'Liter',
@@ -120,16 +120,16 @@ class BBMExport implements WithMultipleSheets
 
                     public function styles(Worksheet $sheet)
                     {
-                        $sheet->getStyle('A1:O1')->getFont()->setBold(true);
-                        $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
+                        $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+                        $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle('BBM Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
                     }
                 };
             }
@@ -155,15 +155,15 @@ class BBMExport implements WithMultipleSheets
                     });
 
                     $data = $this->bbm->map(function ($item) {
+                        $kendaraan = Kendaraan::find($item->id_kendaraan);
                         $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
                         $tot_harga = 'Rp ' . number_format($item->tot_harga ?? 0, 0, ',', '.');
 
                         return [
                             'nama' => $item->nama,
                             'tanggal' => $item->tanggal,
-                            'kode_unit' => $item->kode_unit,
-                            'nopol' => $item->nopol,
-                            'jns_mobil' => $item->jns_mobil,
+                            'nopol' => $kendaraan->nopol ?? '-',
+                            'jns_mobil' => $kendaraan->merk ?? '-',
                             'jns_bbm' => $item->jns_bbm,
                             'liter' => $item->liter,
                             'km_awal' => $item->km_awal,
@@ -181,7 +181,6 @@ class BBMExport implements WithMultipleSheets
                     $data->push([
                         'nama' => 'Total Keseluruhan',
                         'tanggal' => '',
-                        'kode_unit' => '',
                         'nopol' => '',
                         'jns_mobil' => '',
                         'jns_bbm' => '',
@@ -204,8 +203,7 @@ class BBMExport implements WithMultipleSheets
                     return [
                         'Nama',
                         'Tanggal',
-                        'Kode Unit',
-                        'Nopol',
+                        'Nopol / Kode Unit',
                         'Jenis Mobil',
                         'Jenis BBM',
                         'Liter',
@@ -222,16 +220,16 @@ class BBMExport implements WithMultipleSheets
 
                 public function styles(Worksheet $sheet)
                 {
-                    $sheet->getStyle('A1:O1')->getFont()->setBold(true);
-                    $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
+                    $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+                    $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                     $sheet->setTitle('Pengeluaran BBM');
 
                     // Menyempurnakan styling baris total
                     $totalRowIndex = $sheet->getHighestRow();
-                    $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
-                    $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
-                    $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
-                    $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
+                    $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
+                    $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
+                    $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
+                    $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
                 }
             }
         ];

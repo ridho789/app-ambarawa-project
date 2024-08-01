@@ -12,12 +12,11 @@ class Trip extends Model
     protected $primaryKey = 'id_trip';
 
     protected $fillable = [
+        'id_kendaraan',
         'tanggal',
         'kota',
         'ket',
         'uraian',
-        'nopol',
-        'merk',
         'qty',
         'unit',
         'km_awal',

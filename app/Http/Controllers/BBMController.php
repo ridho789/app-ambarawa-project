@@ -4,19 +4,23 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\BBM;
+use App\Models\Kendaraan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BBMExport;
 
 class BBMController extends Controller
 {
     public function index() {
-        $bbm = BBM::orderBy('tanggal', 'asc')->orderBy('nopol', 'asc')->orderBy('nama', 'asc')->get();
+        $bbm = BBM::orderBy('tanggal', 'asc')->orderBy('id_kendaraan', 'asc')->orderBy('nama', 'asc')->get();
         $periodes = BBM::select(BBM::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
             ->distinct()
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        return view('contents.bbm', compact('bbm', 'periodes'));
+        $kendaraan = Kendaraan::all();
+        $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
+        $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
+        return view('contents.bbm', compact('bbm', 'periodes', 'kendaraan', 'nopolKendaraan', 'merkKendaraan'));
     }
 
     public function store(Request $request) {
@@ -26,9 +30,7 @@ class BBMController extends Controller
         $dataBBM = [
             'nama' => $request->nama,
             'tanggal' => $request->tanggal,
-            'kode_unit' => $request->kode_unit,
-            'nopol' => $request->nopol,
-            'jns_mobil' => $request->jns_mobil,
+            'id_kendaraan' => $request->kendaraan,
             'jns_bbm' => $request->jns_bbm,
             'liter' => $request->liter,
             'km_awal' => $request->km_awal,
@@ -41,15 +43,20 @@ class BBMController extends Controller
             'tot_km' => $request->tot_km
         ];
 
-        $exitingBBM = BBM::where('nama', $request->nama)->where('tanggal', $request->tanggal)->where('kode_unit', $request->kode_unit)
-            ->where('nopol', $request->nopol)->where('jns_mobil', $request->jns_mobil)->where('jns_bbm', $request->jns_bbm)
+        $nopol = null;
+        $dataKendaraan = Kendaraan::where('id_kendaraan', $request->kendaraan)->first();
+        if ($dataKendaraan) {
+            $nopol = $dataKendaraan->nopol;
+        }
+
+        $exitingBBM = BBM::where('nama', $request->nama)->where('tanggal', $request->tanggal)->where('id_kendaraan', $request->kendaraan)->where('jns_bbm', $request->jns_bbm)
             ->where('liter', $request->liter)->where('km_awal', $request->km_awal)->where('km_isi', $request->km_isi)->where('km_akhir', $request->km_akhir)
             ->where('km_ltr', $request->km_ltr)->where('harga', $numericHarga)->where('tot_harga', $numericTotalHarga)->where('ket', $request->ket)->where('tot_km', $request->tot_km)
             ->first();
 
         if ($exitingBBM) {
-            $logErrors = 'Nama: ' . $request->nama . ' - ' . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Kode Unit: ' . $request->kode_unit . ' - ' . 
-            'Nopol: ' . $request->nopol . ' - ' . 'KM/Liter: ' . $request->km_ltr . ' - ' . 'Total Harga: ' . $request->tot_harga . ' - ' . 'Total KM: ' . $request->tot_km . ' - ' .
+            $logErrors = 'Nama: ' . $request->nama . ' - ' . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Nopol / Kode Unit: ' . $nopol . ' - ' . 
+            'KM/Liter: ' . $request->km_ltr . ' - ' . 'Total Harga: ' . $request->tot_harga . ' - ' . 'Total KM: ' . $request->tot_km . ' - ' .
             'Ket: ' . $request->ket . ', data tersebut sudah ada di sistem';
 
             return redirect('bbm')->with('logErrors', $logErrors);
@@ -68,9 +75,7 @@ class BBMController extends Controller
         if ($dataBBM) {
             $dataBBM->nama = $request->nama;
             $dataBBM->tanggal = $request->tanggal;
-            $dataBBM->kode_unit = $request->kode_unit;
-            $dataBBM->nopol = $request->nopol;
-            $dataBBM->jns_mobil = $request->jns_mobil;
+            $dataBBM->id_kendaraan = $request->kendaraan;
             $dataBBM->jns_bbm = $request->jns_bbm;
             $dataBBM->liter = $request->liter;
             $dataBBM->km_awal = $request->km_awal;
@@ -107,14 +112,14 @@ class BBMController extends Controller
         $periode = $request->periode;
 
         if ($mode == 'all_data') {
-            $bbm = BBM::orderBy('tanggal', 'asc')->orderBy('nopol', 'asc')->orderBy('nama', 'asc')->get();
+            $bbm = BBM::orderBy('tanggal', 'asc')->orderBy('id_kendaraan', 'asc')->orderBy('nama', 'asc')->get();
             return Excel::download(new BBMExport($mode, $bbm), 'Report BBM.xlsx');
 
         } else {
             $bbm = BBM::whereYear('tanggal', '=', substr($periode, 0, 4))
                 ->whereMonth('tanggal', '=', substr($periode, 5, 2))
                 ->orderBy('tanggal', 'asc')
-                ->orderBy('nopol', 'asc')
+                ->orderBy('id_kendaraan', 'asc')
                 ->orderBy('nama', 'asc')
                 ->get();
 

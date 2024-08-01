@@ -12,11 +12,9 @@ class BBM extends Model
     protected $primaryKey = 'id_bbm';
 
     protected $fillable = [
+        'id_kendaraan',
         'nama',
         'tanggal',
-        'kode_unit',
-        'nopol',
-        'jns_mobil',
         'jns_bbm',
         'liter',
         'km_awal',

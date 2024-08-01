@@ -69,22 +69,28 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-3">
-                                    <label for="kode_unit">Kode Unit</label>
-                                    <input type="text" class="form-control" name="kode_unit" id="kode_unit" placeholder="Masukkan kd unit.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
+                                <div class="col-4">
+                                    @if (count($kendaraan) > 0)
+                                        <label for="kendaraan">Pilih Kendaraan (Nopol / Kode Unit)</label>
+                                        <select class="form-select form-control" name="kendaraan" id="kendaraan" onchange="updateMerk()">
+                                            <option value="">...</option>
+                                            @foreach ($kendaraan as $k)
+                                                <option value="{{ $k->id_kendaraan }}" data-merk="{{ $k->merk }}">{{ $k->nopol }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <label>Pilih Kendaraan (Nopol / Kode Unit)</label>
+                                        <select class="form-control" disabled>
+                                            <option value="">Tidak ada data</option>
+                                        </select>
+                                    @endif
                                 </div>
-                                <div class="col-3">
-                                    <label for="nopol">Nopol</label>
-                                    <input type="text" class="form-control" name="nopol" id="nopol" placeholder="Masukkan nopol.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
-                                </div>
-                                <div class="col-3">
+                                <div class="col-4">
                                     <label for="jns_mobil">Jenis Mobil</label>
                                     <input type="text" class="form-control" name="jns_mobil" id="jns_mobil" placeholder="Jenis mobil.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
+                                    oninput="this.value = this.value.toUpperCase()" style="background-color: #fff !important;" readonly />
                                 </div>
-                                <div class="col-3">
+                                <div class="col-4">
                                     <label for="jns_bbm">Jenis BBM</label>
                                     <input type="text" class="form-control" name="jns_bbm" id="jns_bbm" placeholder="Jenis bbm.." 
                                     oninput="this.value = this.value.toUpperCase()" required />
@@ -186,22 +192,28 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-3">
-                                    <label for="kode_unit">Kode Unit</label>
-                                    <input type="text" class="form-control" name="kode_unit" id="edit-kode_unit" placeholder="Masukkan kd unit.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
+                                <div class="col-4">
+                                    @if (count($kendaraan) > 0)
+                                        <label for="kendaraan">Pilih Kendaraan (Nopol / Kode Unit)</label>
+                                        <select class="form-select form-control" name="kendaraan" id="edit-kendaraan" onchange="updateEditMerk()">
+                                            <option value="">...</option>
+                                            @foreach ($kendaraan as $k)
+                                                <option value="{{ $k->id_kendaraan }}" data-merk="{{ $k->merk }}">{{ $k->nopol }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <label>Pilih Kendaraan (Nopol / Kode Unit)</label>
+                                        <select class="form-control" disabled>
+                                            <option value="">Tidak ada data</option>
+                                        </select>
+                                    @endif
                                 </div>
-                                <div class="col-3">
-                                    <label for="nopol">Nopol</label>
-                                    <input type="text" class="form-control" name="nopol" id="edit-nopol" placeholder="Masukkan nopol.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
-                                </div>
-                                <div class="col-3">
+                                <div class="col-4">
                                     <label for="jns_mobil">Jenis Mobil</label>
                                     <input type="text" class="form-control" name="jns_mobil" id="edit-jns_mobil" placeholder="Jenis mobil.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
+                                    oninput="this.value = this.value.toUpperCase()" style="background-color: #fff !important;" readonly />
                                 </div>
-                                <div class="col-3">
+                                <div class="col-4">
                                     <label for="jns_bbm">Jenis BBM</label>
                                     <input type="text" class="form-control" name="jns_bbm" id="edit-jns_bbm" placeholder="Jenis bbm.." 
                                     oninput="this.value = this.value.toUpperCase()" required />
@@ -401,9 +413,8 @@
                                         <th class="text-xxs-bold">No.</th>
                                         <th class="text-xxs-bold">Nama</th>
                                         <th class="text-xxs-bold">Tanggal</th>
-                                        <th class="text-xxs-bold">Kode Unit</th>
-                                        <th class="text-xxs-bold">Nopol</th>
-                                        <!-- <th class="text-xxs-bold">Jenis Mobil</th> -->
+                                        <th class="text-xxs-bold">Nopol / Kode Unit</th>
+                                        <th class="text-xxs-bold">Jenis Mobil</th>
                                         <!-- <th class="text-xxs-bold">Jenis BBM</th> -->
                                         <th class="text-xxs-bold">Liter</th>
                                         <th class="text-xxs-bold">KM Awal</th>
@@ -421,15 +432,15 @@
                                     <tr data-id="{{ $b->id_bbm }}"
                                         data-nama="{{ $b->nama }}"
                                         data-tanggal="{{ $b->tanggal }}" 
-                                        data-kode_unit="{{ $b->kode_unit }}"
-                                        data-nopol="{{ $b->nopol }}"
-                                        data-jns_mobil="{{ $b->jns_mobil }}"
+                                        data-kendaraan="{{ $b->id_kendaraan }}"
+                                        data-merk="{{ $merkKendaraan[$b->id_kendaraan] ?? '-' }}"
                                         data-jns_bbm="{{ $b->jns_bbm }}"
                                         data-liter="{{ $b->liter }}"
                                         data-km_awal="{{ $b->km_awal }}"
                                         data-km_isi="{{ $b->km_isi }}"
                                         data-km_akhir="{{ $b->km_akhir }}"
                                         data-km_ltr="{{ $b->km_ltr }}"
+                                        data-harga="{{ 'Rp ' . number_format($b->harga ?? 0, 0, ',', '.') }}"
                                         data-tot_harga="{{ 'Rp ' . number_format($b->tot_harga ?? 0, 0, ',', '.') }}"
                                         data-ket="{{ $b->ket }}"
                                         data-tot_km="{{ $b->tot_km }}">
@@ -437,9 +448,8 @@
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $b->nama ?? '-' }}</td>
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $b->tanggal)->format('d-M-Y') ?? '-' }}</td>
-                                        <td>{{ $b->kode_unit ?? '-' }}</td>
-                                        <td>{{ $b->nopol ?? '-' }}</td>
-                                        <!-- <td>{{ $b->jns_mobil ?? '-' }}</td> -->
+                                        <td>{{ $nopolKendaraan[$b->id_kendaraan] ?? '-' }}</td>
+                                        <td>{{ $merkKendaraan[$b->id_kendaraan] ?? '-' }}</td>
                                         <!-- <td>{{ $b->jns_bbm ?? '-' }}</td> -->
                                         <td>{{ $b->liter ?? '-' }}</td>
                                         <td>{{ $b->km_awal ?? '-' }}</td>
@@ -548,6 +558,24 @@
 
         radioError.classList.add('d-none');
         return true;
+    }
+
+    function updateMerk() {
+        var kendaraanSelect = document.getElementById('kendaraan');
+        var selectedOption = kendaraanSelect.options[kendaraanSelect.selectedIndex];
+        var merk = selectedOption.getAttribute('data-merk');
+        
+        var merkInput = document.getElementById('jns_mobil');
+        merkInput.value = merk ? merk.toUpperCase() : '';
+    }
+
+    function updateEditMerk() {
+        var kendaraanEditSelect = document.getElementById('edit-kendaraan');
+        var selectedEditOption = kendaraanEditSelect.options[kendaraanEditSelect.selectedIndex];
+        var merk = selectedEditOption.getAttribute('data-merk');
+        
+        var merkEditInput = document.getElementById('edit-jns_mobil');
+        merkEditInput.value = merk ? merk.toUpperCase() : '';
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -747,15 +775,15 @@
                     $('#edit-id').val(selectedId);
                     $('#edit-nama').val(row.data('nama'));
                     $('#edit-tanggal').val(row.data('tanggal'));
-                    $('#edit-kode_unit').val(row.data('kode_unit'));
-                    $('#edit-nopol').val(row.data('nopol'));
-                    $('#edit-jns_mobil').val(row.data('jns_mobil'));
+                    $('#edit-kendaraan').val(row.data('kendaraan'));
+                    $('#edit-jns_mobil').val(row.data('merk'));
                     $('#edit-jns_bbm').val(row.data('jns_bbm'));
                     $('#edit-liter').val(row.data('liter'));
                     $('#edit-km_awal').val(row.data('km_awal'));
                     $('#edit-km_isi').val(row.data('km_isi'));
                     $('#edit-km_akhir').val(row.data('km_akhir'));
                     $('#edit-km_ltr').val(row.data('km_ltr'));
+                    $('#edit-harga').val(row.data('harga'));
                     $('#edit-tot_harga').val(row.data('tot_harga'));
                     $('#edit-ket').val(row.data('ket'));
                     $('#edit-tot_km').val(row.data('tot_km'));

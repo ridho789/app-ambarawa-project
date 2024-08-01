@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Carbon\Carbon;
+use App\Models\Kendaraan;
 
 class TripExport implements WithMultipleSheets
 {
@@ -53,6 +54,7 @@ class TripExport implements WithMultipleSheets
                         });
 
                         $data = $this->trip->map(function ($item) {
+                            $kendaraan = Kendaraan::find($item->id_kendaraan);
                             $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
                             $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
 
@@ -61,8 +63,8 @@ class TripExport implements WithMultipleSheets
                                 'kota' => $item->kota,
                                 'ket' => $item->ket,
                                 'uraian' => $item->uraian,
-                                'nopol' => $item->nopol,
-                                'merk' => $item->merk,
+                                'nopol' => $kendaraan->nopol ?? '-',
+                                'merk' => $kendaraan->merk ?? '-',
                                 'qty' => $item->qty,
                                 'unit' => $item->unit,
                                 'km_awal' => $item->km_awal,
@@ -102,7 +104,7 @@ class TripExport implements WithMultipleSheets
                             'Kota',
                             'Keterangan',
                             'Uraian',
-                            'Nopol',
+                            'Nopol / Kode Unit',
                             'Merk',
                             'Jumlah',
                             'Satuan',
@@ -152,6 +154,7 @@ class TripExport implements WithMultipleSheets
                     });
 
                     $data = $this->trip->map(function ($item) {
+                        $kendaraan = Kendaraan::find($item->id_kendaraan);
                         $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
                         $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
 
@@ -160,8 +163,8 @@ class TripExport implements WithMultipleSheets
                             'kota' => $item->kota,
                             'ket' => $item->ket,
                             'uraian' => $item->uraian,
-                            'nopol' => $item->nopol,
-                            'merk' => $item->merk,
+                            'nopol' => $kendaraan->nopol ?? '-',
+                            'merk' => $kendaraan->merk ?? '-',
                             'qty' => $item->qty,
                             'unit' => $item->unit,
                             'km_awal' => $item->km_awal,
@@ -201,7 +204,7 @@ class TripExport implements WithMultipleSheets
                         'Kota',
                         'Keterangan',
                         'Uraian',
-                        'Nopol',
+                        'Nopol / Kode Unit',
                         'Merk',
                         'Jumlah',
                         'Satuan',

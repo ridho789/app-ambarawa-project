@@ -36,6 +36,12 @@
                     <h4 class="text-section">Master Data</h4>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url('/kendaraan') }}">
+                        <i class="fas fa-car-side"></i>
+                        <p>Kendaraan</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url('/proyek') }}">
                         <i class="fas fa-warehouse"></i>
                         <p>Proyek</p>

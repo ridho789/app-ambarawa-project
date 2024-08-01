@@ -20,7 +20,9 @@ use App\Http\Controllers\PasirController;
 
 // Pembangunan
 use App\Http\Controllers\PenguruganController;
+
 // Master data
+use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\ProyekController;
 
 /*
@@ -137,6 +139,12 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('pasir-update', [PasirController::class, 'update']);
     Route::post('pasir-delete', [PasirController::class, 'delete']);
     Route::post('pasir-export', [PasirController::class, 'export']);
+
+    // Master data - Kendaraan
+    Route::get('/kendaraan', [KendaraanController::class, 'index']);
+    Route::post('kendaraan-store', [KendaraanController::class, 'store']);
+    Route::post('kendaraan-update', [KendaraanController::class, 'update']);
+    Route::post('kendaraan-delete', [KendaraanController::class, 'delete']);
 
     // Master data - Proyek
     Route::get('/proyek', [ProyekController::class, 'index']);

@@ -62,7 +62,7 @@
                                         @endforeach
                                     </select>
                                 @else
-                                    <label style="margin-bottom: 4.5px;">Pilih proyek</label>
+                                    <label>Pilih proyek</label>
                                     <select class="form-control" disabled>
                                         <option value="">Tidak ada data</option>
                                     </select>
@@ -155,7 +155,7 @@
                                         @endforeach
                                     </select>
                                 @else
-                                    <label style="margin-bottom: 4.5px;">Pilih proyek</label>
+                                    <label>Pilih proyek</label>
                                     <select class="form-control" disabled>
                                         <option value="">Tidak ada data</option>
                                     </select>

@@ -4,19 +4,23 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Trip;
+use App\Models\Kendaraan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TripExport;
 
 class TripController extends Controller
 {
     public function index() {
-        $trips = Trip::orderBy('tanggal', 'asc')->orderBy('nopol', 'asc')->orderBy('kota', 'asc')->get();
+        $trips = Trip::orderBy('tanggal', 'asc')->orderBy('id_kendaraan', 'asc')->orderBy('kota', 'asc')->get();
         $periodes = Trip::select(Trip::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
             ->distinct()
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        return view('contents.trip', compact('trips', 'periodes'));
+        $kendaraan = Kendaraan::all();
+        $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
+        $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
+        return view('contents.trip', compact('trips', 'periodes', 'kendaraan', 'nopolKendaraan', 'merkKendaraan'));
     }
 
     public function store(Request $request) {
@@ -28,8 +32,7 @@ class TripController extends Controller
             'kota' => $request->kota,
             'ket' => $request->ket,
             'uraian' => $request->uraian,
-            'nopol' => $request->nopol,
-            'merk' => $request->merk,
+            'id_kendaraan' => $request->kendaraan,
             'qty' => $request->qty,
             'unit' => $request->unit,
             'km_awal' => $request->km_awal,
@@ -40,15 +43,21 @@ class TripController extends Controller
             'total' => $numericTotal
         ];
 
+        $nopol = null;
+        $dataKendaraan = Kendaraan::where('id_kendaraan', $request->kendaraan)->first();
+        if ($dataKendaraan) {
+            $nopol = $dataKendaraan->nopol;
+        }
+
         $exitingTrip = Trip::where('tanggal', $request->tanggal)->where('kota', $request->kota)->where('ket', $request->ket)
-            ->where('uraian', $request->uraian)->where('nopol', $request->nopol)->where('merk', $request->merk)->where('qty', $request->qty)
+            ->where('uraian', $request->uraian)->where('id_kendaraan', $request->kendaraan)->where('qty', $request->qty)
             ->where('unit', $request->unit)->where('km_awal', $request->km_awal)->where('km_isi', $request->km_isi)->where('km_akhir', $request->km_akhir)
             ->where('km_ltr', $request->km_ltr)->where('harga', $numericHarga)->where('total', $numericTotal)
             ->first();
 
         if ($exitingTrip) {
             $logErrors = 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Kota: ' . $request->kota . ' - ' . 'Ket: ' . $request->ket . ' - ' . 'Uraian: ' . $request->uraian . ' - ' . 
-            'Nopol: ' . $request->nopol . ' - ' . 'Merk: ' . $request->merk . ' - ' . 'Qty: ' . $request->qty . ' - ' . 'Unit: ' . $request->unit . ' - ' . 
+            'Nopol / Kode Unit: ' . $nopol . ' - ' . 'Qty: ' . $request->qty . ' - ' . 'Unit: ' . $request->unit . ' - ' . 
             'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . ', data tersebut sudah ada di sistem';
 
             return redirect('trip')->with('logErrors', $logErrors);
@@ -69,8 +78,7 @@ class TripController extends Controller
             $tagihanTrip->kota = $request->kota;
             $tagihanTrip->ket = $request->ket;
             $tagihanTrip->uraian = $request->uraian;
-            $tagihanTrip->nopol = $request->nopol;
-            $tagihanTrip->merk = $request->merk;
+            $tagihanTrip->id_kendaraan = $request->kendaraan;
             $tagihanTrip->qty = $request->qty;
             $tagihanTrip->unit = $request->unit;
             $tagihanTrip->km_awal = $request->km_awal;
@@ -105,14 +113,14 @@ class TripController extends Controller
         $periode = $request->periode;
 
         if ($mode == 'all_data') {
-            $trip = Trip::orderBy('tanggal', 'asc')->orderBy('nopol', 'asc')->orderBy('kota', 'asc')->get();
+            $trip = Trip::orderBy('tanggal', 'asc')->orderBy('id_kendaraan', 'asc')->orderBy('kota', 'asc')->get();
             return Excel::download(new TripExport($mode, $trip), 'Report Trip.xlsx');
 
         } else {
             $trip = Trip::whereYear('tanggal', '=', substr($periode, 0, 4))
                 ->whereMonth('tanggal', '=', substr($periode, 5, 2))
                 ->orderBy('tanggal', 'asc')
-                ->orderBy('nopol', 'asc')
+                ->orderBy('id_kendaraan', 'asc')
                 ->orderBy('kota', 'asc')
                 ->get();
 
