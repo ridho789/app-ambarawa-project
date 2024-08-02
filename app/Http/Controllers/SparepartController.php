@@ -25,9 +25,9 @@ class SparepartController extends Controller
             ->get()
             ->pluck('periode');
         $sparepartambgroup = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
-            ->selectRaw('lokasi, YEAR(tgl_order) as year, MONTHNAME(tgl_order) as month_name, SUM(total) as total_sum')
-            ->groupBy('lokasi', 'year', 'month_name')
-            ->orderBy('lokasi')
+            ->selectRaw('toko, YEAR(tgl_order) as year, MONTHNAME(tgl_order) as month_name, SUM(total) as total_sum')
+            ->groupBy('toko', 'year', 'month_name')
+            ->orderBy('toko')
             ->orderBy('year')
             ->orderByRaw('MONTH(tgl_order)')
             ->get();

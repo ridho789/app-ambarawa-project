@@ -585,7 +585,7 @@
                                     <tr>
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $s->month_name }} {{ $s->year }}</td>
-                                        <td>{{ $s->lokasi }}</td>
+                                        <td>{{ $s->toko }}</td>
                                         <td>{{ 'Rp ' . number_format($s->total_sum  ?? 0, 0, ',', '.') }}</td>
                                     </tr>
                                     @endforeach
