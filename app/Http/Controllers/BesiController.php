@@ -7,6 +7,7 @@ use App\Models\Pembangunan;
 use App\Models\Proyek;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PembangunanExport;
+use Carbon\Carbon;
 
 class BesiController extends Controller
 {
@@ -101,21 +102,57 @@ class BesiController extends Controller
 
     public function export(Request $request) {
         $mode = $request->metode_export;
-        $periode = $request->periode;
         $nama = 'Besi';
+
+        // Ambil input tanggal dari request
+        $start_date = Carbon::parse($request->start_date);
+        $end_date = Carbon::parse($request->end_date);
+        $rangeDate = null;
+
+        // Format bulan dan tahun untuk perbandingan
+        $start_month_year = $start_date->format('m-Y');
+        $end_month_year = $end_date->format('m-Y');
+
+        // Format tahun untuk perbandingan
+        $start_year = $start_date->format('Y');
+        $end_year = $end_date->format('Y');
+
+        if ($start_date->isSameDay($end_date)) {
+            // Format tanggal yang diinginkan jika tanggal sama
+            $rangeDate = $start_date->format('d M Y');
+
+        } elseif ($start_month_year === $end_month_year) {
+            // Format tanggal yang diinginkan jika bulan dan tahun sama
+            $start_day = $start_date->format('d');
+            $end_day = $end_date->format('d');
+            $month_year = $start_date->format('M Y');
+            $rangeDate = "{$start_day} - {$end_day} {$month_year}";
+
+        } elseif ($start_year === $end_year) {
+            // Format tanggal yang diinginkan jika tahun sama tetapi bulan berbeda
+            $start_day = $start_date->format('d');
+            $end_day = $end_date->format('d');
+            $start_month = $start_date->format('M');
+            $end_month = $end_date->format('M');
+            $year = $start_date->format('Y');
+            $rangeDate = "{$start_day} {$start_month} - {$end_day} {$end_month} {$year}";
+
+        } else {
+            $rangeDate = "{$start_date->format('d M Y')} - {$end_date->format('d M Y')}";
+        }
 
         if ($mode == 'all_data') {
             $besi = Pembangunan::where('ket', 'pengeluaran besi')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
             return Excel::download(new PembangunanExport($mode, $besi, $nama), 'Report Besi.xlsx');
 
         } else {
-            $besi = Pembangunan::where('ket', 'pengeluaran besi')->whereYear('tanggal', '=', substr($periode, 0, 4))
-                ->whereMonth('tanggal', '=', substr($periode, 5, 2))
+            $besi = Pembangunan::where('ket', 'pengeluaran besi')->where('tanggal', '>=', $start_date)
+                ->where('tanggal', '<=', $end_date)
                 ->orderBy('tanggal', 'asc')
                 ->orderBy('nama', 'asc')
                 ->get();
 
-            $fileName = 'Report Besi ' . \Carbon\Carbon::parse($periode)->format('M-Y') . '.xlsx';
+            $fileName = 'Report Besi ' . $rangeDate . '.xlsx';
             return Excel::download(new PembangunanExport($mode, $besi, $nama), $fileName);
         }
     }

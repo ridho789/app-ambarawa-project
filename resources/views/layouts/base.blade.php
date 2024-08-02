@@ -34,6 +34,9 @@
     <link rel="stylesheet" href="{{ asset('') }}assets/css/plugins.min.css" />
     <link rel="stylesheet" href="{{ asset('') }}assets/css/kaiadmin.min.css" />
 
+    <!-- Daterange picker -->
+    <link rel="stylesheet" href="{{ asset('') }}assets/vendor/bootstrap-daterangepicker/daterangepicker.css">
+
     <!-- custom style -->
     <style>
         .text-xxs-bold {
@@ -140,6 +143,13 @@
 
     <!-- Kaiadmin JS -->
     <script src="{{ asset('') }}assets/js/kaiadmin.min.js"></script>
+
+    <!-- momment js is must -->
+    <script src="{{ asset('') }}assets/vendor/moment/moment.min.js"></script>
+    <script src="{{ asset('') }}assets/vendor/bootstrap-daterangepicker/daterangepicker.js"></script>
+
+    <!-- Daterangepicker -->
+    <script src="{{ asset('') }}assets/js/plugins-init/bs-daterange-picker-init.js"></script>
 
 </body>
 

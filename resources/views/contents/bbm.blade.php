@@ -317,15 +317,16 @@
 
                             <div id="customFields" class="d-none">
                                 <div class="form-group">
-                                    <label for="periode">Periode</label>
-                                    <select class="form-control" name="periode" id="periode">
-                                        <option value="">...</option>
-                                        @foreach ($periodes as $periode)
-                                            <option 
-                                                value="{{ $periode }}">{{ \Carbon\Carbon::createFromFormat('Y-m', $periode)->translatedFormat('F Y') }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <input type="hidden" id="start_date" name="start_date">
+                                    <input type="hidden" id="end_date" name="end_date">
+
+                                    <label>Rentang Tanggal</label>
+                                    <div id="dateError" class="text-danger d-none">Silakan pilih rentang tanggal.</div>
+                                    <div class="col-12" id="reportrange" style="background: #fff; cursor: pointer; 
+                                        padding: 10px 10px; border: 1px solid #ccc; border-radius:5px;">
+                                        <i class="fa fa-calendar"> </i>&nbsp;
+                                        <span id="reportrange_display"> Menampilkan data berdasarkan rentang tanggal </span> 
+                                    </div>
                                 </div>
                             </div>
 
@@ -550,12 +551,23 @@
         const allData = document.getElementById('all_data');
         const custom = document.getElementById('custom');
         const radioError = document.getElementById('radioError');
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        const dateError = document.getElementById('dateError');
 
         if (!allData.checked && !custom.checked) {
             radioError.classList.remove('d-none');
             return false;
         }
 
+        if (custom.checked) {
+            if (!startDate || !endDate) {
+                dateError.classList.remove('d-none');
+                return false;
+            }
+        }
+
+        dateError.classList.add('d-none');
         radioError.classList.add('d-none');
         return true;
     }
@@ -675,6 +687,44 @@
                 this.value = formatCurrency(this.value);
             });
         });
+
+        // Datepicker
+        var reportrange = document.getElementById('reportrange');
+        var span = reportrange.querySelector('span');
+        var startInput = document.getElementById('start_date');
+        var endInput = document.getElementById('end_date');
+        var reportrangeDisplay = document.getElementById('reportrange_display');
+
+        var start = moment().subtract(29, 'days');
+        var end = null;
+
+        function cb(start, end) {
+            if (start.isValid() && end.isValid()) {
+                var rangeText = span.innerHTML = start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY');
+                startInput.value = start.format('YYYY-MM-DD');
+                endInput.value = end.format('YYYY-MM-DD');
+            }
+        }
+
+        function applyDateRangePicker() {
+            new daterangepicker(reportrange, {
+                startDate: start,
+                endDate: end,
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), 
+                        moment().subtract(1, 'month').endOf('month')]
+                },
+                alwaysShowCalendars: true,
+                
+            }, cb);
+        }
+
+        applyDateRangePicker();
 
         // Checkbox
         var table = document.getElementById('basic-datatables');
