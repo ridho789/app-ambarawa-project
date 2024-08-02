@@ -62,18 +62,26 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-4">
-                                    <label for="nopol">Nopol</label>
-                                    <input type="text" class="form-control" name="nopol" id="nopol" placeholder="Masukkan nopol.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
+                                <div class="col-6">
+                                    @if (count($kendaraan) > 0)
+                                        <label for="kendaraan">Nopol / Kode Unit</label>
+                                        <select class="form-select form-control" name="kendaraan" id="kendaraan" onchange="updateMerk()">
+                                            <option value="">...</option>
+                                            @foreach ($kendaraan as $k)
+                                                <option value="{{ $k->id_kendaraan }}" data-merk="{{ $k->merk }}">{{ $k->nopol }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <label>Nopol / Kode Unit</label>
+                                        <select class="form-control" disabled>
+                                            <option value="">Tidak ada data</option>
+                                        </select>
+                                    @endif
                                 </div>
-                                <div class="col-4">
-                                    <label for="kode_unit">Kode Unit</label>
-                                    <input type="text" class="form-control" name="kode_unit" id="kode_unit" placeholder="Masukkan kode unit.." required />
-                                </div>
-                                <div class="col-4">
+                                <div class="col-6">
                                     <label for="merk">Merk</label>
-                                    <input type="text" class="form-control" name="merk" id="merk" placeholder="Masukkan merk.." required />
+                                    <input type="text" class="form-control" name="merk" id="merk" placeholder="Masukkan merk.." 
+                                    oninput="this.value = this.value.toUpperCase()" style="background-color: #fff !important;" readonly />
                                 </div>
                             </div>
 
@@ -102,12 +110,13 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label for="nama">Nama (Barang)</label>
+                                <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." required />
+                            </div>
+
                             <div class="form-group row">
-                                <div class="col-4">
-                                    <label for="nama">Nama (Barang)</label>
-                                    <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." required />
-                                </div>
-                                <div class="col-4">
+                                <div class="col-6">
                                     <label for="kategori">Kategori</label>
                                     <select class="form-select form-control" id="kategori" name="kategori" required>
                                         <option value="">...</option>
@@ -117,7 +126,7 @@
                                         <option value="Jasa">Jasa</option>
                                     </select>
                                 </div>
-                                <div class="col-4">
+                                <div class="col-6">
                                     <label for="masa_pakai">Masa Pakai</label>
                                     <input type="text" class="form-control" name="masa_pakai" id="masa_pakai" placeholder="Masa pakai.." required />
                                 </div>
@@ -264,18 +273,26 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-4">
-                                    <label for="nopol">Nopol</label>
-                                    <input type="text" class="form-control" name="nopol" id="edit-nopol" placeholder="Masukkan nopol.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
+                                <div class="col-6">
+                                    @if (count($kendaraan) > 0)
+                                        <label for="kendaraan">Nopol / Kode Unit</label>
+                                        <select class="form-select form-control" name="kendaraan" id="edit-kendaraan" onchange="updateEditMerk()">
+                                            <option value="">...</option>
+                                            @foreach ($kendaraan as $k)
+                                                <option value="{{ $k->id_kendaraan }}" data-merk="{{ $k->merk }}">{{ $k->nopol }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <label>Nopol / Kode Unit</label>
+                                        <select class="form-control" disabled>
+                                            <option value="">Tidak ada data</option>
+                                        </select>
+                                    @endif
                                 </div>
-                                <div class="col-4">
-                                    <label for="kode_unit">Kode Unit</label>
-                                    <input type="text" class="form-control" name="kode_unit" id="edit-kode_unit" placeholder="Masukkan kode unit.." required />
-                                </div>
-                                <div class="col-4">
+                                <div class="col-6">
                                     <label for="merk">Merk</label>
-                                    <input type="text" class="form-control" name="merk" id="edit-merk" placeholder="Masukkan merk.." required />
+                                    <input type="text" class="form-control" name="merk" id="edit-merk" placeholder="Masukkan merk.." 
+                                    oninput="this.value = this.value.toUpperCase()" style="background-color: #fff !important;" readonly />
                                 </div>
                             </div>
 
@@ -304,12 +321,13 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label for="nama">Nama (Barang)</label>
+                                <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." required />
+                            </div>
+
                             <div class="form-group row">
-                                <div class="col-4">
-                                    <label for="nama">Nama (Barang)</label>
-                                    <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." required />
-                                </div>
-                                <div class="col-4">
+                                <div class="col-6">
                                     <label for="kategori">Kategori</label>
                                     <select class="form-select form-control" id="edit-kategori" name="kategori" required>
                                         <option value="">...</option>
@@ -319,7 +337,7 @@
                                         <option value="Jasa">Jasa</option>
                                     </select>
                                 </div>
-                                <div class="col-4">
+                                <div class="col-6">
                                     <label for="masa_pakai">Masa Pakai</label>
                                     <input type="text" class="form-control" name="masa_pakai" id="edit-masa_pakai" placeholder="Masa pakai.." required />
                                 </div>
@@ -623,9 +641,8 @@
                                         </th>
                                         <th class="text-xxs-bold">No.</th>
                                         <th class="text-xxs-bold">Lokasi</th>
-                                        <th class="text-xxs-bold">Nopol</th>
-                                        <th class="text-xxs-bold">Kode Unit</th>
-                                        <!-- <th class="text-xxs-bold">Merk</th> -->
+                                        <th class="text-xxs-bold">Nopol / Kode Unit</th>
+                                        <th class="text-xxs-bold">Merk</th>
                                         <th class="text-xxs-bold">Pemesan</th>
                                         <th class="text-xxs-bold">Tgl. Order</th>
                                         <th class="text-xxs-bold">Tgl. Invoice</th>
@@ -646,9 +663,8 @@
                                     @foreach($sparepartamb as $s)
                                     <tr data-id="{{ $s->id_tagihan_amb }}" 
                                         data-lokasi="{{ $s->lokasi }}" 
-                                        data-nopol="{{ $s->nopol }}"
-                                        data-kode_unit="{{ $s->kode_unit }}"
-                                        data-merk="{{ $s->merk }}"
+                                        data-kendaraan="{{ $s->id_kendaraan }}"
+                                        data-merk="{{ $merkKendaraan[$s->id_kendaraan] ?? '-' }}"
                                         data-pemesan="{{ $s->pemesan }}"
                                         data-tgl_order="{{ $s->tgl_order }}"
                                         data-tgl_invoice="{{ $s->tgl_invoice }}"
@@ -671,9 +687,8 @@
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $s->lokasi ?? '-' }}</td>
-                                        <td>{{ $s->nopol ?? '-' }}</td>
-                                        <td>{{ $s->kode_unit ?? '-' }}</td>
-                                        <!-- <td>{{ $s->merk ?? '-' }}</td> -->
+                                        <td>{{ $nopolKendaraan[$s->id_kendaraan] ?? '-' }}</td>
+                                        <td>{{ $merkKendaraan[$s->id_kendaraan] ?? '-' }}</td>
                                         <td>{{ $s->pemesan ?? '-' }}</td>
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $s->tgl_order)->format('d-M-Y') ?? '-' }}</td>
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $s->tgl_invoice)->format('d-M-Y') ?? '-' }}</td>
@@ -871,6 +886,24 @@
         dateError.classList.add('d-none');
         radioError.classList.add('d-none');
         return true;
+    }
+
+    function updateMerk() {
+        var kendaraanSelect = document.getElementById('kendaraan');
+        var selectedOption = kendaraanSelect.options[kendaraanSelect.selectedIndex];
+        var merk = selectedOption.getAttribute('data-merk');
+        
+        var merkInput = document.getElementById('merk');
+        merkInput.value = merk ? merk.toUpperCase() : '';
+    }
+
+    function updateEditMerk() {
+        var kendaraanEditSelect = document.getElementById('edit-kendaraan');
+        var selectedEditOption = kendaraanEditSelect.options[kendaraanEditSelect.selectedIndex];
+        var merk = selectedEditOption.getAttribute('data-merk');
+        
+        var merkEditInput = document.getElementById('edit-merk');
+        merkEditInput.value = merk ? merk.toUpperCase() : '';
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -1151,8 +1184,7 @@
 
                     $('#edit-id').val(selectedId);
                     $('#edit-lokasi').val(row.data('lokasi'));
-                    $('#edit-nopol').val(row.data('nopol'));
-                    $('#edit-kode_unit').val(row.data('kode_unit'));
+                    $('#edit-kendaraan').val(row.data('kendaraan'));
                     $('#edit-merk').val(row.data('merk'));
                     $('#edit-pemesan').val(row.data('pemesan'));
                     $('#edit-tgl_order').val(row.data('tgl_order'));

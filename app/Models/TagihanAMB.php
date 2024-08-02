@@ -12,11 +12,9 @@ class TagihanAMB extends Model
     protected $primaryKey = 'id_tagihan_amb';
 
     protected $fillable = [
+        'id_kendaraan',
         'keterangan',
         'lokasi',
-        'nopol',
-        'kode_unit',
-        'merk',
         'pemesan',
         'tgl_order',
         'tgl_invoice',

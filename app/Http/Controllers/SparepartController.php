@@ -4,16 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
+use App\Models\Kendaraan;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\TagihanExport;
+use App\Exports\SparepartExport;
 use Carbon\Carbon;
 
 class SparepartController extends Controller
 {
     public function index() {
-        $sparepartamb = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])->orderBy('lokasi')->get();
+        $sparepartamb = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])->orderBy('lokasi')->orderBy('id_kendaraan')->orderBy('nama')->get();
         $sparepartOnline = TagihanAMB::where('keterangan', 'tagihan sparepart online')->get();
         $sparepartOffline = TagihanAMB::where('keterangan', 'tagihan sparepart')->get();
+        $kendaraan = Kendaraan::all();
+        $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
+        $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
         $periodes = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
             ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))
             ->distinct()
@@ -28,7 +32,7 @@ class SparepartController extends Controller
             ->orderByRaw('MONTH(tgl_order)')
             ->get();
 
-        return view('contents.sparepart_amb', compact('sparepartamb', 'sparepartOnline', 'sparepartOffline', 'periodes', 'sparepartambgroup'));
+        return view('contents.sparepart_amb', compact('sparepartamb', 'sparepartOnline', 'sparepartOffline', 'kendaraan', 'nopolKendaraan', 'merkKendaraan', 'periodes', 'sparepartambgroup'));
     }
 
     public function store(Request $request) {
@@ -40,9 +44,7 @@ class SparepartController extends Controller
             $dataSparepartAMB = [
                 'keterangan' => 'tagihan sparepart',
                 'lokasi' => $request->lokasi,
-                'nopol' => $request->nopol,
-                'kode_unit' => $request->kode_unit,
-                'merk' => $request->merk,
+                'id_kendaraan' => $request->kendaraan,
                 'pemesan' => $request->pemesan,
                 'tgl_order' => $request->tgl_order,
                 'tgl_invoice' => $request->tgl_invoice,
@@ -64,8 +66,8 @@ class SparepartController extends Controller
                 'toko' => $request->toko
             ];
     
-            $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart')->where('lokasi', $request->lokasi)->where('nopol', $request->nopol)
-                ->where('kode_unit', $request->kode_unit)->where('merk', $request->merk)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
+            $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart')->where('lokasi', $request->lokasi)
+                ->where('id_kendaraan', $request->kendaraan)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
                 ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
                 ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('jml', $request->jml)->where('unit', $request->unit)
                 ->where('harga', $numericHarga)->where('total', $numericTotal)->where('toko', $request->toko)
@@ -96,9 +98,7 @@ class SparepartController extends Controller
             $dataSparepartAMB = [
                 'keterangan' => 'tagihan sparepart online',
                 'lokasi' => $request->lokasi,
-                'nopol' => $request->nopol,
-                'kode_unit' => $request->kode_unit,
-                'merk' => $request->merk,
+                'id_kendaraan' => $request->kendaraan,
                 'pemesan' => $request->pemesan,
                 'tgl_order' => $request->tgl_order,
                 'tgl_invoice' => $request->tgl_invoice,
@@ -120,8 +120,8 @@ class SparepartController extends Controller
                 'toko' => $request->toko
             ];
     
-            $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart online')->where('lokasi', $request->lokasi)->where('nopol', $request->nopol)
-                ->where('kode_unit', $request->kode_unit)->where('merk', $request->merk)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
+            $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart online')->where('lokasi', $request->lokasi)
+                ->where('id_kendaraan', $request->kendaraan)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
                 ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
                 ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('jml', $request->jml_onl)->where('unit', $request->unit_onl)
                 ->where('harga_online', $numericHargaOnline)->where('ongkir', $numericOngkir)->where('diskon_ongkir', $numericDiskonOngkir)
@@ -146,9 +146,7 @@ class SparepartController extends Controller
         $dataSparepartAMB = [
             'keterangan' => 'tagihan sparepart',
             'lokasi' => $request->lokasi,
-            'nopol' => $request->nopol,
-            'kode_unit' => $request->kode_unit,
-            'merk' => $request->merk,
+            'id_kendaraan' => $request->kendaraan,
             'pemesan' => $request->pemesan,
             'tgl_order' => $request->tgl_order,
             'tgl_invoice' => $request->tgl_invoice,
@@ -170,8 +168,8 @@ class SparepartController extends Controller
             'toko' => $request->toko
         ];
 
-        $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart')->where('lokasi', $request->lokasi)->where('nopol', $request->nopol)
-            ->where('kode_unit', $request->kode_unit)->where('merk', $request->merk)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
+        $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart')->where('lokasi', $request->lokasi)
+            ->where('id_kendaraan', $request->kendaraan)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
             ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
             ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('total', $numericTotal)->where('toko', $request->toko)
             ->first();
@@ -199,9 +197,7 @@ class SparepartController extends Controller
             if ($tagihanSparepart) {
                 $tagihanSparepart->keterangan = 'tagihan sparepart';
                 $tagihanSparepart->lokasi = $request->lokasi;
-                $tagihanSparepart->nopol = $request->nopol;
-                $tagihanSparepart->kode_unit = $request->kode_unit;
-                $tagihanSparepart->merk = $request->merk;
+                $tagihanSparepart->id_kendaraan = $request->kendaraan;
                 $tagihanSparepart->pemesan = $request->pemesan;
                 $tagihanSparepart->tgl_order = $request->tgl_order;
                 $tagihanSparepart->tgl_invoice = $request->tgl_invoice;
@@ -238,9 +234,7 @@ class SparepartController extends Controller
             if ($tagihanSparepart) {
                 $tagihanSparepart->keterangan = 'tagihan sparepart online';
                 $tagihanSparepart->lokasi = $request->lokasi;
-                $tagihanSparepart->nopol = $request->nopol;
-                $tagihanSparepart->kode_unit = $request->kode_unit;
-                $tagihanSparepart->merk = $request->merk;
+                $tagihanSparepart->id_kendaraan = $request->kendaraan;
                 $tagihanSparepart->pemesan = $request->pemesan;
                 $tagihanSparepart->tgl_order = $request->tgl_order;
                 $tagihanSparepart->tgl_invoice = $request->tgl_invoice;
@@ -269,9 +263,7 @@ class SparepartController extends Controller
         if ($tagihanSparepart) {
             $tagihanSparepart->keterangan = 'tagihan sparepart';
             $tagihanSparepart->lokasi = $request->lokasi;
-            $tagihanSparepart->nopol = $request->nopol;
-            $tagihanSparepart->kode_unit = $request->kode_unit;
-            $tagihanSparepart->merk = $request->merk;
+            $tagihanSparepart->id_kendaraan = $request->kendaraan;
             $tagihanSparepart->pemesan = $request->pemesan;
             $tagihanSparepart->tgl_order = $request->tgl_order;
             $tagihanSparepart->tgl_invoice = $request->tgl_invoice;
@@ -382,7 +374,7 @@ class SparepartController extends Controller
                 ? 'Report Sparepart Online ' . $rangeDate . '.xlsx' 
                 : 'Report Sparepart ' . $rangeDate . '.xlsx');
     
-        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian), $fileName);
+        return Excel::download(new SparepartExport($mode, $tagihan, $infoTagihan, $metode_pembelian), $fileName);
     }
 
 }

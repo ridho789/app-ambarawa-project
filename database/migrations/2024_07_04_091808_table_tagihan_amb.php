@@ -15,9 +15,6 @@ return new class extends Migration
             $table->id('id_tagihan_amb');
             $table->string('keterangan');
             $table->string('lokasi');
-            $table->string('nopol')->nullable();
-            $table->string('kode_unit')->nullable();
-            $table->string('merk')->nullable();
             $table->string('pemesan');
             $table->date('tgl_order');
             $table->date('tgl_invoice');
