@@ -47,6 +47,12 @@
                         <p>Proyek</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('/satuan') }}">
+                        <i class="fas fa-cube"></i>
+                        <p>Satuan</p>
+                    </a>
+                </li>
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>

@@ -11,6 +11,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Carbon\Carbon;
 use App\Models\Kendaraan;
+use App\Models\Satuan;
 
 class SparepartExport implements WithMultipleSheets
 {
@@ -20,13 +21,15 @@ class SparepartExport implements WithMultipleSheets
     protected $tagihan;
     protected $infoTagihan;
     protected $metode_pembelian;
+    protected $rangeDate;
 
-    public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian)
+    public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate)
     {
         $this->mode = $mode;
         $this->tagihan = $tagihan;
         $this->infoTagihan = $infoTagihan;
         $this->metode_pembelian = $metode_pembelian;
+        $this->rangeDate = $rangeDate;
     }
 
     public function sheets(): array
@@ -62,6 +65,7 @@ class SparepartExport implements WithMultipleSheets
 
                         $data = $this->tagihan->map(function ($item) {
                             $kendaraan = Kendaraan::find($item->id_kendaraan);
+                            $satuan = Satuan::find($item->id_satuan);
                             $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
 
                             if ($this->metode_pembelian == 'online') {
@@ -84,14 +88,14 @@ class SparepartExport implements WithMultipleSheets
                                     'kategori' => $item->kategori,
                                     'dipakai_untuk' => $item->dipakai_untuk,
                                     'masa_pakai' => $item->masa_pakai,
-                                    'jml' => $item->jml,
-                                    'unit' => $item->unit,
-                                    'harga_online' => $harga_online,
-                                    'ongkir' => $ongkir,
-                                    'diskon_ongkir' => $diskon_ongkir,
-                                    'asuransi' => $asuransi,
-                                    'b_proteksi' => $b_proteksi,
-                                    'b_jasa_aplikasi' => $b_jasa_aplikasi,
+                                    'jml' => $item->jml ? $item->jml : '-',
+                                    'unit' => $satuan->nama ?? '-',
+                                    'harga_online' => $harga_online ? $harga_online : '-',
+                                    'ongkir' => $ongkir ? $ongkir : '-',
+                                    'diskon_ongkir' => $diskon_ongkir ? $diskon_ongkir : '-',
+                                    'asuransi' => $asuransi ? $asuransi : '-',
+                                    'b_proteksi' => $b_proteksi ? $b_proteksi : '-',
+                                    'b_jasa_aplikasi' => $b_jasa_aplikasi ? $b_jasa_aplikasi : '-',
                                     'toko' => $item->toko,
                                     'total' => $total
                                 ];
@@ -111,9 +115,9 @@ class SparepartExport implements WithMultipleSheets
                                     'kategori' => $item->kategori,
                                     'dipakai_untuk' => $item->dipakai_untuk,
                                     'masa_pakai' => $item->masa_pakai,
-                                    'jml' => $item->jml,
-                                    'unit' => $item->unit,
-                                    'harga' => $harga,
+                                    'jml' => $item->jml ? $item->jml : '-',
+                                    'unit' => $satuan->nama ?? '-',
+                                    'harga' => $harga ? $harga : '-',
                                     'toko' => $item->toko,
                                     'total' => $total
                                 ];
@@ -174,7 +178,8 @@ class SparepartExport implements WithMultipleSheets
                     {
                         if ($this->metode_pembelian == 'online') {
                             return [
-                                'Lokasi',
+                                ['Pengeluaran ' . $this->infoTagihan . ' ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y')],
+                                ['Lokasi',
                                 'Nopol / Kode Unit',
                                 'Merk',
                                 'Pemesan',
@@ -194,12 +199,13 @@ class SparepartExport implements WithMultipleSheets
                                 'Biaya Proteksi',
                                 'Biaya Jasa Aplikasi',
                                 'Toko',
-                                'Total'
+                                'Total']
                             ];
 
                         } else {
                             return [
-                                'Lokasi',
+                                ['Pengeluaran ' . $this->infoTagihan . ' ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y')],
+                                ['Lokasi',
                                 'Nopol / Kode Unit',
                                 'Merk',
                                 'Pemesan',
@@ -214,7 +220,7 @@ class SparepartExport implements WithMultipleSheets
                                 'Satuan',
                                 'Harga',
                                 'Toko',
-                                'Total'
+                                'Total']
                             ];
                         }
                     }
@@ -222,7 +228,11 @@ class SparepartExport implements WithMultipleSheets
                     public function styles(Worksheet $sheet)
                     {
                         if ($this->metode_pembelian == 'online') {
+                            // Header
+                            $sheet->mergeCells("A1:U1");
                             $sheet->getStyle('A1:U1')->getFont()->setBold(true);
+
+                            $sheet->getStyle('A2:U2')->getFont()->setBold(true);
                             $sheet->getStyle('A:U')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Online ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
@@ -234,7 +244,11 @@ class SparepartExport implements WithMultipleSheets
                             $sheet->getStyle("A$totalRowIndex:U$totalRowIndex")->getAlignment()->setHorizontal('center');
 
                         } else {
+                            // Header
+                            $sheet->mergeCells("A1:P1");
                             $sheet->getStyle('A1:P1')->getFont()->setBold(true);
+
+                            $sheet->getStyle('A2:P2')->getFont()->setBold(true);
                             $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
@@ -254,17 +268,19 @@ class SparepartExport implements WithMultipleSheets
 
         // Handle mode lain jika ada
         return [
-            new class('All Data', $this->tagihan, $this->infoTagihan, $this->metode_pembelian) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+            new class('All Data', $this->tagihan, $this->infoTagihan, $this->metode_pembelian, $this->rangeDate) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
             {
                 protected $tagihan;
                 protected $infoTagihan;
                 protected $metode_pembelian;
+                protected $rangeDate;
 
-                public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian)
+                public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate)
                 {
                     $this->tagihan = $tagihan;
                     $this->infoTagihan = $infoTagihan;
                     $this->metode_pembelian = $metode_pembelian;
+                    $this->rangeDate = $rangeDate;
                 }
 
                 public function collection()
@@ -275,6 +291,7 @@ class SparepartExport implements WithMultipleSheets
 
                     $data = $this->tagihan->map(function ($item) {
                         $kendaraan = Kendaraan::find($item->id_kendaraan);
+                        $satuan = Satuan::find($item->id_satuan);
                         $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
 
                         if ($this->metode_pembelian == 'online') {
@@ -297,14 +314,14 @@ class SparepartExport implements WithMultipleSheets
                                 'kategori' => $item->kategori,
                                 'dipakai_untuk' => $item->dipakai_untuk,
                                 'masa_pakai' => $item->masa_pakai,
-                                'jml' => $item->jml,
-                                'unit' => $item->unit,
-                                'harga_online' => $harga_online,
-                                'ongkir' => $ongkir,
-                                'diskon_ongkir' => $diskon_ongkir,
-                                'asuransi' => $asuransi,
-                                'b_proteksi' => $b_proteksi,
-                                'b_jasa_aplikasi' => $b_jasa_aplikasi,
+                                'jml' => $item->jml ? $item->jml : '-',
+                                'unit' => $satuan->nama ?? '-',
+                                'harga_online' => $harga_online ? $harga_online : '-',
+                                'ongkir' => $ongkir ? $ongkir : '-',
+                                'diskon_ongkir' => $diskon_ongkir ? $diskon_ongkir : '-',
+                                'asuransi' => $asuransi ? $asuransi : '-',
+                                'b_proteksi' => $b_proteksi ? $b_proteksi : '-',
+                                'b_jasa_aplikasi' => $b_jasa_aplikasi ? $b_jasa_aplikasi : '-',
                                 'toko' => $item->toko,
                                 'total' => $total
                             ];
@@ -324,9 +341,9 @@ class SparepartExport implements WithMultipleSheets
                                 'kategori' => $item->kategori,
                                 'dipakai_untuk' => $item->dipakai_untuk,
                                 'masa_pakai' => $item->masa_pakai,
-                                'jml' => $item->jml,
-                                'unit' => $item->unit,
-                                'harga' => $harga,
+                                'jml' => $item->jml ? $item->jml : '-',
+                                'unit' => $satuan->nama ?? '-',
+                                'harga' => $harga ? $harga : '-',
                                 'toko' => $item->toko,
                                 'total' => $total
                             ];
@@ -387,7 +404,8 @@ class SparepartExport implements WithMultipleSheets
                 {
                     if ($this->metode_pembelian == 'online') {
                         return [
-                            'Lokasi',
+                            ['Pengeluaran ' . $this->infoTagihan . ' ' . $this->rangeDate],
+                            ['Lokasi',
                             'Nopol / Kode Unit',
                             'Merk',
                             'Pemesan',
@@ -407,12 +425,13 @@ class SparepartExport implements WithMultipleSheets
                             'Biaya Proteksi',
                             'Biaya Jasa Aplikasi',
                             'Toko',
-                            'Total'
+                            'Total']
                         ];
 
                     } else {
                         return [
-                            'Lokasi',
+                            ['Pengeluaran ' . $this->infoTagihan . ' ' . $this->rangeDate],
+                            ['Lokasi',
                             'Nopol / Kode Unit',
                             'Merk',
                             'Pemesan',
@@ -427,7 +446,7 @@ class SparepartExport implements WithMultipleSheets
                             'Satuan',
                             'Harga',
                             'Toko',
-                            'Total'
+                            'Total']
                         ];
                     }
                 }
@@ -435,7 +454,11 @@ class SparepartExport implements WithMultipleSheets
                 public function styles(Worksheet $sheet)
                 {
                     if ($this->metode_pembelian == 'online') {
+                        // Header
+                        $sheet->mergeCells("A1:U1");
                         $sheet->getStyle('A1:U1')->getFont()->setBold(true);
+
+                        $sheet->getStyle('A2:U2')->getFont()->setBold(true);
                         $sheet->getStyle('A:U')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan . ' Online');
 
@@ -447,7 +470,11 @@ class SparepartExport implements WithMultipleSheets
                         $sheet->getStyle("A$totalRowIndex:U$totalRowIndex")->getAlignment()->setHorizontal('center');
 
                     } else {
+                        // Header
+                        $sheet->mergeCells("A1:P1");
                         $sheet->getStyle('A1:P1')->getFont()->setBold(true);
+
+                        $sheet->getStyle('A2:P2')->getFont()->setBold(true);
                         $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan);
 

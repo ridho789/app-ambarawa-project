@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
+use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TagihanExport;
 use Carbon\Carbon;
@@ -20,12 +21,15 @@ class CatController extends Controller
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        return view('contents.cat_amb', compact('cat', 'catOnline', 'catOffline', 'periodes'));
+        $satuan = Satuan::all();
+        $namaSatuan = Satuan::pluck('nama', 'id_satuan');
+        return view('contents.cat_amb', compact('cat', 'catOnline', 'catOffline', 'periodes', 'satuan', 'namaSatuan'));
     }
 
     public function store(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+        $masa_pakai = $request->masa . ' ' . $request->waktu;
 
         if ($request->metode_pembelian == 'offline') {
             $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
@@ -40,9 +44,9 @@ class CatController extends Controller
                 'nama' => $request->nama,
                 'kategori' => $request->kategori,
                 'dipakai_untuk' => $request->dipakai_untuk,
-                'masa_pakai' => $request->masa_pakai,
+                'masa_pakai' => $masa_pakai,
                 'jml' => $request->jml,
-                'unit' => $request->unit,
+                'id_satuan' => $request->unit,
                 'harga' => $numericHarga,
                 'harga_online' => null,
                 'ongkir' => null,
@@ -57,7 +61,7 @@ class CatController extends Controller
             $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')->where('lokasi', $request->lokasi)->where('pemesan', $request->pemesan)
                 ->where('tgl_order', $request->tgl_order)->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)
                 ->where('nama', $request->nama)->where('kategori', $request->kategori)->where('dipakai_untuk', $request->dipakai_untuk)
-                ->where('masa_pakai', $request->masa_pakai)->where('jml', $request->jml)->where('unit', $request->unit)
+                ->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
                 ->where('harga', $numericHarga)->where('total', $numericTotal)->where('toko', $request->toko)
                 ->first();
     
@@ -93,9 +97,9 @@ class CatController extends Controller
                 'nama' => $request->nama,
                 'kategori' => $request->kategori,
                 'dipakai_untuk' => $request->dipakai_untuk,
-                'masa_pakai' => $request->masa_pakai,
+                'masa_pakai' => $masa_pakai,
                 'jml' => $request->jml_onl,
-                'unit' => $request->unit_onl,
+                'id_satuan' => $request->unit_onl,
                 'harga' => null,
                 'harga_online' => $numericHargaOnline,
                 'ongkir' => $numericOngkir,
@@ -110,7 +114,7 @@ class CatController extends Controller
             $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat online')->where('lokasi', $request->lokasi)
                 ->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
                 ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
-                ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('jml', $request->jml_onl)->where('unit', $request->unit_onl)
+                ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml_onl)->where('id_satuan', $request->unit_onl)
                 ->where('harga_online', $numericHargaOnline)->where('ongkir', $numericOngkir)->where('diskon_ongkir', $numericDiskonOngkir)
                 ->where('asuransi', $numericAsuransi)->where('b_proteksi', $numericProteksi)->where('b_jasa_aplikasi', $numericAplikasi)
                 ->where('total', $numericTotal)->where('toko', $request->toko)
@@ -140,9 +144,9 @@ class CatController extends Controller
             'nama' => $request->nama,
             'kategori' => $request->kategori,
             'dipakai_untuk' => $request->dipakai_untuk,
-            'masa_pakai' => $request->masa_pakai,
+            'masa_pakai' => $masa_pakai,
             'jml' => null,
-            'unit' => null,
+            'id_satuan' => null,
             'harga' => null,
             'harga_online' => null,
             'ongkir' => null,
@@ -176,6 +180,7 @@ class CatController extends Controller
     public function update(Request $request) {
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
         $tagihanCat = TagihanAMB::find($request->id_tagihan_amb);
+        $masa_pakai = $request->masa . ' ' . $request->waktu;
 
         if ($request->metode_pembelian == 'offline') {
             $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
@@ -190,9 +195,9 @@ class CatController extends Controller
                 $tagihanCat->nama = $request->nama;
                 $tagihanCat->kategori = $request->kategori;
                 $tagihanCat->dipakai_untuk = $request->dipakai_untuk;
-                $tagihanCat->masa_pakai = $request->masa_pakai;
+                $tagihanCat->masa_pakai = $masa_pakai;
                 $tagihanCat->jml = $request->jml;
-                $tagihanCat->unit = $request->unit;
+                $tagihanCat->id_satuan = $request->unit;
                 $tagihanCat->harga = $numericHarga;
                 $tagihanCat->harga_online = null;
                 $tagihanCat->diskon_ongkir = null;
@@ -219,9 +224,6 @@ class CatController extends Controller
             if ($tagihanCat) {
                 $tagihanCat->keterangan = 'tagihan cat online';
                 $tagihanCat->lokasi = $request->lokasi;
-                $tagihanCat->nopol = $request->nopol;
-                $tagihanCat->kode_unit = $request->kode_unit;
-                $tagihanCat->merk = $request->merk;
                 $tagihanCat->pemesan = $request->pemesan;
                 $tagihanCat->tgl_order = $request->tgl_order;
                 $tagihanCat->tgl_invoice = $request->tgl_invoice;
@@ -229,9 +231,9 @@ class CatController extends Controller
                 $tagihanCat->nama = $request->nama;
                 $tagihanCat->kategori = $request->kategori;
                 $tagihanCat->dipakai_untuk = $request->dipakai_untuk;
-                $tagihanCat->masa_pakai = $request->masa_pakai;
+                $tagihanCat->masa_pakai = $masa_pakai;
                 $tagihanCat->jml = $request->jml_onl;
-                $tagihanCat->unit = $request->unit_onl;
+                $tagihanCat->id_satuan = $request->unit_onl;
                 $tagihanCat->harga = null;
                 $tagihanCat->harga_online = $numericHargaOnline;
                 $tagihanCat->diskon_ongkir = $numericDiskonOngkir;
@@ -250,9 +252,6 @@ class CatController extends Controller
         if ($tagihanCat) {
             $tagihanCat->keterangan = 'tagihan cat';
             $tagihanCat->lokasi = $request->lokasi;
-            $tagihanCat->nopol = $request->nopol;
-            $tagihanCat->kode_unit = $request->kode_unit;
-            $tagihanCat->merk = $request->merk;
             $tagihanCat->pemesan = $request->pemesan;
             $tagihanCat->tgl_order = $request->tgl_order;
             $tagihanCat->tgl_invoice = $request->tgl_invoice;
@@ -260,9 +259,9 @@ class CatController extends Controller
             $tagihanCat->nama = $request->nama;
             $tagihanCat->kategori = $request->kategori;
             $tagihanCat->dipakai_untuk = $request->dipakai_untuk;
-            $tagihanCat->masa_pakai = $request->masa_pakai;
+            $tagihanCat->masa_pakai = $masa_pakai;
             $tagihanCat->jml = null;
-            $tagihanCat->unit = null;
+            $tagihanCat->id_satuan = null;
             $tagihanCat->harga = null;
             $tagihanCat->harga_online = null;
             $tagihanCat->diskon_ongkir = null;
@@ -363,6 +362,6 @@ class CatController extends Controller
                 ? 'Report Cat Online ' . $rangeDate . '.xlsx' 
                 : 'Report Cat ' . $rangeDate . '.xlsx');
     
-        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian), $fileName);
+        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
     }
 }

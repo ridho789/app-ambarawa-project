@@ -59,7 +59,8 @@
                                 </div>
                                 <div class="col-6">
                                     <label for="nama">Nama (Barang)</label>
-                                    <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." required />
+                                    <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                             </div>
 
@@ -69,8 +70,20 @@
                                     <input type="text" class="form-control" name="qty" id="qty" placeholder="Masukkan jumlah.." required />
                                 </div>
                                 <div class="col-4">
-                                    <label for="unit">Satuan</label>
-                                    <input type="text" class="form-control" name="unit" id="unit" placeholder="Masukkan satuan.." required />
+                                    @if (count($satuan) > 0)
+                                        <label for="satuan">Satuan</label>
+                                        <select class="form-select form-control" name="unit" id="unit" required>
+                                            <option value="">...</option>
+                                            @foreach ($satuan as $s)
+                                                <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <label>Satuan</label>
+                                        <select class="form-control" disabled>
+                                            <option value="">Tidak ada data</option>
+                                        </select>
+                                    @endif
                                 </div>
                                 <div class="col-4">
                                     <label for="harga">Harga</label>
@@ -80,7 +93,7 @@
 
                             <div class="form-group">
                                 <label for="total">Total Harga</label>
-                                <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." style="background-color: #fff !important;" readonly />
+                                <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -121,7 +134,8 @@
                                 </div>
                                 <div class="col-6">
                                     <label for="nama">Nama (Barang)</label>
-                                    <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." required />
+                                    <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                             </div>
 
@@ -131,8 +145,20 @@
                                     <input type="text" class="form-control" name="qty" id="edit-qty" placeholder="Masukkan jumlah.." required />
                                 </div>
                                 <div class="col-4">
-                                    <label for="unit">Satuan</label>
-                                    <input type="text" class="form-control" name="unit" id="edit-unit" placeholder="Masukkan satuan.." required />
+                                    @if (count($satuan) > 0)
+                                        <label for="satuan">Satuan</label>
+                                        <select class="form-select form-control" name="unit" id="edit-unit" required>
+                                            <option value="">...</option>
+                                            @foreach ($satuan as $s)
+                                                <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <label>Satuan</label>
+                                        <select class="form-control" disabled>
+                                            <option value="">Tidak ada data</option>
+                                        </select>
+                                    @endif
                                 </div>
                                 <div class="col-4">
                                     <label for="harga">Harga</label>
@@ -142,7 +168,7 @@
 
                             <div class="form-group">
                                 <label for="total">Total Harga</label>
-                                <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." style="background-color: #fff !important;" readonly />
+                                <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -304,7 +330,7 @@
                                         data-tanggal="{{ $s->tanggal }}" 
                                         data-nama="{{ $s->nama }}"
                                         data-qty="{{ $s->qty }}"
-                                        data-unit="{{ $s->unit }}"
+                                        data-unit="{{ $s->id_satuan }}"
                                         data-harga="{{ 'Rp ' . number_format($s->harga ?? 0, 0, ',', '.') }}"
                                         data-total="{{ 'Rp ' . number_format($s->total ?? 0, 0, ',', '.') }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
@@ -312,7 +338,7 @@
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $s->tanggal)->format('d-M-Y') ?? '-' }}</td>
                                         <td>{{ $s->nama ?? '-' }}</td>
                                         <td>{{ $s->qty ?? '-' }}</td>
-                                        <td>{{ $s->unit ?? '-' }}</td>
+                                        <td>{{ $namaSatuan[$s->id_satuan] ?? '-' }}</td>
                                         <td>{{ 'Rp ' . number_format($s->harga ?? 0, 0, ',', '.') }}</td>
                                         <td>{{ 'Rp ' . number_format($s->total ?? 0, 0, ',', '.') }}</td>
                                     </tr>
@@ -482,6 +508,12 @@
             });
         });
 
+        totalElements.forEach(function(totHarga, index) {
+            totHarga.addEventListener("input", function() {
+                this.value = formatCurrency(this.value);
+            });
+        });
+
         // Ambil elemen harga, qty, dan total (Modal Edit)
         let hargaEditSembako = document.querySelectorAll("#edit-harga");
         let jmlEditElements = document.querySelectorAll("#edit-qty");
@@ -518,6 +550,12 @@
                     let totalValue = hargaValue * jmlValue;
                     total.value = formatCurrency(totalValue);
                 }
+            });
+        });
+
+        totalEditElements.forEach(function(totHarga, index) {
+            totHarga.addEventListener("input", function() {
+                this.value = formatCurrency(this.value);
             });
         });
 

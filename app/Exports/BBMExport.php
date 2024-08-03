@@ -18,11 +18,13 @@ class BBMExport implements WithMultipleSheets
 
     protected $mode;
     protected $bbm;
+    protected $rangeDate;
 
-    public function __construct($mode, $bbm)
+    public function __construct($mode, $bbm, $rangeDate)
     {
         $this->mode = $mode;
         $this->bbm = $bbm;
+        $this->rangeDate = $rangeDate;
     }
 
     public function sheets(): array
@@ -64,15 +66,15 @@ class BBMExport implements WithMultipleSheets
                                 'tanggal' => $item->tanggal,
                                 'nopol' => $kendaraan->nopol ?? '-',
                                 'jns_mobil' => $kendaraan->merk ?? '-',
-                                'jns_bbm' => $item->jns_bbm,
-                                'liter' => $item->liter,
-                                'km_awal' => $item->km_awal,
-                                'km_isi' => $item->km_isi,
-                                'km_akhir' => $item->km_akhir,
-                                'km_ltr' => $item->km_ltr,
-                                'harga' => $harga,
-                                'ket' => $item->ket,
-                                'tot_km' => $item->tot_km,
+                                'jns_bbm' => $kendaraan->jns_bbm ?? '-',
+                                'liter' => $item->liter ? $item->liter : '-',
+                                'km_awal' => $item->km_awal ? $item->km_awal : '-',
+                                'km_isi' => $item->km_isi ? $item->km_isi : '-',
+                                'km_akhir' => $item->km_akhir ? $item->km_akhir : '-',
+                                'km_ltr' => $item->km_ltr ? $item->km_ltr : '-',
+                                'harga' => $harga ? $harga : '-',
+                                'ket' => $item->ket ?? '-',
+                                'tot_km' => $item->tot_km ? $item->tot_km : '-',
                                 'tot_harga' => $tot_harga
                             ];
                         });
@@ -101,7 +103,8 @@ class BBMExport implements WithMultipleSheets
                     public function headings(): array
                     {
                         return [
-                            'Nama',
+                            ['Pengeluaran BBM ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y')],
+                            ['Nama',
                             'Tanggal',
                             'Nopol / Kode Unit',
                             'Jenis Mobil',
@@ -114,13 +117,17 @@ class BBMExport implements WithMultipleSheets
                             'Harga',
                             'Keterangan',
                             'Total KM',
-                            'Total Harga',
+                            'Total Harga',]
                         ];
                     }
 
                     public function styles(Worksheet $sheet)
                     {
+                        // Header
+                        $sheet->mergeCells("A1:N1");
                         $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+
+                        $sheet->getStyle('A2:N2')->getFont()->setBold(true);
                         $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle('BBM Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
@@ -139,13 +146,15 @@ class BBMExport implements WithMultipleSheets
 
         // Handle mode lain jika ada
         return [
-            new class('All Data', $this->bbm) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+            new class('All Data', $this->bbm, $this->rangeDate) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
             {
                 protected $bbm;
+                protected $rangeDate;
 
-                public function __construct($mode, $bbm)
+                public function __construct($mode, $bbm, $rangeDate)
                 {
                     $this->bbm = $bbm;
+                    $this->rangeDate = $rangeDate;
                 }
 
                 public function collection()
@@ -164,15 +173,15 @@ class BBMExport implements WithMultipleSheets
                             'tanggal' => $item->tanggal,
                             'nopol' => $kendaraan->nopol ?? '-',
                             'jns_mobil' => $kendaraan->merk ?? '-',
-                            'jns_bbm' => $item->jns_bbm,
-                            'liter' => $item->liter,
-                            'km_awal' => $item->km_awal,
-                            'km_isi' => $item->km_isi,
-                            'km_akhir' => $item->km_akhir,
-                            'km_ltr' => $item->km_ltr,
-                            'harga' => $harga,
-                            'ket' => $item->ket,
-                            'tot_km' => $item->tot_km,
+                            'jns_bbm' => $kendaraan->jns_bbm ?? '-',
+                            'liter' => $item->liter ? $item->liter : '-',
+                            'km_awal' => $item->km_awal ? $item->km_awal : '-',
+                            'km_isi' => $item->km_isi ? $item->km_isi : '-',
+                            'km_akhir' => $item->km_akhir ? $item->km_akhir : '-',
+                            'km_ltr' => $item->km_ltr ? $item->km_ltr : '-',
+                            'harga' => $harga ? $harga : '-',
+                            'ket' => $item->ket ?? '-',
+                            'tot_km' => $item->tot_km ? $item->tot_km : '-',
                             'tot_harga' => $tot_harga
                         ];
                     });
@@ -201,7 +210,8 @@ class BBMExport implements WithMultipleSheets
                 public function headings(): array
                 {
                     return [
-                        'Nama',
+                        ['Pengeluaran BBM ' . $this->rangeDate],
+                        ['Nama',
                         'Tanggal',
                         'Nopol / Kode Unit',
                         'Jenis Mobil',
@@ -214,13 +224,17 @@ class BBMExport implements WithMultipleSheets
                         'Harga',
                         'Keterangan',
                         'Total KM',
-                        'Total Harga',
+                        'Total Harga',]
                     ];
                 }
 
                 public function styles(Worksheet $sheet)
                 {
+                    // Header
+                    $sheet->mergeCells("A1:N1");
                     $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+
+                    $sheet->getStyle('A2:N2')->getFont()->setBold(true);
                     $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                     $sheet->setTitle('Pengeluaran BBM');
 

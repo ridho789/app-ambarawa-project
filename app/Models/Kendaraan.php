@@ -13,6 +13,7 @@ class Kendaraan extends Model
 
     protected $fillable = [
         'nopol',
-        'merk'
+        'merk',
+        'jns_bbm'
     ];
 }

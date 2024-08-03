@@ -13,6 +13,7 @@ class TagihanAMB extends Model
 
     protected $fillable = [
         'id_kendaraan',
+        'id_satuan',
         'keterangan',
         'lokasi',
         'pemesan',
@@ -24,7 +25,6 @@ class TagihanAMB extends Model
         'dipakai_untuk',
         'masa_pakai',
         'jml',
-        'unit',
         'harga',
         'harga_online',
         'ongkir',

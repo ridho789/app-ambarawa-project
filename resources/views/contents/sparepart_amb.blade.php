@@ -128,7 +128,16 @@
                                 </div>
                                 <div class="col-6">
                                     <label for="masa_pakai">Masa Pakai</label>
-                                    <input type="text" class="form-control" name="masa_pakai" id="masa_pakai" placeholder="Masa pakai.." required />
+                                    <div class="d-flex">
+                                        <input type="number" class="form-control" name="masa" id="masa" placeholder="..." required />
+                                        <select class="form-control ms-2" name="waktu" id="waktu" required>
+                                            <option value="" disabled selected>...</option>
+                                            <option value="HARI">HARI</option>
+                                            <option value="MINGGU">MINGGU</option>
+                                            <option value="BULAN">BULAN</option>
+                                            <option value="TAHUN">TAHUN</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
@@ -169,8 +178,20 @@
                                         <input type="text" class="form-control" name="jml" id="jml_offline" placeholder="Masukkan jumlah.." />
                                     </div>
                                     <div class="col-4">
-                                        <label for="unit_offline">Satuan</label>
-                                        <input type="text" class="form-control" name="unit" id="unit_offline" placeholder="Masukkan satuan.." />
+                                        @if (count($satuan) > 0)
+                                            <label for="satuan">Satuan</label>
+                                            <select class="form-select form-control" name="unit" id="unit_offline">
+                                                <option value="">...</option>
+                                                @foreach ($satuan as $s)
+                                                    <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <label>Satuan</label>
+                                            <select class="form-control" disabled>
+                                                <option value="">Tidak ada data</option>
+                                            </select>
+                                        @endif
                                     </div>
                                     <div class="col-4">
                                         <label for="harga">Harga</label>
@@ -186,8 +207,20 @@
                                         <input type="text" class="form-control" name="jml_onl" id="jml_online" placeholder="Masukkan jumlah.." />
                                     </div>
                                     <div class="col-4">
-                                        <label for="unit_online">Satuan</label>
-                                        <input type="text" class="form-control" name="unit_onl" id="unit_online" placeholder="Masukkan satuan.." />
+                                        @if (count($satuan) > 0)
+                                            <label for="satuan">Satuan</label>
+                                            <select class="form-select form-control" name="unit_onl" id="unit_online">
+                                                <option value="">...</option>
+                                                @foreach ($satuan as $s)
+                                                    <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <label>Satuan</label>
+                                            <select class="form-control" disabled>
+                                                <option value="">Tidak ada data</option>
+                                            </select>
+                                        @endif
                                     </div>
                                     <div class="col-4">
                                         <label for="harga_online">Harga Online</label>
@@ -339,7 +372,16 @@
                                 </div>
                                 <div class="col-6">
                                     <label for="masa_pakai">Masa Pakai</label>
-                                    <input type="text" class="form-control" name="masa_pakai" id="edit-masa_pakai" placeholder="Masa pakai.." required />
+                                    <div class="d-flex">
+                                        <input type="number" class="form-control" name="masa" id="edit-masa" placeholder="..." required />
+                                        <select class="form-control ms-2" name="waktu" id="edit-waktu" required>
+                                            <option value="" disabled selected>...</option>
+                                            <option value="HARI">HARI</option>
+                                            <option value="MINGGU">MINGGU</option>
+                                            <option value="BULAN">BULAN</option>
+                                            <option value="TAHUN">TAHUN</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
@@ -380,8 +422,20 @@
                                         <input type="text" class="form-control" name="jml" id="edit-jml_offline" placeholder="Masukkan jumlah.." />
                                     </div>
                                     <div class="col-4">
-                                        <label for="unit_offline">Satuan</label>
-                                        <input type="text" class="form-control" name="unit" id="edit-unit_offline" placeholder="Masukkan satuan.." />
+                                        @if (count($satuan) > 0)
+                                            <label for="satuan">Satuan</label>
+                                            <select class="form-select form-control" name="unit" id="edit-unit_offline">
+                                                <option value="">...</option>
+                                                @foreach ($satuan as $s)
+                                                    <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <label>Satuan</label>
+                                            <select class="form-control" disabled>
+                                                <option value="">Tidak ada data</option>
+                                            </select>
+                                        @endif
                                     </div>
                                     <div class="col-4">
                                         <label for="harga">Harga</label>
@@ -397,8 +451,20 @@
                                         <input type="text" class="form-control" name="jml_onl" id="edit-jml_online" placeholder="Masukkan jumlah.." />
                                     </div>
                                     <div class="col-4">
-                                        <label for="unit_online">Satuan</label>
-                                        <input type="text" class="form-control" name="unit_onl" id="edit-unit_online" placeholder="Masukkan satuan.." />
+                                        @if (count($satuan) > 0)
+                                            <label for="satuan">Satuan</label>
+                                            <select class="form-select form-control" name="unit_onl" id="edit-unit_online">
+                                                <option value="">...</option>
+                                                @foreach ($satuan as $s)
+                                                    <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <label>Satuan</label>
+                                            <select class="form-control" disabled>
+                                                <option value="">Tidak ada data</option>
+                                            </select>
+                                        @endif
                                     </div>
                                     <div class="col-4">
                                         <label for="harga_online">Harga Online</label>
@@ -650,7 +716,7 @@
                                         <th class="text-xxs-bold">Nama (Barang)</th>
                                         <th class="text-xxs-bold">Kategori</th>
                                         <!-- <th class="text-xxs-bold">Keperluan</th> -->
-                                        <!-- <th class="text-xxs-bold">Masa Pakai</th> -->
+                                        <th class="text-xxs-bold">Masa Pakai</th>
                                         <!-- <th class="text-xxs-bold">Qty</th> -->
                                         <!-- <th class="text-xxs-bold">Unit</th> -->
                                         <!-- <th class="text-xxs-bold">Harga</th> -->
@@ -674,7 +740,7 @@
                                         data-dipakai_untuk="{{ $s->dipakai_untuk }}"
                                         data-masa_pakai="{{ $s->masa_pakai }}"
                                         data-jml="{{ $s->jml }}"
-                                        data-unit="{{ $s->unit }}"
+                                        data-unit="{{ $s->id_satuan }}"
                                         data-harga="{{ 'Rp ' . number_format($s->harga ?? 0, 0, ',', '.') }}"
                                         data-harga_online="{{ 'Rp ' . number_format($s->harga_online ?? 0, 0, ',', '.') }}"
                                         data-diskon_ongkir="{{ 'Rp ' . number_format($s->diskon_ongkir ?? 0, 0, ',', '.') }}"
@@ -696,9 +762,9 @@
                                         <td>{{ $s->nama ?? '-' }}</td>
                                         <td>{{ $s->kategori ?? '-' }}</td>
                                         <!-- <td>{{ $s->dipakai_untuk ?? '-' }}</td> -->
-                                        <!-- <td>{{ $s->masa_pakai ?? '-' }}</td> -->
+                                        <td>{{ $s->masa_pakai ?? '-' }}</td>
                                         <!-- <td>{{ $s->jml ?? '-' }}</td> -->
-                                        <!-- <td>{{ $s->unit ?? '-' }}</td> -->
+                                        <!-- <td>{{ $s->id_satuan ?? '-' }}</td> -->
                                         <!-- <td>{{ 'Rp ' . number_format($s->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($s->total ?? 0, 0, ',', '.') }}</td>
                                         <td>{{ $s->toko }}</td>
@@ -783,6 +849,15 @@
                 input.removeAttribute('required');
             }
         });
+
+        const selects = fieldsContainer.querySelectorAll('select');
+        selects.forEach(select => {
+            if (isRequired) {
+                select.setAttribute('required', 'required');
+            } else {
+                select.removeAttribute('required');
+            }
+        });
     }
 
     function resetFields() {
@@ -827,8 +902,8 @@
     function calculateTotal() {
         let totalSum = 0;
         document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
-            if (row.querySelector('td:nth-child(12)')) {
-                const totalText = row.querySelector('td:nth-child(12)').innerText;
+            if (row.querySelector('td:nth-child(13)')) {
+                const totalText = row.querySelector('td:nth-child(13)').innerText;
                 const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
                 totalSum += totalValue;
             }
@@ -1181,6 +1256,12 @@
                 var selectedId = allSelectRowInput.value.split(',')[0];
                 if (selectedId) {
                     var row = $('tr[data-id="' + selectedId + '"]');
+                    var masaPakai = row.data('masa_pakai');
+
+                    // Memisahkan nilai menjadi jumlah dan unit
+                    var parts = masaPakai.split(' ');
+                    var jumlah = parts[0];
+                    var waktu = parts[1];
 
                     $('#edit-id').val(selectedId);
                     $('#edit-lokasi').val(row.data('lokasi'));
@@ -1193,7 +1274,8 @@
                     $('#edit-nama').val(row.data('nama'));
                     $('#edit-kategori').val(row.data('kategori'));
                     $('#edit-dipakai_untuk').val(row.data('dipakai_untuk'));
-                    $('#edit-masa_pakai').val(row.data('masa_pakai'));
+                    $('#edit-masa').val(jumlah);
+                    $('#edit-waktu').val(waktu);
                     $('#edit-total').val(row.data('total'));
                     $('#edit-toko').val(row.data('toko'));
 

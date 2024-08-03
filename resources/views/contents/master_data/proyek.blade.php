@@ -74,7 +74,7 @@
                     <div class="modal-header border-0 mx-2" style="margin-bottom: -25px;">
                         <h5 class="modal-title" id="proyekEditModal">
                             <span class="fw-light"> Data</span>
-                            <span class="fw-mediumbold"> Proyek Baru </span>
+                            <span class="fw-mediumbold"> Proyek </span>
                         </h5>
                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -84,7 +84,7 @@
                         @csrf
                         <div class="modal-body">
                             <p class="small mx-2">
-                                Buat data baru dengan formulir ini, pastikan Anda mengisi semuanya
+                                Perbaharui data dengan formulir ini, pastikan Anda mengisi semuanya
                             </p>
 
                             <input type="hidden" id="edit-id" name="id_proyek">

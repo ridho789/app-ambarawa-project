@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Carbon\Carbon;
+use App\Models\Satuan;
 
 class TagihanExport implements WithMultipleSheets
 {
@@ -19,13 +20,15 @@ class TagihanExport implements WithMultipleSheets
     protected $tagihan;
     protected $infoTagihan;
     protected $metode_pembelian;
+    protected $rangeDate;
 
-    public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian)
+    public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate)
     {
         $this->mode = $mode;
         $this->tagihan = $tagihan;
         $this->infoTagihan = $infoTagihan;
         $this->metode_pembelian = $metode_pembelian;
+        $this->rangeDate = $rangeDate;
     }
 
     public function sheets(): array
@@ -61,6 +64,7 @@ class TagihanExport implements WithMultipleSheets
 
                         $data = $this->tagihan->map(function ($item) {
                             $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
+                            $satuan = Satuan::find($item->id_satuan);
 
                             if ($this->metode_pembelian == 'online') {
                                 $harga_online = 'Rp ' . number_format($item->harga_online ?? 0, 0, ',', '.');
@@ -80,14 +84,14 @@ class TagihanExport implements WithMultipleSheets
                                     'kategori' => $item->kategori,
                                     'dipakai_untuk' => $item->dipakai_untuk,
                                     'masa_pakai' => $item->masa_pakai,
-                                    'jml' => $item->jml,
-                                    'unit' => $item->unit,
-                                    'harga_online' => $harga_online,
-                                    'ongkir' => $ongkir,
-                                    'diskon_ongkir' => $diskon_ongkir,
-                                    'asuransi' => $asuransi,
-                                    'b_proteksi' => $b_proteksi,
-                                    'b_jasa_aplikasi' => $b_jasa_aplikasi,
+                                    'jml' => $item->jml ? $item->jml : '-',
+                                    'unit' => $satuan->nama ?? '-',
+                                    'harga_online' => $harga_online ? $harga_online : '-',
+                                    'ongkir' => $ongkir ? $ongkir : '-',
+                                    'diskon_ongkir' => $diskon_ongkir ? $diskon_ongkir : '-',
+                                    'asuransi' => $asuransi ? $asuransi : '-',
+                                    'b_proteksi' => $b_proteksi ? $b_proteksi : '-',
+                                    'b_jasa_aplikasi' => $b_jasa_aplikasi ? $b_jasa_aplikasi : '-',
                                     'toko' => $item->toko,
                                     'total' => $total
                                 ];
@@ -105,9 +109,9 @@ class TagihanExport implements WithMultipleSheets
                                     'kategori' => $item->kategori,
                                     'dipakai_untuk' => $item->dipakai_untuk,
                                     'masa_pakai' => $item->masa_pakai,
-                                    'jml' => $item->jml,
-                                    'unit' => $item->unit,
-                                    'harga' => $harga,
+                                    'jml' => $item->jml ? $item->jml : '-',
+                                    'unit' => $satuan->nama ?? '-',
+                                    'harga' => $harga ? $harga : '-',
                                     'toko' => $item->toko,
                                     'total' => $total
                                 ];
@@ -164,7 +168,8 @@ class TagihanExport implements WithMultipleSheets
                     {
                         if ($this->metode_pembelian == 'online') {
                             return [
-                                'Lokasi',
+                                ['Pengeluaran ' . $this->infoTagihan . ' ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y')],
+                                ['Lokasi',
                                 'Pemesan',
                                 'Tgl. Order',
                                 'Tgl. Invoice',
@@ -182,12 +187,13 @@ class TagihanExport implements WithMultipleSheets
                                 'Biaya Proteksi',
                                 'Biaya Jasa Aplikasi',
                                 'Toko',
-                                'Total'
+                                'Total']
                             ];
 
                         } else {
                             return [
-                                'Lokasi',
+                                ['Pengeluaran ' . $this->infoTagihan . ' ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y')],
+                                ['Lokasi',
                                 'Pemesan',
                                 'Tgl. Order',
                                 'Tgl. Invoice',
@@ -200,7 +206,7 @@ class TagihanExport implements WithMultipleSheets
                                 'Satuan',
                                 'Harga',
                                 'Toko',
-                                'Total'
+                                'Total']
                             ];
                         }
                     }
@@ -208,7 +214,11 @@ class TagihanExport implements WithMultipleSheets
                     public function styles(Worksheet $sheet)
                     {
                         if ($this->metode_pembelian == 'online') {
+                            // Header
+                            $sheet->mergeCells("A1:S1");
                             $sheet->getStyle('A1:S1')->getFont()->setBold(true);
+                            
+                            $sheet->getStyle('A2:S2')->getFont()->setBold(true);
                             $sheet->getStyle('A:S')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Online ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
@@ -220,7 +230,11 @@ class TagihanExport implements WithMultipleSheets
                             $sheet->getStyle("A$totalRowIndex:S$totalRowIndex")->getAlignment()->setHorizontal('center');
 
                         } else {
+                            // Header
+                            $sheet->mergeCells("A1:N1");
                             $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+
+                            $sheet->getStyle('A2:N2')->getFont()->setBold(true);
                             $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
@@ -240,17 +254,19 @@ class TagihanExport implements WithMultipleSheets
 
         // Handle mode lain jika ada
         return [
-            new class('All Data', $this->tagihan, $this->infoTagihan, $this->metode_pembelian) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+            new class('All Data', $this->tagihan, $this->infoTagihan, $this->metode_pembelian, $this->rangeDate) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
             {
                 protected $tagihan;
                 protected $infoTagihan;
                 protected $metode_pembelian;
+                protected $rangeDate;
 
-                public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian)
+                public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate)
                 {
                     $this->tagihan = $tagihan;
                     $this->infoTagihan = $infoTagihan;
                     $this->metode_pembelian = $metode_pembelian;
+                    $this->rangeDate = $rangeDate;
                 }
 
                 public function collection()
@@ -261,6 +277,7 @@ class TagihanExport implements WithMultipleSheets
 
                     $data = $this->tagihan->map(function ($item) {
                         $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
+                        $satuan = Satuan::find($item->id_satuan);
 
                         if ($this->metode_pembelian == 'online') {
                             $harga_online = 'Rp ' . number_format($item->harga_online ?? 0, 0, ',', '.');
@@ -280,14 +297,14 @@ class TagihanExport implements WithMultipleSheets
                                 'kategori' => $item->kategori,
                                 'dipakai_untuk' => $item->dipakai_untuk,
                                 'masa_pakai' => $item->masa_pakai,
-                                'jml' => $item->jml,
-                                'unit' => $item->unit,
-                                'harga_online' => $harga_online,
-                                'ongkir' => $ongkir,
-                                'diskon_ongkir' => $diskon_ongkir,
-                                'asuransi' => $asuransi,
-                                'b_proteksi' => $b_proteksi,
-                                'b_jasa_aplikasi' => $b_jasa_aplikasi,
+                                'jml' => $item->jml ? $item->jml : '-',
+                                'unit' => $satuan->nama ?? '-',
+                                'harga_online' => $harga_online ? $harga_online : '-',
+                                'ongkir' => $ongkir ? $ongkir : '-',
+                                'diskon_ongkir' => $diskon_ongkir ? $diskon_ongkir : '-',
+                                'asuransi' => $asuransi ? $asuransi : '-',
+                                'b_proteksi' => $b_proteksi ? $b_proteksi : '-',
+                                'b_jasa_aplikasi' => $b_jasa_aplikasi ? $b_jasa_aplikasi : '-',
                                 'toko' => $item->toko,
                                 'total' => $total
                             ];
@@ -305,9 +322,9 @@ class TagihanExport implements WithMultipleSheets
                                 'kategori' => $item->kategori,
                                 'dipakai_untuk' => $item->dipakai_untuk,
                                 'masa_pakai' => $item->masa_pakai,
-                                'jml' => $item->jml,
-                                'unit' => $item->unit,
-                                'harga' => $harga,
+                                'jml' => $item->jml ? $item->jml : '-',
+                                'unit' => $satuan->nama ?? '-',
+                                'harga' => $harga ? $harga : '-',
                                 'toko' => $item->toko,
                                 'total' => $total
                             ];
@@ -364,7 +381,8 @@ class TagihanExport implements WithMultipleSheets
                 {
                     if ($this->metode_pembelian == 'online') {
                         return [
-                            'Lokasi',
+                            ['Pengeluaran ' . $this->infoTagihan . ' ' . $this->rangeDate],
+                            ['Lokasi',
                             'Pemesan',
                             'Tgl. Order',
                             'Tgl. Invoice',
@@ -382,12 +400,13 @@ class TagihanExport implements WithMultipleSheets
                             'Biaya Proteksi',
                             'Biaya Jasa Aplikasi',
                             'Toko',
-                            'Total'
+                            'Total']
                         ];
 
                     } else {
                         return [
-                            'Lokasi',
+                            ['Pengeluaran ' . $this->infoTagihan . ' ' . $this->rangeDate],
+                            ['Lokasi',
                             'Pemesan',
                             'Tgl. Order',
                             'Tgl. Invoice',
@@ -400,7 +419,7 @@ class TagihanExport implements WithMultipleSheets
                             'Satuan',
                             'Harga',
                             'Toko',
-                            'Total'
+                            'Total']
                         ];
                     }
                 }
@@ -408,7 +427,11 @@ class TagihanExport implements WithMultipleSheets
                 public function styles(Worksheet $sheet)
                 {
                     if ($this->metode_pembelian == 'online') {
+                        // Header
+                        $sheet->mergeCells("A1:S1");
                         $sheet->getStyle('A1:S1')->getFont()->setBold(true);
+                        
+                        $sheet->getStyle('A2:S2')->getFont()->setBold(true);
                         $sheet->getStyle('A:S')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan . ' Online');
 
@@ -420,7 +443,11 @@ class TagihanExport implements WithMultipleSheets
                         $sheet->getStyle("A$totalRowIndex:S$totalRowIndex")->getAlignment()->setHorizontal('center');
 
                     } else {
+                        // Header
+                        $sheet->mergeCells("A1:N1");
                         $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+                        
+                        $sheet->getStyle('A2:N2')->getFont()->setBold(true);
                         $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan);
 

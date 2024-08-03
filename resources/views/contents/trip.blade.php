@@ -111,7 +111,8 @@
                                 </div>
                                 <div class="col-3">
                                     <label for="unit">Satuan</label>
-                                    <input type="text" class="form-control" name="unit" id="unit" placeholder="Masukkan satuan.." required />
+                                    <input type="text" class="form-control" name="unit" id="unit" placeholder="Masukkan satuan.." value="LITER" 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                             </div>
 
@@ -463,12 +464,12 @@
                                         <td>{{ $t->uraian ?? '-' }}</td>
                                         <td>{{ $nopolKendaraan[$t->id_kendaraan] ?? '-' }}</td>
                                         <td>{{ $merkKendaraan[$t->id_kendaraan] ?? '-' }}</td>
-                                        <td>{{ $t->qty ?? '-' }}</td>
+                                        <td>{{ $t->qty ? $t->qty : '-' }}</td>
                                         <!-- <td>{{ $t->unit ?? '-' }}</td> -->
-                                        <td>{{ $t->km_awal ?? '-' }}</td>
-                                        <td>{{ $t->km_isi ?? '-' }}</td>
-                                        <td>{{ $t->km_akhir ?? '-' }}</td>
-                                        <td>{{ $t->km_ltr ?? '-' }}</td>
+                                        <td>{{ $t->km_awal ? $t->km_awal : '-' }}</td>
+                                        <td>{{ $t->km_isi ? $t->km_isi : '-' }}</td>
+                                        <td>{{ $t->km_akhir ? $t->km_akhir : '-' }}</td>
+                                        <td>{{ $t->km_ltr ? $t->km_ltr : '-' }}</td>
                                         <!-- <td>{{ 'Rp ' . number_format($t->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($t->total ?? 0, 0, ',', '.') }}</td>
                                     </tr>
@@ -609,6 +610,7 @@
         calculateTotal();
 
         let qtyElements = document.querySelectorAll("#qty, #edit-qty");
+        let kmAwalElements = document.querySelectorAll("#km_awal, #edit-km_awal");
         let kmIsiElements = document.querySelectorAll("#km_isi, #edit-km_isi");
         let kmAkhirElements = document.querySelectorAll("#km_akhir, #edit-km_akhir");
         let kmLiterElements = document.querySelectorAll("#km_ltr, #edit-km_ltr");
@@ -618,15 +620,19 @@
         // Function to calculate km/liter
         function calculateKmLiter() {
             qtyElements.forEach((qty, index) => {
+                let kmAwal = kmAwalElements[index];
                 let kmIsi = kmIsiElements[index];
                 let kmAkhir = kmAkhirElements[index];
                 let kmLiter = kmLiterElements[index];
                 let harga = hargaTrip[index];
                 let qtyValue = parseFloat(qty.value.replace(',', '.'));
     
-                if (qtyValue && kmIsi.value && kmAkhir.value) {
-                    let valueKmLiter = (kmAkhir.value - kmIsi.value) / qtyValue;
+                if (literValue && kmAwal.value && kmAkhir.value) {
+                    let valueKmLiter = (kmAkhir.value - kmAwal.value) / literValue;
                     kmLiter.value = parseFloat(valueKmLiter.toFixed(3));
+
+                } else {
+                    kmLiter.value = null;
                 }
 
                 if (harga.value && qtyValue) {

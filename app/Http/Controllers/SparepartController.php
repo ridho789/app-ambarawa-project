@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
 use App\Models\Kendaraan;
+use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SparepartExport;
 use Carbon\Carbon;
@@ -18,6 +19,8 @@ class SparepartController extends Controller
         $kendaraan = Kendaraan::all();
         $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
         $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
+        $satuan = Satuan::all();
+        $namaSatuan = Satuan::pluck('nama', 'id_satuan');
         $periodes = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
             ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))
             ->distinct()
@@ -32,11 +35,13 @@ class SparepartController extends Controller
             ->orderByRaw('MONTH(tgl_order)')
             ->get();
 
-        return view('contents.sparepart_amb', compact('sparepartamb', 'sparepartOnline', 'sparepartOffline', 'kendaraan', 'nopolKendaraan', 'merkKendaraan', 'periodes', 'sparepartambgroup'));
+        return view('contents.sparepart_amb', compact('sparepartamb', 'sparepartOnline', 'sparepartOffline', 'kendaraan', 'nopolKendaraan', 
+        'merkKendaraan', 'periodes', 'sparepartambgroup', 'satuan', 'namaSatuan'));
     }
 
     public function store(Request $request) {
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+        $masa_pakai = $request->masa . ' ' . $request->waktu;
         
         if ($request->metode_pembelian == 'offline') {
             $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
@@ -52,9 +57,9 @@ class SparepartController extends Controller
                 'nama' => $request->nama,
                 'kategori' => $request->kategori,
                 'dipakai_untuk' => $request->dipakai_untuk,
-                'masa_pakai' => $request->masa_pakai,
+                'masa_pakai' => $masa_pakai,
                 'jml' => $request->jml,
-                'unit' => $request->unit,
+                'id_satuan' => $request->unit,
                 'harga' => $numericHarga,
                 'harga_online' => null,
                 'ongkir' => null,
@@ -69,7 +74,7 @@ class SparepartController extends Controller
             $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart')->where('lokasi', $request->lokasi)
                 ->where('id_kendaraan', $request->kendaraan)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
                 ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
-                ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('jml', $request->jml)->where('unit', $request->unit)
+                ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
                 ->where('harga', $numericHarga)->where('total', $numericTotal)->where('toko', $request->toko)
                 ->first();
     
@@ -106,9 +111,9 @@ class SparepartController extends Controller
                 'nama' => $request->nama,
                 'kategori' => $request->kategori,
                 'dipakai_untuk' => $request->dipakai_untuk,
-                'masa_pakai' => $request->masa_pakai,
+                'masa_pakai' => $masa_pakai,
                 'jml' => $request->jml_onl,
-                'unit' => $request->unit_onl,
+                'id_satuan' => $request->unit_onl,
                 'harga' => null,
                 'harga_online' => $numericHargaOnline,
                 'ongkir' => $numericOngkir,
@@ -123,7 +128,7 @@ class SparepartController extends Controller
             $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart online')->where('lokasi', $request->lokasi)
                 ->where('id_kendaraan', $request->kendaraan)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
                 ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
-                ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('jml', $request->jml_onl)->where('unit', $request->unit_onl)
+                ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml_onl)->where('id_satuan', $request->unit_onl)
                 ->where('harga_online', $numericHargaOnline)->where('ongkir', $numericOngkir)->where('diskon_ongkir', $numericDiskonOngkir)
                 ->where('asuransi', $numericAsuransi)->where('b_proteksi', $numericProteksi)->where('b_jasa_aplikasi', $numericAplikasi)
                 ->where('total', $numericTotal)->where('toko', $request->toko)
@@ -154,9 +159,9 @@ class SparepartController extends Controller
             'nama' => $request->nama,
             'kategori' => $request->kategori,
             'dipakai_untuk' => $request->dipakai_untuk,
-            'masa_pakai' => $request->masa_pakai,
+            'masa_pakai' => $masa_pakai,
             'jml' => null,
-            'unit' => null,
+            'id_satuan' => null,
             'harga' => null,
             'harga_online' => null,
             'ongkir' => null,
@@ -171,7 +176,7 @@ class SparepartController extends Controller
         $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart')->where('lokasi', $request->lokasi)
             ->where('id_kendaraan', $request->kendaraan)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
             ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
-            ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('total', $numericTotal)->where('toko', $request->toko)
+            ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('total', $numericTotal)->where('toko', $request->toko)
             ->first();
 
         if ($exitingSparepart) {
@@ -190,6 +195,7 @@ class SparepartController extends Controller
     public function update(Request $request) {
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
         $tagihanSparepart = TagihanAMB::find($request->id_tagihan_amb);
+        $masa_pakai = $request->masa . ' ' . $request->waktu;
 
         if ($request->metode_pembelian == 'offline') {
             $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
@@ -205,9 +211,9 @@ class SparepartController extends Controller
                 $tagihanSparepart->nama = $request->nama;
                 $tagihanSparepart->kategori = $request->kategori;
                 $tagihanSparepart->dipakai_untuk = $request->dipakai_untuk;
-                $tagihanSparepart->masa_pakai = $request->masa_pakai;
+                $tagihanSparepart->masa_pakai = $masa_pakai;
                 $tagihanSparepart->jml = $request->jml;
-                $tagihanSparepart->unit = $request->unit;
+                $tagihanSparepart->id_satuan = $request->unit;
                 $tagihanSparepart->harga = $numericHarga;
                 $tagihanSparepart->harga_online = null;
                 $tagihanSparepart->diskon_ongkir = null;
@@ -242,9 +248,9 @@ class SparepartController extends Controller
                 $tagihanSparepart->nama = $request->nama;
                 $tagihanSparepart->kategori = $request->kategori;
                 $tagihanSparepart->dipakai_untuk = $request->dipakai_untuk;
-                $tagihanSparepart->masa_pakai = $request->masa_pakai;
+                $tagihanSparepart->masa_pakai = $masa_pakai;
                 $tagihanSparepart->jml = $request->jml_onl;
-                $tagihanSparepart->unit = $request->unit_onl;
+                $tagihanSparepart->id_satuan = $request->unit_onl;
                 $tagihanSparepart->harga = null;
                 $tagihanSparepart->harga_online = $numericHargaOnline;
                 $tagihanSparepart->diskon_ongkir = $numericDiskonOngkir;
@@ -271,9 +277,9 @@ class SparepartController extends Controller
             $tagihanSparepart->nama = $request->nama;
             $tagihanSparepart->kategori = $request->kategori;
             $tagihanSparepart->dipakai_untuk = $request->dipakai_untuk;
-            $tagihanSparepart->masa_pakai = $request->masa_pakai;
+            $tagihanSparepart->masa_pakai = $masa_pakai;
             $tagihanSparepart->jml = null;
-            $tagihanSparepart->unit = null;
+            $tagihanSparepart->id_satuan = null;
             $tagihanSparepart->harga = null;
             $tagihanSparepart->harga_online = null;
             $tagihanSparepart->diskon_ongkir = null;
@@ -374,7 +380,7 @@ class SparepartController extends Controller
                 ? 'Report Sparepart Online ' . $rangeDate . '.xlsx' 
                 : 'Report Sparepart ' . $rangeDate . '.xlsx');
     
-        return Excel::download(new SparepartExport($mode, $tagihan, $infoTagihan, $metode_pembelian), $fileName);
+        return Excel::download(new SparepartExport($mode, $tagihan, $infoTagihan, $metode_pembelian,$rangeDate), $fileName);
     }
 
 }

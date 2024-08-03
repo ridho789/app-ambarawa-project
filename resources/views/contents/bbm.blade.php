@@ -71,15 +71,15 @@
                             <div class="form-group row">
                                 <div class="col-4">
                                     @if (count($kendaraan) > 0)
-                                        <label for="kendaraan">Pilih Kendaraan (Nopol / Kode Unit)</label>
+                                        <label for="kendaraan">Pilih Kendaraan</label>
                                         <select class="form-select form-control" name="kendaraan" id="kendaraan" onchange="updateMerk()">
                                             <option value="">...</option>
                                             @foreach ($kendaraan as $k)
-                                                <option value="{{ $k->id_kendaraan }}" data-merk="{{ $k->merk }}">{{ $k->nopol }}</option>
+                                                <option value="{{ $k->id_kendaraan }}" data-merk="{{ $k->merk }}" data-jns_bbm="{{ $k->jns_bbm }}">{{ $k->nopol }}</option>
                                             @endforeach
                                         </select>
                                     @else
-                                        <label>Pilih Kendaraan (Nopol / Kode Unit)</label>
+                                        <label>Pilih Kendaraan</label>
                                         <select class="form-control" disabled>
                                             <option value="">Tidak ada data</option>
                                         </select>
@@ -93,7 +93,7 @@
                                 <div class="col-4">
                                     <label for="jns_bbm">Jenis BBM</label>
                                     <input type="text" class="form-control" name="jns_bbm" id="jns_bbm" placeholder="Jenis bbm.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
+                                    oninput="this.value = this.value.toUpperCase()" style="background-color: #fff !important;" readonly />
                                 </div>
                             </div>
 
@@ -194,15 +194,15 @@
                             <div class="form-group row">
                                 <div class="col-4">
                                     @if (count($kendaraan) > 0)
-                                        <label for="kendaraan">Pilih Kendaraan (Nopol / Kode Unit)</label>
+                                        <label for="kendaraan">Pilih Kendaraan</label>
                                         <select class="form-select form-control" name="kendaraan" id="edit-kendaraan" onchange="updateEditMerk()">
                                             <option value="">...</option>
                                             @foreach ($kendaraan as $k)
-                                                <option value="{{ $k->id_kendaraan }}" data-merk="{{ $k->merk }}">{{ $k->nopol }}</option>
+                                                <option value="{{ $k->id_kendaraan }}" data-merk="{{ $k->merk }}" data-jns_bbm="{{ $k->jns_bbm }}">{{ $k->nopol }}</option>
                                             @endforeach
                                         </select>
                                     @else
-                                        <label>Pilih Kendaraan (Nopol / Kode Unit)</label>
+                                        <label>Pilih Kendaraan</label>
                                         <select class="form-control" disabled>
                                             <option value="">Tidak ada data</option>
                                         </select>
@@ -216,7 +216,7 @@
                                 <div class="col-4">
                                     <label for="jns_bbm">Jenis BBM</label>
                                     <input type="text" class="form-control" name="jns_bbm" id="edit-jns_bbm" placeholder="Jenis bbm.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
+                                    oninput="this.value = this.value.toUpperCase()" style="background-color: #fff !important;" readonly />
                                 </div>
                             </div>
 
@@ -452,12 +452,12 @@
                                         <td>{{ $nopolKendaraan[$b->id_kendaraan] ?? '-' }}</td>
                                         <td>{{ $merkKendaraan[$b->id_kendaraan] ?? '-' }}</td>
                                         <!-- <td>{{ $b->jns_bbm ?? '-' }}</td> -->
-                                        <td>{{ $b->liter ?? '-' }}</td>
-                                        <td>{{ $b->km_awal ?? '-' }}</td>
-                                        <td>{{ $b->km_isi ?? '-' }}</td>
-                                        <td>{{ $b->km_akhir ?? '-' }}</td>
-                                        <td>{{ $b->km_ltr ?? '-' }}</td>
-                                        <td>{{ $b->tot_km ?? '-' }}</td>
+                                        <td>{{ $b->liter ? $b->liter : '-' }}</td>
+                                        <td>{{ $b->km_awal ? $b->km_awal : '-' }}</td>
+                                        <td>{{ $b->km_isi ? $b->km_isi : '-' }}</td>
+                                        <td>{{ $b->km_akhir ? $b->km_akhir : '-' }}</td>
+                                        <td>{{ $b->km_ltr ? $b->km_ltr : '-' }}</td>
+                                        <td>{{ $b->tot_km ? $b->tot_km : '-' }}</td>
                                         <!-- <td>{{ 'Rp ' . number_format($b->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($b->tot_harga ?? 0, 0, ',', '.') }}</td>
                                         <!-- <td>{{ $b->ket ?? '-' }}</td> -->
@@ -576,18 +576,26 @@
         var kendaraanSelect = document.getElementById('kendaraan');
         var selectedOption = kendaraanSelect.options[kendaraanSelect.selectedIndex];
         var merk = selectedOption.getAttribute('data-merk');
+        var jnsBBM = selectedOption.getAttribute('data-jns_bbm');
         
         var merkInput = document.getElementById('jns_mobil');
         merkInput.value = merk ? merk.toUpperCase() : '';
+
+        var jnsBBMInput = document.getElementById('jns_bbm');
+        jnsBBMInput.value = jnsBBM ? jnsBBM.toUpperCase() : '';
     }
 
     function updateEditMerk() {
         var kendaraanEditSelect = document.getElementById('edit-kendaraan');
         var selectedEditOption = kendaraanEditSelect.options[kendaraanEditSelect.selectedIndex];
         var merk = selectedEditOption.getAttribute('data-merk');
+        var jnsBBM = selectedOption.getAttribute('data-jns_bbm');
         
         var merkEditInput = document.getElementById('edit-jns_mobil');
         merkEditInput.value = merk ? merk.toUpperCase() : '';
+
+        var jnsBBMEditInput = document.getElementById('edit-jns_bbm');
+        jnsBBMEditInput.value = jnsBBM ? jnsBBM.toUpperCase() : '';
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -603,9 +611,12 @@
                 var previousIdKendaraan = previousRow.getAttribute('data-kendaraan');
                 var previousKmAkhir = parseFloat(previousRow.getAttribute('data-km_akhir'));
                 
-                if (currentIdKendaraan === previousIdKendaraan && currentKmAwal !== previousKmAkhir) {
-                    row.querySelector('td:nth-child(8)').classList.add('text-danger');
+                if (previousKmAkhir && previousKmAkhir != '0') {
+                    if (currentIdKendaraan === previousIdKendaraan && currentKmAwal !== previousKmAkhir) {
+                        row.querySelector('td:nth-child(8)').classList.add('text-danger');
+                    }
                 }
+
             }
 
             previousRow = row;
@@ -647,9 +658,12 @@
                 let harga = hargaBBM[index];
                 let literValue = parseFraction(liter.value.replace(',', '.'));
     
-                if (literValue && kmIsi.value && kmAkhir.value) {
-                    let valueKmLiter = (kmAkhir.value - kmIsi.value) / literValue;
+                if (literValue && kmAwal.value && kmAkhir.value) {
+                    let valueKmLiter = (kmAkhir.value - kmAwal.value) / literValue;
                     kmLiter.value = parseFloat(valueKmLiter.toFixed(3));
+
+                } else {
+                    kmLiter.value = null;
                 }
 
                 // Total KM

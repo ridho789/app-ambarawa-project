@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Sembako;
+use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SembakoExport;
 use Carbon\Carbon;
@@ -17,7 +18,9 @@ class SembakoController extends Controller
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        return view('contents.sembako', compact('sembako', 'periodes'));
+        $satuan = Satuan::all();
+        $namaSatuan = Satuan::pluck('nama', 'id_satuan');
+        return view('contents.sembako', compact('sembako', 'periodes', 'satuan', 'namaSatuan'));
     }
 
     public function store(Request $request) {
@@ -28,18 +31,18 @@ class SembakoController extends Controller
             'tanggal' => $request->tanggal,
             'nama' => $request->nama,
             'qty' => $request->qty,
-            'unit' => $request->unit,
+            'id_satuan' => $request->unit,
             'harga' => $numericHarga,
             'total' => $numericTotal
         ];
 
         $exitingSembako = Sembako::where('tanggal', $request->tanggal)->where('nama', $request->nama)
-            ->where('qty', $request->qty)->where('unit', $request->unit)->where('harga', $numericHarga)->where('total', $numericTotal)
+            ->where('qty', $request->qty)->where('id_satuan', $request->unit)->where('harga', $numericHarga)->where('total', $numericTotal)
             ->first();
 
         if ($exitingSembako) {
             $logErrors = 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 
-            'Jumlah: ' . $request->qty . ' - ' . 'Satuan: ' . $request->unit . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
+            'Jumlah: ' . $request->qty . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
             ', data tersebut sudah ada di sistem';
 
             return redirect('sembako')->with('logErrors', $logErrors);
@@ -59,7 +62,7 @@ class SembakoController extends Controller
             $tagihanSembako->tanggal = $request->tanggal;
             $tagihanSembako->nama = $request->nama;
             $tagihanSembako->qty = $request->qty;
-            $tagihanSembako->unit = $request->unit;
+            $tagihanSembako->id_satuan = $request->unit;
             $tagihanSembako->harga = $numericHarga;
             $tagihanSembako->total = $numericTotal;
 
@@ -125,7 +128,7 @@ class SembakoController extends Controller
 
         if ($mode == 'all_data') {
             $sembako = Sembako::orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
-            return Excel::download(new SembakoExport($mode, $sembako), 'Report Sembako.xlsx');
+            return Excel::download(new SembakoExport($mode, $sembako, $rangeDate), 'Report Sembako.xlsx');
 
         } else {
             $sembako = Sembako::where('tanggal', '>=', $start_date)
@@ -135,7 +138,7 @@ class SembakoController extends Controller
                 ->get();
 
             $fileName = 'Report Sembako ' . $rangeDate . '.xlsx';
-            return Excel::download(new SembakoExport($mode, $sembako), $fileName);
+            return Excel::download(new SembakoExport($mode, $sembako, $rangeDate), $fileName);
         }
     }
 }

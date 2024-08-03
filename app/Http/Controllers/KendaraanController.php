@@ -20,7 +20,7 @@ class KendaraanController extends Controller
             return redirect('kendaraan')->with('logErrors', $logErrors);
 
         } else {
-            Kendaraan::insert(['nopol'=> $request->nopol, 'merk'=> $request->merk]);
+            Kendaraan::insert(['nopol'=> $request->nopol, 'merk'=> $request->merk, 'jns_bbm'=> $request->jns_bbm]);
             return redirect('kendaraan');
         }
     }
@@ -38,6 +38,7 @@ class KendaraanController extends Controller
 
             $dataKendaraan->nopol = $request->nopol;
             $dataKendaraan->merk = $request->merk;
+            $dataKendaraan->jns_bbm = $request->jns_bbm;
             $dataKendaraan->save();
             return redirect('kendaraan')->with('success', 'Data berhasil diperbaharui!');
         }

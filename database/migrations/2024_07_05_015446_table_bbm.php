@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id('id_bbm');
             $table->string('nama');
             $table->date('tanggal');
-            $table->string('jns_bbm');
             $table->string('liter');
             $table->string('km_awal');
             $table->string('km_isi');

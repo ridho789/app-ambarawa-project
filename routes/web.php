@@ -24,6 +24,7 @@ use App\Http\Controllers\PenguruganController;
 // Master data
 use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\ProyekController;
+use App\Http\Controllers\SatuanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -151,4 +152,10 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('proyek-store', [ProyekController::class, 'store']);
     Route::post('proyek-update', [ProyekController::class, 'update']);
     Route::post('proyek-delete', [ProyekController::class, 'delete']);
+
+    // Master data - Satuan
+    Route::get('/satuan', [SatuanController::class, 'index']);
+    Route::post('satuan-store', [SatuanController::class, 'store']);
+    Route::post('satuan-update', [SatuanController::class, 'update']);
+    Route::post('satuan-delete', [SatuanController::class, 'delete']);
 });

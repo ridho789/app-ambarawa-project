@@ -16,7 +16,6 @@ return new class extends Migration
             $table->date('tanggal');
             $table->string('nama');
             $table->string('qty');
-            $table->string('unit');
             $table->string('harga');
             $table->string('total');
             $table->timestamps();

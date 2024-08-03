@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
+use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TagihanExport;
 use Carbon\Carbon;
@@ -18,12 +19,15 @@ class BubutController extends Controller
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        return view('contents.bubut', compact('bubut', 'periodes'));
+        $satuan = Satuan::all();
+        $namaSatuan = Satuan::pluck('nama', 'id_satuan');
+        return view('contents.bubut', compact('bubut', 'periodes', 'satuan', 'namaSatuan'));
     }
 
     public function store(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+        $masa_pakai = $request->masa . ' ' . $request->waktu;
 
         $dataBubut = [
             'keterangan' => 'tagihan bubut',
@@ -35,9 +39,9 @@ class BubutController extends Controller
             'nama' => $request->nama,
             'kategori' => $request->kategori,
             'dipakai_untuk' => $request->dipakai_untuk,
-            'masa_pakai' => $request->masa_pakai,
+            'masa_pakai' => $masa_pakai,
             'jml' => $request->jml,
-            'unit' => $request->unit,
+            'id_satuan' => $request->unit,
             'harga' => $numericHarga,
             'total' => $numericTotal,
             'toko' => $request->toko
@@ -45,7 +49,7 @@ class BubutController extends Controller
 
         $exitingBubut = TagihanAMB::where('keterangan', 'tagihan bubut')->where('lokasi', $request->lokasi)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
             ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
-            ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('jml', $request->jml)->where('unit', $request->unit)
+            ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
             ->where('harga', $numericHarga)->where('total', $numericTotal)->where('toko', $request->toko)
             ->first();
 
@@ -65,6 +69,7 @@ class BubutController extends Controller
     public function update(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+        $masa_pakai = $request->masa . ' ' . $request->waktu;
         
         $tagihanBubut = TagihanAMB::find($request->id_tagihan_amb);
         if ($tagihanBubut) {
@@ -76,7 +81,7 @@ class BubutController extends Controller
             $tagihanBubut->nama = $request->nama;
             $tagihanBubut->kategori = $request->kategori;
             $tagihanBubut->dipakai_untuk = $request->dipakai_untuk;
-            $tagihanBubut->masa_pakai = $request->masa_pakai;
+            $tagihanBubut->masa_pakai = $masa_pakai;
             $tagihanBubut->jml = $request->jml;
             $tagihanBubut->unit = $request->unit;
             $tagihanBubut->harga = $numericHarga;
@@ -167,6 +172,6 @@ class BubutController extends Controller
                 ? 'Report Bubut Online ' . $rangeDate . '.xlsx' 
                 : 'Report Bubut ' . $rangeDate . '.xlsx');
     
-        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian), $fileName);
+        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
     }
 }

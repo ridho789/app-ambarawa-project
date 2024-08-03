@@ -15,7 +15,6 @@ class BBM extends Model
         'id_kendaraan',
         'nama',
         'tanggal',
-        'jns_bbm',
         'liter',
         'km_awal',
         'km_isi',

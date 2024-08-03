@@ -18,11 +18,13 @@ class TripExport implements WithMultipleSheets
 
     protected $mode;
     protected $trip;
+    protected $rangeDate;
 
-    public function __construct($mode, $trip)
+    public function __construct($mode, $trip, $rangeDate)
     {
         $this->mode = $mode;
         $this->trip = $trip;
+        $this->rangeDate = $rangeDate;
     }
 
     public function sheets(): array
@@ -65,13 +67,13 @@ class TripExport implements WithMultipleSheets
                                 'uraian' => $item->uraian,
                                 'nopol' => $kendaraan->nopol ?? '-',
                                 'merk' => $kendaraan->merk ?? '-',
-                                'qty' => $item->qty,
-                                'unit' => $item->unit,
-                                'km_awal' => $item->km_awal,
-                                'km_isi' => $item->km_isi,
-                                'km_akhir' => $item->km_akhir,
-                                'km_ltr' => $item->km_ltr,
-                                'harga' => $harga,
+                                'qty' => $item->qty ?? '-',
+                                'unit' => $item->unit ?? '-',
+                                'km_awal' => $item->km_awal ? $item->km_awal : '-',
+                                'km_isi' => $item->km_isi ? $item->km_isi : '-',
+                                'km_akhir' => $item->km_akhir ? $item->km_akhir : '-',
+                                'km_ltr' => $item->km_ltr ? $item->km_ltr : '-',
+                                'harga' => $harga ? $harga : '-',
                                 'total' => $total
                             ];
                         });
@@ -100,7 +102,8 @@ class TripExport implements WithMultipleSheets
                     public function headings(): array
                     {
                         return [
-                            'Tanggal',
+                            ['Pengeluaran Trip ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y')],
+                            ['Tanggal',
                             'Kota',
                             'Keterangan',
                             'Uraian',
@@ -113,22 +116,26 @@ class TripExport implements WithMultipleSheets
                             'KM Akhir',
                             'KM/Liter',
                             'Harga',
-                            'Total Harga',
+                            'Total Harga',]
                         ];
                     }
 
                     public function styles(Worksheet $sheet)
                     {
-                        $sheet->getStyle('A1:M1')->getFont()->setBold(true);
-                        $sheet->getStyle('A:M')->getAlignment()->setHorizontal('center');
+                        // Header
+                        $sheet->mergeCells("A1:N1");
+                        $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+
+                        $sheet->getStyle('A2:N2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle('Trip Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:L$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:L$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("M$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
                     }
                 };
             }
@@ -138,13 +145,15 @@ class TripExport implements WithMultipleSheets
 
         // Handle mode lain jika ada
         return [
-            new class('All Data', $this->trip) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+            new class('All Data', $this->trip, $this->rangeDate) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
             {
                 protected $trip;
+                protected $rangeDate;
 
-                public function __construct($mode, $trip)
+                public function __construct($mode, $trip, $rangeDate)
                 {
                     $this->trip = $trip;
+                    $this->rangeDate = $rangeDate;
                 }
 
                 public function collection()
@@ -165,13 +174,13 @@ class TripExport implements WithMultipleSheets
                             'uraian' => $item->uraian,
                             'nopol' => $kendaraan->nopol ?? '-',
                             'merk' => $kendaraan->merk ?? '-',
-                            'qty' => $item->qty,
-                            'unit' => $item->unit,
-                            'km_awal' => $item->km_awal,
-                            'km_isi' => $item->km_isi,
-                            'km_akhir' => $item->km_akhir,
-                            'km_ltr' => $item->km_ltr,
-                            'harga' => $harga,
+                            'qty' => $item->qty ?? '-',
+                            'unit' => $item->unit ?? '-',
+                            'km_awal' => $item->km_awal ? $item->km_awal : '-',
+                            'km_isi' => $item->km_isi ? $item->km_isi : '-',
+                            'km_akhir' => $item->km_akhir ? $item->km_akhir : '-',
+                            'km_ltr' => $item->km_ltr ? $item->km_ltr : '-',
+                            'harga' => $harga ? $harga : '-',
                             'total' => $total
                         ];
                     });
@@ -200,7 +209,8 @@ class TripExport implements WithMultipleSheets
                 public function headings(): array
                 {
                     return [
-                        'Tanggal',
+                        ['Pengeluaran Trip ' . $this->rangeDate],
+                        ['Tanggal',
                         'Kota',
                         'Keterangan',
                         'Uraian',
@@ -213,22 +223,26 @@ class TripExport implements WithMultipleSheets
                         'KM Akhir',
                         'KM/Liter',
                         'Harga',
-                        'Total Harga',
+                        'Total Harga',]
                     ];
                 }
 
                 public function styles(Worksheet $sheet)
                 {
-                    $sheet->getStyle('A1:M1')->getFont()->setBold(true);
-                    $sheet->getStyle('A:M')->getAlignment()->setHorizontal('center');
+                    // Header
+                    $sheet->mergeCells("A1:N1");
+                    $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+
+                    $sheet->getStyle('A2:N2')->getFont()->setBold(true);
+                    $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                     $sheet->setTitle('Pengeluaran Trip');
 
                     // Menyempurnakan styling baris total
                     $totalRowIndex = $sheet->getHighestRow();
-                    $sheet->mergeCells("A$totalRowIndex:L$totalRowIndex");
-                    $sheet->getStyle("A$totalRowIndex:L$totalRowIndex")->getFont()->setBold(true);
-                    $sheet->getStyle("M$totalRowIndex")->getFont()->setBold(true);
-                    $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getAlignment()->setHorizontal('center');
+                    $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
+                    $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
+                    $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
+                    $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
                 }
             }
         ];

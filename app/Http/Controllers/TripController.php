@@ -151,7 +151,7 @@ class TripController extends Controller
 
         if ($mode == 'all_data') {
             $trip = Trip::orderBy('tanggal', 'asc')->orderBy('id_kendaraan', 'asc')->orderBy('kota', 'asc')->get();
-            return Excel::download(new TripExport($mode, $trip), 'Report Trip.xlsx');
+            return Excel::download(new TripExport($mode, $trip, $rangeDate), 'Report Trip.xlsx');
 
         } else {
             $trip = Trip::where('tanggal', '>=', $start_date)
@@ -162,7 +162,7 @@ class TripController extends Controller
                 ->get();
 
             $fileName = 'Report Trip ' . $rangeDate . '.xlsx';
-            return Excel::download(new TripExport($mode, $trip), $fileName);
+            return Excel::download(new TripExport($mode, $trip, $rangeDate), $fileName);
         }
     }
 }

@@ -32,7 +32,6 @@ class BBMController extends Controller
             'nama' => $request->nama,
             'tanggal' => $request->tanggal,
             'id_kendaraan' => $request->kendaraan,
-            'jns_bbm' => $request->jns_bbm,
             'liter' => $request->liter,
             'km_awal' => $request->km_awal,
             'km_isi' => $request->km_isi,
@@ -50,7 +49,7 @@ class BBMController extends Controller
             $nopol = $dataKendaraan->nopol;
         }
 
-        $exitingBBM = BBM::where('nama', $request->nama)->where('tanggal', $request->tanggal)->where('id_kendaraan', $request->kendaraan)->where('jns_bbm', $request->jns_bbm)
+        $exitingBBM = BBM::where('nama', $request->nama)->where('tanggal', $request->tanggal)->where('id_kendaraan', $request->kendaraan)
             ->where('liter', $request->liter)->where('km_awal', $request->km_awal)->where('km_isi', $request->km_isi)->where('km_akhir', $request->km_akhir)
             ->where('km_ltr', $request->km_ltr)->where('harga', $numericHarga)->where('tot_harga', $numericTotalHarga)->where('ket', $request->ket)->where('tot_km', $request->tot_km)
             ->first();
@@ -77,7 +76,6 @@ class BBMController extends Controller
             $dataBBM->nama = $request->nama;
             $dataBBM->tanggal = $request->tanggal;
             $dataBBM->id_kendaraan = $request->kendaraan;
-            $dataBBM->jns_bbm = $request->jns_bbm;
             $dataBBM->liter = $request->liter;
             $dataBBM->km_awal = $request->km_awal;
             $dataBBM->km_isi = $request->km_isi;
@@ -150,7 +148,7 @@ class BBMController extends Controller
 
         if ($mode == 'all_data') {
             $bbm = BBM::orderBy('tanggal', 'asc')->orderBy('id_kendaraan', 'asc')->orderBy('nama', 'asc')->get();
-            return Excel::download(new BBMExport($mode, $bbm), 'Report BBM.xlsx');
+            return Excel::download(new BBMExport($mode, $bbm, $rangeDate), 'Report BBM.xlsx');
 
         } else {
             $bbm = BBM::where('tanggal', '>=', $start_date)
@@ -161,7 +159,7 @@ class BBMController extends Controller
                 ->get();
 
             $fileName = 'Report BBM ' . $rangeDate . '.xlsx';
-            return Excel::download(new BBMExport($mode, $bbm), $fileName);
+            return Excel::download(new BBMExport($mode, $bbm, $rangeDate), $fileName);
         }
     }
 }

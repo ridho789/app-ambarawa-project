@@ -24,7 +24,6 @@ return new class extends Migration
             $table->string('dipakai_untuk');
             $table->string('masa_pakai');
             $table->string('jml')->nullable();
-            $table->string('unit')->nullable();
             $table->string('harga')->nullable();
             $table->string('harga_online')->nullable();
             $table->string('ongkir')->nullable();

@@ -57,26 +57,6 @@
                                 <input type="text" class="form-control" name="lokasi" id="lokasi" placeholder="Masukkan lokasi.." required />
                             </div>
 
-                            <!-- <div class="form-group">
-                                <span class="h5 fw-mediumbold">Informasi Kendaraan</span>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-4">
-                                    <label for="nopol">Nopol</label>
-                                    <input type="text" class="form-control" name="nopol" id="nopol" placeholder="Masukkan nopol.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
-                                </div>
-                                <div class="col-4">
-                                    <label for="kode_unit">Kode Unit</label>
-                                    <input type="text" class="form-control" name="kode_unit" id="kode_unit" placeholder="Masukkan kode unit.." required />
-                                </div>
-                                <div class="col-4">
-                                    <label for="merk">Merk</label>
-                                    <input type="text" class="form-control" name="merk" id="merk" placeholder="Masukkan merk.." required />
-                                </div>
-                            </div> -->
-
                             <div class="form-group">
                                 <span class="h5 fw-mediumbold">Informasi Pemesanan</span>
                             </div>
@@ -119,7 +99,16 @@
                                 </div>
                                 <div class="col-4">
                                     <label for="masa_pakai">Masa Pakai</label>
-                                    <input type="text" class="form-control" name="masa_pakai" id="masa_pakai" placeholder="Masa pakai.." required />
+                                    <div class="d-flex">
+                                        <input type="number" class="form-control" name="masa" id="masa" placeholder="..." required />
+                                        <select class="form-control ms-2" name="waktu" id="waktu" required>
+                                            <option value="" disabled selected>...</option>
+                                            <option value="HARI">HARI</option>
+                                            <option value="MINGGU">MINGGU</option>
+                                            <option value="BULAN">BULAN</option>
+                                            <option value="TAHUN">TAHUN</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
@@ -160,8 +149,20 @@
                                         <input type="text" class="form-control" name="jml" id="jml_offline" placeholder="Masukkan jumlah.." />
                                     </div>
                                     <div class="col-4">
-                                        <label for="unit_offline">Satuan</label>
-                                        <input type="text" class="form-control" name="unit" id="unit_offline" placeholder="Masukkan satuan.." />
+                                        @if (count($satuan) > 0)
+                                            <label for="satuan">Satuan</label>
+                                            <select class="form-select form-control" name="unit" id="unit_offline">
+                                                <option value="">...</option>
+                                                @foreach ($satuan as $s)
+                                                    <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <label>Satuan</label>
+                                            <select class="form-control" disabled>
+                                                <option value="">Tidak ada data</option>
+                                            </select>
+                                        @endif
                                     </div>
                                     <div class="col-4">
                                         <label for="harga">Harga</label>
@@ -177,8 +178,20 @@
                                         <input type="text" class="form-control" name="jml_onl" id="jml_online" placeholder="Masukkan jumlah.." />
                                     </div>
                                     <div class="col-4">
-                                        <label for="unit_online">Satuan</label>
-                                        <input type="text" class="form-control" name="unit_onl" id="unit_online" placeholder="Masukkan satuan.." />
+                                        @if (count($satuan) > 0)
+                                            <label for="satuan">Satuan</label>
+                                            <select class="form-select form-control" name="unit_onl" id="unit_online">
+                                                <option value="">...</option>
+                                                @foreach ($satuan as $s)
+                                                    <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <label>Satuan</label>
+                                            <select class="form-control" disabled>
+                                                <option value="">Tidak ada data</option>
+                                            </select>
+                                        @endif
                                     </div>
                                     <div class="col-4">
                                         <label for="harga_online">Harga Online</label>
@@ -259,26 +272,6 @@
                                 <input type="text" class="form-control" name="lokasi" id="edit-lokasi" placeholder="Masukkan lokasi.." required />
                             </div>
 
-                            <!-- <div class="form-group">
-                                <span class="h5 fw-mediumbold">Informasi Kendaraan</span>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-4">
-                                    <label for="nopol">Nopol</label>
-                                    <input type="text" class="form-control" name="nopol" id="edit-nopol" placeholder="Masukkan nopol.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
-                                </div>
-                                <div class="col-4">
-                                    <label for="kode_unit">Kode Unit</label>
-                                    <input type="text" class="form-control" name="kode_unit" id="edit-kode_unit" placeholder="Masukkan kode unit.." required />
-                                </div>
-                                <div class="col-4">
-                                    <label for="merk">Merk</label>
-                                    <input type="text" class="form-control" name="merk" id="edit-merk" placeholder="Masukkan merk.." required />
-                                </div>
-                            </div> -->
-
                             <div class="form-group">
                                 <span class="h5 fw-mediumbold">Informasi Pemesanan</span>
                             </div>
@@ -321,7 +314,16 @@
                                 </div>
                                 <div class="col-4">
                                     <label for="masa_pakai">Masa Pakai</label>
-                                    <input type="text" class="form-control" name="masa_pakai" id="edit-masa_pakai" placeholder="Masa pakai.." required />
+                                    <div class="d-flex">
+                                        <input type="number" class="form-control" name="masa" id="edit-masa" placeholder="..." required />
+                                        <select class="form-control ms-2" name="waktu" id="edit-waktu" required>
+                                            <option value="" disabled selected>...</option>
+                                            <option value="HARI">HARI</option>
+                                            <option value="MINGGU">MINGGU</option>
+                                            <option value="BULAN">BULAN</option>
+                                            <option value="TAHUN">TAHUN</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
@@ -362,8 +364,20 @@
                                         <input type="text" class="form-control" name="jml" id="edit-jml_offline" placeholder="Masukkan jumlah.." />
                                     </div>
                                     <div class="col-4">
-                                        <label for="unit_offline">Satuan</label>
-                                        <input type="text" class="form-control" name="unit" id="edit-unit_offline" placeholder="Masukkan satuan.." />
+                                        @if (count($satuan) > 0)
+                                            <label for="satuan">Satuan</label>
+                                            <select class="form-select form-control" name="unit" id="edit-unit_offline">
+                                                <option value="">...</option>
+                                                @foreach ($satuan as $s)
+                                                    <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <label>Satuan</label>
+                                            <select class="form-control" disabled>
+                                                <option value="">Tidak ada data</option>
+                                            </select>
+                                        @endif
                                     </div>
                                     <div class="col-4">
                                         <label for="harga">Harga</label>
@@ -379,8 +393,20 @@
                                         <input type="text" class="form-control" name="jml_onl" id="edit-jml_online" placeholder="Masukkan jumlah.." />
                                     </div>
                                     <div class="col-4">
-                                        <label for="unit_online">Satuan</label>
-                                        <input type="text" class="form-control" name="unit_onl" id="edit-unit_online" placeholder="Masukkan satuan.." />
+                                        @if (count($satuan) > 0)
+                                            <label for="satuan">Satuan</label>
+                                            <select class="form-select form-control" name="unit_onl" id="edit-unit_online">
+                                                <option value="">...</option>
+                                                @foreach ($satuan as $s)
+                                                    <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <label>Satuan</label>
+                                            <select class="form-control" disabled>
+                                                <option value="">Tidak ada data</option>
+                                            </select>
+                                        @endif
                                     </div>
                                     <div class="col-4">
                                         <label for="harga_online">Harga Online</label>
@@ -593,10 +619,10 @@
                                         <th class="text-xxs-bold">No. Inventaris</th>
                                         <th class="text-xxs-bold">Nama (Barang)</th>
                                         <th class="text-xxs-bold">Kategori</th>
-                                        <!-- <th class="text-xxs-bold">Keperluan</th>
+                                        <!-- <th class="text-xxs-bold">Keperluan</th> -->
                                         <th class="text-xxs-bold">Masa Pakai</th>
-                                        <th class="text-xxs-bold">Qty</th>
-                                        <th class="text-xxs-bold">Unit</th> -->
+                                        <!-- <th class="text-xxs-bold">Qty</th> -->
+                                        <!-- <th class="text-xxs-bold">Unit</th> -->
                                         <!-- <th class="text-xxs-bold">Harga</th> -->
                                         <th class="text-xxs-bold">Total</th>
                                         <th class="text-xxs-bold">Toko</th>
@@ -616,7 +642,7 @@
                                         data-dipakai_untuk="{{ $c->dipakai_untuk }}"
                                         data-masa_pakai="{{ $c->masa_pakai }}"
                                         data-jml="{{ $c->jml }}"
-                                        data-unit="{{ $c->unit }}"
+                                        data-unit="{{ $c->id_satuan }}"
                                         data-harga="{{ 'Rp ' . number_format($c->harga ?? 0, 0, ',', '.') }}"
                                         data-harga_online="{{ 'Rp ' . number_format($c->harga_online ?? 0, 0, ',', '.') }}"
                                         data-diskon_ongkir="{{ 'Rp ' . number_format($c->diskon_ongkir ?? 0, 0, ',', '.') }}"
@@ -638,10 +664,10 @@
                                         <td>{{ $c->no_inventaris ?? '-' }}</td>
                                         <td>{{ $c->nama ?? '-' }}</td>
                                         <td>{{ $c->kategori ?? '-' }}</td>
-                                        <!-- <td>{{ $c->dipakai_untuk ?? '-' }}</td>
-                                        <td>{{ $c->masa_pakai ?? '-' }}</td> -->
-                                        <!-- <td>{{ $c->jml ?? '-' }}</td>
-                                        <td>{{ $c->unit ?? '-' }}</td> -->
+                                        <!-- <td>{{ $c->dipakai_untuk ?? '-' }}</td> -->
+                                        <td>{{ $c->masa_pakai ?? '-' }}</td>
+                                        <!-- <td>{{ $c->jml ?? '-' }}</td> -->
+                                        <!-- <td>{{ $c->id_satuan ?? '-' }}</td> -->
                                         <!-- <td>{{ 'Rp ' . number_format($c->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($c->total ?? 0, 0, ',', '.') }}</td>
                                         <td>{{ $c->toko }}</td>
@@ -739,6 +765,15 @@
                 input.setAttribute('required', 'required');
             } else {
                 input.removeAttribute('required');
+            }
+        });
+
+        const selects = fieldsContainer.querySelectorAll('select');
+        selects.forEach(select => {
+            if (isRequired) {
+                select.setAttribute('required', 'required');
+            } else {
+                select.removeAttribute('required');
             }
         });
     }
@@ -1105,6 +1140,12 @@
                 var selectedId = allSelectRowInput.value.split(',')[0];
                 if (selectedId) {
                     var row = $('tr[data-id="' + selectedId + '"]');
+                    var masaPakai = row.data('masa_pakai');
+
+                    // Memisahkan nilai menjadi jumlah dan unit
+                    var parts = masaPakai.split(' ');
+                    var jumlah = parts[0];
+                    var waktu = parts[1];
 
                     $('#edit-id').val(selectedId);
                     $('#edit-lokasi').val(row.data('lokasi'));
@@ -1118,7 +1159,8 @@
                     $('#edit-nama').val(row.data('nama'));
                     $('#edit-kategori').val(row.data('kategori'));
                     $('#edit-dipakai_untuk').val(row.data('dipakai_untuk'));
-                    $('#edit-masa_pakai').val(row.data('masa_pakai'));
+                    $('#edit-masa').val(jumlah);
+                    $('#edit-waktu').val(waktu);
                     $('#edit-total').val(row.data('total'));
                     $('#edit-toko').val(row.data('toko'));
 
