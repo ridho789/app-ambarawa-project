@@ -36,6 +36,12 @@
                     <h4 class="text-section">Master Data</h4>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url('/kategori_material') }}">
+                        <i class="fas fa-box-open"></i>
+                        <p>Kategori Material</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url('/kendaraan') }}">
                         <i class="fas fa-car-side"></i>
                         <p>Kendaraan</p>
@@ -104,19 +110,24 @@
                                 </a>
                                 <div class="collapse" id="kontruksi">
                                     <ul class="nav nav-collapse subnav">
-                                        <li class="nav-item">
+                                        <!-- <li class="nav-item">
                                             <a href="{{ url('/batu') }}">
                                                 <span class="sub-item">Batu</span>
                                             </a>
-                                        </li>
+                                        </li> -->
                                         <li class="nav-item">
                                             <a href="{{ url('/besi') }}">
                                                 <span class="sub-item">Besi</span>
                                             </a>
                                         </li>
-                                        <li class="nav-item">
+                                        <!-- <li class="nav-item">
                                             <a href="{{ url('/pasir') }}">
                                                 <span class="sub-item">Pasir</span>
+                                            </a>
+                                        </li> -->
+                                        <li class="nav-item">
+                                            <a href="{{ url('/material') }}">
+                                                <span class="sub-item">Material</span>
                                             </a>
                                         </li>
                                     </ul>

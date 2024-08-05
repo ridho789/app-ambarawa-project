@@ -6,15 +6,16 @@ use Illuminate\Http\Request;
 use App\Models\Pembangunan;
 use App\Models\Proyek;
 use App\Models\Satuan;
+use App\Models\KategoriMaterial;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PembangunanExport;
 use Carbon\Carbon;
 
-class BesiController extends Controller
+class MaterialController extends Controller
 {
     public function index() {
-        $besi = Pembangunan::where('ket', 'pengeluaran besi')->orderBy('tanggal')->orderBy('nama')->get();
-        $periodes = Pembangunan::where('ket', 'pengeluaran besi')
+        $material = Pembangunan::whereNotNull('id_kategori')->orderBy('id_kategori')->orderBy('tanggal')->orderBy('nama')->get();
+        $periodes = Pembangunan::whereNotNull('id_kategori')
             ->select(Pembangunan::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
             ->distinct()
             ->orderBy('periode', 'desc')
@@ -24,15 +25,22 @@ class BesiController extends Controller
         $namaProyek = Proyek::pluck('nama', 'id_proyek');
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        return view('contents.pembangunan.kontruksi.besi', compact('besi', 'proyek', 'namaProyek', 'satuan', 'namaSatuan', 'periodes'));
+        $kategori = KategoriMaterial::all();
+        return view('contents.pembangunan.kontruksi.material', compact('material', 'proyek', 'namaProyek', 'satuan', 'namaSatuan', 'kategori', 'periodes'));
     }
 
     public function store(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
 
-        $dataBesi = [
-            'ket' => 'pengeluaran besi',
+        $dataKategori = KategoriMaterial::where('id_kategori', $request->kategori)->first();
+        $namaKategori = 'null';
+        if ($dataKategori) {
+            $namaKategori = $dataKategori->nama;
+        }
+
+        $dataMaterial = [
+            'ket' => 'pengeluaran ' . strtolower($namaKategori),
             'id_proyek' => $request->proyek,
             'tanggal' => $request->tanggal,
             'nama' => $request->nama,
@@ -40,31 +48,32 @@ class BesiController extends Controller
             'deskripsi' => $request->deskripsi,
             'jumlah' => $request->jumlah,
             'id_satuan' => $request->satuan,
+            'id_kategori' => $request->kategori,
             'harga' => $numericHarga,
             'tot_harga' => $numericTotal,
-            'toko' => $request->toko
+            'toko' => $request->toko,
         ];
 
         $dataProyek = Proyek::where('id_proyek', $request->proyek)->first();
         $namaProyek = 'null';
         if ($dataProyek) {
             $namaProyek = $dataProyek->nama;
-        } 
+        }
 
-        $exitingBesi = Pembangunan::where('tanggal', $request->tanggal)->where('nama', $request->nama)->where('ukuran', $request->ukuran)->where('deskripsi', $request->deskripsi)
+        $exitingMaterial = Pembangunan::where('tanggal', $request->tanggal)->where('nama', $request->nama)->where('ukuran', $request->ukuran)->where('deskripsi', $request->deskripsi)
             ->where('jumlah', $request->jumlah)->where('id_satuan', $request->satuan)->where('harga', $numericHarga)->where('tot_harga', $numericTotal)->where('id_proyek', $request->proyek)
-            ->where('toko', $request->toko)->first();
+            ->where('id_kategori', $request->kategori)->where('toko', $request->toko)->first();
 
-        if ($exitingBesi) {
-            $logErrors = 'Proyek: ' . $namaProyek . ' - ' . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Nama (Barang): ' . $request->nama . ' - ' . 
-            'Jumlah: ' . $request->jumlah . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
+        if ($exitingMaterial) {
+            $logErrors = 'Proyek: ' . $namaProyek . ' - ' . 'Pengeluaran ' . $namaKategori . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 
+            'Nama (Barang): ' . $request->nama . ' - ' . 'Jumlah: ' . $request->jumlah . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
             ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
 
-            return redirect('besi')->with('logErrors', $logErrors);
+            return redirect('material')->with('logErrors', $logErrors);
 
         } else {
-            Pembangunan::create($dataBesi);
-            return redirect('besi');
+            Pembangunan::create($dataMaterial);
+            return redirect('material');
         }
     }
 
@@ -72,24 +81,25 @@ class BesiController extends Controller
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
         
-        $tagihanBesi = Pembangunan::find($request->id_besi);
-        if ($tagihanBesi) {
-            $tagihanBesi->id_proyek = $request->proyek;
-            $tagihanBesi->tanggal = $request->tanggal;
-            $tagihanBesi->nama = $request->nama;
-            $tagihanBesi->ukuran = $request->ukuran;
-            $tagihanBesi->deskripsi = $request->deskripsi;
-            $tagihanBesi->jumlah = $request->jumlah;
-            $tagihanBesi->id_satuan = $request->satuan;
-            $tagihanBesi->harga = $numericHarga;
-            $tagihanBesi->tot_harga = $numericTotal;
-            $tagihanBesi->toko = $request->toko;
+        $tagihanMaterial = Pembangunan::find($request->id_material);
+        if ($tagihanMaterial) {
+            $tagihanMaterial->id_proyek = $request->proyek;
+            $tagihanMaterial->tanggal = $request->tanggal;
+            $tagihanMaterial->nama = $request->nama;
+            $tagihanMaterial->ukuran = $request->ukuran;
+            $tagihanMaterial->deskripsi = $request->deskripsi;
+            $tagihanMaterial->jumlah = $request->jumlah;
+            $tagihanMaterial->id_satuan = $request->satuan;
+            $tagihanMaterial->id_kategori = $request->kategori;
+            $tagihanMaterial->harga = $numericHarga;
+            $tagihanMaterial->tot_harga = $numericTotal;
+            $tagihanMaterial->toko = $request->toko;
 
-            $tagihanBesi->save();
-            return redirect('besi')->with('success', 'Data berhasil diperbaharui!');
+            $tagihanMaterial->save();
+            return redirect('material')->with('success', 'Data berhasil diperbaharui!');
         }
 
-        return redirect('besi');
+        return redirect('material');
     }
 
     public function delete(Request $request) {
@@ -102,12 +112,12 @@ class BesiController extends Controller
         });
 
         Pembangunan::whereIn('id_pembangunan', $validatedIds)->delete();
-        return redirect('besi');
+        return redirect('material');
     }
 
     public function export(Request $request) {
         $mode = $request->metode_export;
-        $nama = 'Besi';
+        $nama = 'Material';
 
         // Ambil input tanggal dari request
         $start_date = Carbon::parse($request->start_date);
@@ -147,18 +157,19 @@ class BesiController extends Controller
         }
 
         if ($mode == 'all_data') {
-            $besi = Pembangunan::where('ket', 'pengeluaran besi')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
-            return Excel::download(new PembangunanExport($mode, $besi, $nama, $rangeDate), 'Report Besi.xlsx');
+            $material = Pembangunan::whereNotNull('id_kategori')->orderBy('id_kategori', 'asc')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
+            return Excel::download(new PembangunanExport($mode, $material, $nama, $rangeDate), 'Report Material.xlsx');
 
         } else {
-            $besi = Pembangunan::where('ket', 'pengeluaran besi')->where('tanggal', '>=', $start_date)
+            $material = Pembangunan::whereNotNull('id_kategori')->where('tanggal', '>=', $start_date)
                 ->where('tanggal', '<=', $end_date)
+                ->orderBy('id_kategori', 'asc')
                 ->orderBy('tanggal', 'asc')
                 ->orderBy('nama', 'asc')
                 ->get();
 
-            $fileName = 'Report Besi ' . $rangeDate . '.xlsx';
-            return Excel::download(new PembangunanExport($mode, $besi, $nama, $rangeDate), $fileName);
+            $fileName = 'Report Material ' . $rangeDate . '.xlsx';
+            return Excel::download(new PembangunanExport($mode, $material, $nama, $rangeDate), $fileName);
         }
     }
 }

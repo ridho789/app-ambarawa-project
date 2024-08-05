@@ -63,10 +63,14 @@
                                     </select>
                                 @else
                                     <label>Pilih proyek</label>
-                                    <select class="form-control" disabled>
+                                    <select class="form-control" required>
                                         <option value="">Tidak ada data</option>
                                     </select>
                                 @endif
+                            </div>
+
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Barang</span>
                             </div>
 
                             <div class="form-group row">
@@ -76,7 +80,8 @@
                                 </div>
                                 <div class="col-6">
                                     <label for="nama">Nama (Barang)</label>
-                                    <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." value="Besi" required />
+                                    <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                             </div>
 
@@ -100,8 +105,20 @@
                                     <input type="text" class="form-control" name="jumlah" id="jumlah" placeholder="Masukkan jumlah.." required />
                                 </div>
                                 <div class="col-4">
-                                    <label for="satuan">Satuan</label>
-                                    <input type="text" class="form-control" name="satuan" id="satuan" placeholder="Masukkan satuan.." required />
+                                    @if (count($satuan) > 0)
+                                        <label for="satuan">Satuan</label>
+                                        <select class="form-select form-control" name="satuan" id="satuan" required>
+                                            <option value="">...</option>
+                                            @foreach ($satuan as $s)
+                                                <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <label>Satuan</label>
+                                        <select class="form-control" disabled>
+                                            <option value="">Tidak ada data</option>
+                                        </select>
+                                    @endif
                                 </div>
                                 <div class="col-4">
                                     <label for="harga">Harga</label>
@@ -111,7 +128,12 @@
 
                             <div class="form-group">
                                 <label for="total">Total Harga</label>
-                                <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." />
+                                <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="toko">Toko</label>
+                                <input type="text" class="form-control" name="toko" id="toko" placeholder="Masukkan toko.." required />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -156,10 +178,14 @@
                                     </select>
                                 @else
                                     <label>Pilih proyek</label>
-                                    <select class="form-control" disabled>
+                                    <select class="form-control" required>
                                         <option value="">Tidak ada data</option>
                                     </select>
                                 @endif
+                            </div>
+
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Barang</span>
                             </div>
 
                             <div class="form-group row">
@@ -169,7 +195,8 @@
                                 </div>
                                 <div class="col-6">
                                     <label for="nama">Nama (Barang)</label>
-                                    <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." required />
+                                    <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                             </div>
 
@@ -193,8 +220,20 @@
                                     <input type="text" class="form-control" name="jumlah" id="edit-jumlah" placeholder="Masukkan jumlah.." required />
                                 </div>
                                 <div class="col-4">
-                                    <label for="satuan">Satuan</label>
-                                    <input type="text" class="form-control" name="satuan" id="edit-satuan" placeholder="Masukkan satuan.." required />
+                                    @if (count($satuan) > 0)
+                                        <label for="satuan">Satuan</label>
+                                        <select class="form-select form-control" name="satuan" id="edit-satuan" required>
+                                            <option value="">...</option>
+                                            @foreach ($satuan as $s)
+                                                <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <label>Satuan</label>
+                                        <select class="form-control" disabled>
+                                            <option value="">Tidak ada data</option>
+                                        </select>
+                                    @endif
                                 </div>
                                 <div class="col-4">
                                     <label for="harga">Harga</label>
@@ -204,7 +243,12 @@
 
                             <div class="form-group">
                                 <label for="total">Total Harga</label>
-                                <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." />
+                                <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="toko">Toko</label>
+                                <input type="text" class="form-control" name="toko" id="edit-toko" placeholder="Masukkan toko.." required />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -361,6 +405,7 @@
                                         <th class="text-xxs-bold">Satuan</th>
                                         <!-- <th class="text-xxs-bold">Harga</th> -->
                                         <th class="text-xxs-bold">Total</th>
+                                        <th class="text-xxs-bold">Toko</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -372,9 +417,10 @@
                                     data-ukuran="{{ $b->ukuran }}" 
                                     data-deskripsi="{{ $b->deskripsi }}" 
                                     data-jumlah="{{ $b->jumlah }}" 
-                                    data-satuan="{{ $b->satuan }}" 
+                                    data-satuan="{{ $b->id_satuan }}" 
                                     data-harga="{{ 'Rp ' . number_format($b->harga ?? 0, 0, ',', '.') }}" 
-                                    data-total="{{ 'Rp ' . number_format($b->tot_harga ?? 0, 0, ',', '.') }}">
+                                    data-total="{{ 'Rp ' . number_format($b->tot_harga ?? 0, 0, ',', '.') }}"
+                                    data-toko="{{ $b->id_toko }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $namaProyek[$b->id_proyek] ?? '-' }}</td>
@@ -383,9 +429,10 @@
                                         <td>{{ $b->ukuran ?? '-' }}</td>
                                         <td>{{ $b->deskripsi ?? '-' }}</td>
                                         <td>{{ $b->jumlah ?? '-' }}</td>
-                                        <td>{{ $b->satuan ?? '-' }}</td>
+                                        <td>{{ $namaSatuan[$b->id_satuan] ?? '-' }}</td>
                                         <!-- <td>{{ 'Rp ' . number_format($b->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($b->tot_harga ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ $b->toko ?? '-' }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -739,6 +786,7 @@
                     $('#edit-satuan').val(row.data('satuan'));
                     $('#edit-harga').val(row.data('harga'));
                     $('#edit-total').val(row.data('total'));
+                    $('#edit-toko').val(row.data('toko'));
                 }
             });
         }

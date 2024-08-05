@@ -143,7 +143,7 @@ class BatuController extends Controller
 
         if ($mode == 'all_data') {
             $batu = Pembangunan::where('ket', 'pengeluaran batu')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
-            return Excel::download(new PembangunanExport($mode, $batu, $nama), 'Report Batu.xlsx');
+            return Excel::download(new PembangunanExport($mode, $batu, $nama, $rangeDate), 'Report Batu.xlsx');
 
         } else {
             $batu = Pembangunan::where('ket', 'pengeluaran batu')->where('tanggal', '>=', $start_date)
@@ -153,7 +153,7 @@ class BatuController extends Controller
                 ->get();
 
             $fileName = 'Report Batu ' . $rangeDate . '.xlsx';
-            return Excel::download(new PembangunanExport($mode, $batu, $nama), $fileName);
+            return Excel::download(new PembangunanExport($mode, $batu, $nama, $rangeDate), $fileName);
         }
     }
 }

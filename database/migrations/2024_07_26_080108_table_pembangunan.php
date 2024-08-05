@@ -18,12 +18,12 @@ class TablePembangunan extends Migration
             $table->string('ket');
             $table->date('tanggal');
             $table->string('nama');
-            $table->string('ukuran');
+            $table->string('ukuran')->nullable();
             $table->string('deskripsi');
             $table->string('jumlah');
-            $table->string('satuan');
             $table->string('harga');
             $table->string('tot_harga');
+            $table->string('toko');
             $table->timestamps();
         });
     }

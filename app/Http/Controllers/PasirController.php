@@ -143,7 +143,7 @@ class PasirController extends Controller
 
         if ($mode == 'all_data') {
             $pasir = Pembangunan::where('ket', 'pengeluaran pasir')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
-            return Excel::download(new PembangunanExport($mode, $pasir, $nama), 'Report Pasir.xlsx');
+            return Excel::download(new PembangunanExport($mode, $pasir, $nama, $rangeDate), 'Report Pasir.xlsx');
 
         } else {
             $pasir = Pembangunan::where('ket', 'pengeluaran pasir')->where('tanggal', '>=', $start_date)
@@ -153,7 +153,7 @@ class PasirController extends Controller
                 ->get();
 
             $fileName = 'Report Pasir ' . $rangeDate . '.xlsx';
-            return Excel::download(new PembangunanExport($mode, $pasir, $nama), $fileName);
+            return Excel::download(new PembangunanExport($mode, $pasir, $nama, $rangeDate), $fileName);
         }
     }
 }

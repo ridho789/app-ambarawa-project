@@ -14,14 +14,16 @@ use App\Http\Controllers\SparepartController;
 use App\Http\Controllers\TripController;
 
 // Kontruksi
-use App\Http\Controllers\BatuController;
+// use App\Http\Controllers\BatuController;
 use App\Http\Controllers\BesiController;
-use App\Http\Controllers\PasirController;
+use App\Http\Controllers\MaterialController;
+// use App\Http\Controllers\PasirController;
 
 // Pembangunan
 use App\Http\Controllers\PenguruganController;
 
 // Master data
+use App\Http\Controllers\KategoriMaterialController;
 use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\ProyekController;
 use App\Http\Controllers\SatuanController;
@@ -121,11 +123,11 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('trip-export', [TripController::class, 'export']);
 
     // Kontruksi - Batu
-    Route::get('/batu', [BatuController::class, 'index']);
-    Route::post('batu-store', [BatuController::class, 'store']);
-    Route::post('batu-update', [BatuController::class, 'update']);
-    Route::post('batu-delete', [BatuController::class, 'delete']);
-    Route::post('batu-export', [BatuController::class, 'export']);
+    // Route::get('/batu', [BatuController::class, 'index']);
+    // Route::post('batu-store', [BatuController::class, 'store']);
+    // Route::post('batu-update', [BatuController::class, 'update']);
+    // Route::post('batu-delete', [BatuController::class, 'delete']);
+    // Route::post('batu-export', [BatuController::class, 'export']);
 
     // Kontruksi - Besi
     Route::get('/besi', [BesiController::class, 'index']);
@@ -134,12 +136,25 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('besi-delete', [BesiController::class, 'delete']);
     Route::post('besi-export', [BesiController::class, 'export']);
 
+    // Kontruksi - Material
+    Route::get('/material', [MaterialController::class, 'index']);
+    Route::post('material-store', [MaterialController::class, 'store']);
+    Route::post('material-update', [MaterialController::class, 'update']);
+    Route::post('material-delete', [MaterialController::class, 'delete']);
+    Route::post('material-export', [MaterialController::class, 'export']);
+
     // Kontruksi - Pasir
-    Route::get('/pasir', [PasirController::class, 'index']);
-    Route::post('pasir-store', [PasirController::class, 'store']);
-    Route::post('pasir-update', [PasirController::class, 'update']);
-    Route::post('pasir-delete', [PasirController::class, 'delete']);
-    Route::post('pasir-export', [PasirController::class, 'export']);
+    // Route::get('/pasir', [PasirController::class, 'index']);
+    // Route::post('pasir-store', [PasirController::class, 'store']);
+    // Route::post('pasir-update', [PasirController::class, 'update']);
+    // Route::post('pasir-delete', [PasirController::class, 'delete']);
+    // Route::post('pasir-export', [PasirController::class, 'export']);
+
+    // Master data - Kategori Material
+    Route::get('/kategori_material', [KategoriMaterialController::class, 'index']);
+    Route::post('kategori_material-store', [KategoriMaterialController::class, 'store']);
+    Route::post('kategori_material-update', [KategoriMaterialController::class, 'update']);
+    Route::post('kategori_material-delete', [KategoriMaterialController::class, 'delete']);
 
     // Master data - Kendaraan
     Route::get('/kendaraan', [KendaraanController::class, 'index']);

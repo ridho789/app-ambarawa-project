@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pembangunan;
+use App\Models\Proyek;
+use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\PembangunanExport;
+use App\Exports\PenguruganExport;
 use Carbon\Carbon;
 
 class PenguruganController extends Controller
@@ -18,7 +20,11 @@ class PenguruganController extends Controller
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        return view('contents.pembangunan.pengurugan', compact('pengurugan', 'periodes'));
+        $proyek = Proyek::all();
+        $namaProyek = Proyek::pluck('nama', 'id_proyek');
+        $satuan = Satuan::all();
+        $namaSatuan = Satuan::pluck('nama', 'id_satuan');
+        return view('contents.pembangunan.pengurugan', compact('pengurugan', 'proyek', 'namaProyek', 'satuan', 'namaSatuan', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -27,24 +33,33 @@ class PenguruganController extends Controller
 
         $dataUrug = [
             'ket' => 'pengeluaran urug',
+            'id_proyek' => $request->proyek,
             'tanggal' => $request->tanggal,
             'nama' => $request->nama,
-            'ukuran' => $request->ukuran,
             'deskripsi' => $request->deskripsi,
+            'ukuran' => $request->ukuran,
             'jumlah' => $request->jumlah,
-            'satuan' => $request->satuan,
+            'id_satuan' => $request->satuan,
             'harga' => $numericHarga,
-            'tot_harga' => $numericTotal
+            'tot_harga' => $numericTotal,
+            'toko' => $request->toko,
         ];
 
-        $exitingUrug = Pembangunan::where('tanggal', $request->tanggal)->where('nama', $request->nama)->where('ukuran', $request->ukuran)->where('deskripsi', $request->deskripsi)
-            ->where('jumlah', $request->jumlah)->where('satuan', $request->satuan)->where('harga', $numericHarga)->where('tot_harga', $numericTotal)
+        $dataProyek = Proyek::where('id_proyek', $request->proyek)->first();
+        $namaProyek = 'null';
+        if ($dataProyek) {
+            $namaProyek = $dataProyek->nama;
+        } 
+
+        $exitingUrug = Pembangunan::where('tanggal', $request->tanggal)->where('nama', $request->nama)->where('deskripsi', $request->deskripsi)->where('ukuran', $request->ukuran)
+            ->where('jumlah', $request->jumlah)->where('id_satuan', $request->satuan)->where('harga', $numericHarga)->where('tot_harga', $numericTotal)->where('id_proyek', $request->proyek)
+            ->where('toko', $request->toko)
             ->first();
 
         if ($exitingUrug) {
-            $logErrors = 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 
-            'Jumlah: ' . $request->jumlah . ' - ' . 'Satuan: ' . $request->satuan . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
-            ', data tersebut sudah ada di sistem';
+            $logErrors = 'Proyek: ' . $namaProyek . ' - ' . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 
+            'Jumlah: ' . $request->jumlah . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
+            ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
 
             return redirect('pengurugan')->with('logErrors', $logErrors);
 
@@ -60,14 +75,16 @@ class PenguruganController extends Controller
         
         $tagihanUrug = Pembangunan::find($request->id_pengurugan);
         if ($tagihanUrug) {
+            $tagihanUrug->id_proyek = $request->proyek;
             $tagihanUrug->tanggal = $request->tanggal;
             $tagihanUrug->nama = $request->nama;
             $tagihanUrug->ukuran = $request->ukuran;
             $tagihanUrug->deskripsi = $request->deskripsi;
             $tagihanUrug->jumlah = $request->jumlah;
-            $tagihanUrug->satuan = $request->satuan;
+            $tagihanUrug->id_satuan = $request->satuan;
             $tagihanUrug->harga = $numericHarga;
             $tagihanUrug->tot_harga = $numericTotal;
+            $tagihanUrug->toko = $request->toko;
 
             $tagihanUrug->save();
             return redirect('pengurugan')->with('success', 'Data berhasil diperbaharui!');
@@ -132,7 +149,7 @@ class PenguruganController extends Controller
 
         if ($mode == 'all_data') {
             $pengurugan = Pembangunan::where('ket', 'pengeluaran urug')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
-            return Excel::download(new PembangunanExport($mode, $pengurugan, $nama), 'Report Pengurugan.xlsx');
+            return Excel::download(new PenguruganExport($mode, $pengurugan, $nama, $rangeDate), 'Report Pengurugan.xlsx');
 
         } else {
             $pengurugan = Pembangunan::where('ket', 'pengeluaran urug')->where('tanggal', '>=', $start_date)
@@ -142,7 +159,7 @@ class PenguruganController extends Controller
                 ->get();
 
             $fileName = 'Report Pengurugan ' . $rangeDate . '.xlsx';
-            return Excel::download(new PembangunanExport($mode, $pengurugan, $nama), $fileName);
+            return Excel::download(new PenguruganExport($mode, $pengurugan, $nama, $rangeDate), $fileName);
         }
     }
 }

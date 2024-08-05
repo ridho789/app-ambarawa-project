@@ -1,5 +1,5 @@
 @extends('layouts.base')
-<!-- @section('title', 'Pengurugan') -->
+<!-- @section('title', 'Material') -->
 @section('content')
 <!-- style custom -->
 <style>
@@ -16,7 +16,7 @@
 <div class="container">
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">Data Pengeluaran Pengurugan</h3>
+            <h3 class="fw-bold mb-3">Data Pengeluaran Material</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="{{ url('dashboard') }}">
@@ -27,25 +27,25 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="#">Pengurugan</a>
+                    <a href="#">Material</a>
                 </li>
             </ul>
         </div>
 
         <!-- Modal Tambah data -->
-        <div class="modal fade" id="penguruganModal" tabindex="-1" role="dialog" aria-labelledby="penguruganModalLabel" aria-hidden="true">
+        <div class="modal fade" id="materialModal" tabindex="-1" role="dialog" aria-labelledby="materialModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header border-0 mx-2" style="margin-bottom: -25px;">
-                        <h5 class="modal-title" id="penguruganModal">
+                        <h5 class="modal-title" id="materialModal">
                             <span class="fw-light"> Data</span>
-                            <span class="fw-mediumbold"> Pengeluaran Pengurugan Baru </span>
+                            <span class="fw-mediumbold"> Pengeluaran Material Baru </span>
                         </h5>
                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{{ url('pengurugan-store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url('material-store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body">
                             <p class="small mx-2">
@@ -63,7 +63,28 @@
                                     </select>
                                 @else
                                     <label>Pilih proyek</label>
-                                    <select class="form-control" disabled>
+                                    <select class="form-control" required>
+                                        <option value="">Tidak ada data</option>
+                                    </select>
+                                @endif
+                            </div>
+
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Barang</span>
+                            </div>
+
+                            <div class="form-group">
+                                @if (count($kategori) > 0)
+                                    <label for="proyek">Kategori Material</label>
+                                    <select class="form-select form-control" name="kategori" id="kategori" required>
+                                        <option value="">...</option>
+                                        @foreach ($kategori as $k)
+                                            <option value="{{ $k->id_kategori }}">{{ $k->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <label for="proyek">Kategori Material</label>
+                                    <select class="form-control" required>
                                         <option value="">Tidak ada data</option>
                                     </select>
                                 @endif
@@ -82,13 +103,13 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="deskripsi">Deskripsi</label>
-                                <input type="text" class="form-control" name="deskripsi" id="deskripsi" placeholder="Masukkan deskripsi.." required />
+                                <label for="ukuran">Ukuran</label>
+                                <input type="text" class="form-control" name="ukuran" id="ukuran" placeholder="Masukkan ukuran.." required />
                             </div>
 
                             <div class="form-group">
-                                <label for="ukuran">Luas</label>
-                                <input type="text" class="form-control" name="ukuran" id="ukuran" placeholder="Masukkan luas.." required />
+                                <label for="deskripsi">Deskripsi</label>
+                                <input type="text" class="form-control" name="deskripsi" id="deskripsi" placeholder="Masukkan deskripsi.." required />
                             </div>
 
                             <div class="form-group">
@@ -142,26 +163,26 @@
         </div>
 
         <!-- Modal Edit data -->
-        <div class="modal fade" id="penguruganEditModal" tabindex="-1" role="dialog" aria-labelledby="penguruganEditModalLabel" aria-hidden="true">
+        <div class="modal fade" id="materialEditModal" tabindex="-1" role="dialog" aria-labelledby="materialEditModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header border-0 mx-2" style="margin-bottom: -25px;">
-                        <h5 class="modal-title" id="penguruganEditModal">
+                        <h5 class="modal-title" id="materialEditModal">
                             <span class="fw-light"> Data</span>
-                            <span class="fw-mediumbold"> Pengeluaran Pengurugan </span>
+                            <span class="fw-mediumbold"> Pengeluaran Material </span>
                         </h5>
                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{{ url('pengurugan-update') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url('material-update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body">
                             <p class="small mx-2">
                                 Perbaharui data dengan formulir ini, pastikan Anda mengisi semuanya
                             </p>
 
-                            <input type="hidden" id="edit-id" name="id_pengurugan">
+                            <input type="hidden" id="edit-id" name="id_material">
 
                             <div class="form-group">
                                 @if (count($proyek) > 0)
@@ -174,7 +195,28 @@
                                     </select>
                                 @else
                                     <label>Pilih proyek</label>
-                                    <select class="form-control" disabled>
+                                    <select class="form-control" required>
+                                        <option value="">Tidak ada data</option>
+                                    </select>
+                                @endif
+                            </div>
+
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Barang</span>
+                            </div>
+
+                            <div class="form-group">
+                                @if (count($kategori) > 0)
+                                    <label for="proyek">Kategori Material</label>
+                                    <select class="form-select form-control" name="kategori" id="edit-kategori" required>
+                                        <option value="">...</option>
+                                        @foreach ($kategori as $k)
+                                            <option value="{{ $k->id_kategori }}">{{ $k->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <label for="proyek">Kategori Material</label>
+                                    <select class="form-control" required>
                                         <option value="">Tidak ada data</option>
                                     </select>
                                 @endif
@@ -193,13 +235,13 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="deskripsi">Deskripsi</label>
-                                <input type="text" class="form-control" name="deskripsi" id="edit-deskripsi" placeholder="Masukkan deskripsi.." required />
+                                <label for="ukuran">Ukuran</label>
+                                <input type="text" class="form-control" name="ukuran" id="edit-ukuran" placeholder="Masukkan ukuran.." required />
                             </div>
 
                             <div class="form-group">
-                                <label for="ukuran">Luas</label>
-                                <input type="text" class="form-control" name="ukuran" id="edit-ukuran" placeholder="Masukkan luas.." required />
+                                <label for="deskripsi">Deskripsi</label>
+                                <input type="text" class="form-control" name="deskripsi" id="edit-deskripsi" placeholder="Masukkan deskripsi.." required />
                             </div>
 
                             <div class="form-group">
@@ -253,24 +295,26 @@
         </div>
 
         <!-- Modal Export data -->
-        <div class="modal fade" id="penguruganExportModal" tabindex="-1" role="dialog" aria-labelledby="penguruganExportModalLabel" aria-hidden="true">
+        <div class="modal fade" id="materialExportModal" tabindex="-1" role="dialog" aria-labelledby="materialExportModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header border-0 mx-2" style="margin-bottom: -25px;">
-                        <h5 class="modal-title" id="penguruganExportModal">
+                        <h5 class="modal-title" id="materialExportModal">
                             <span class="fw-light"> Export Data</span>
-                            <span class="fw-mediumbold"> Pengeluaran Pengurugan </span>
+                            <span class="fw-mediumbold"> Pengeluaran Material </span>
                         </h5>
                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{{ url('pengurugan-export') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+                    <form action="{{ url('material-export') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
                         @csrf
                         <div class="modal-body">
                             <p class="small mx-2">
                                 Pengaturan untuk menentukan format data pengeluaran sesuai keinginan
                             </p>
+
+                            <input type="hidden" id="edit-pengeluaran" name="nama_pengeluaran">
 
                             <div class="form-group">
                                 <label>Metode Export Data</label>
@@ -338,12 +382,12 @@
 
         <!-- Notify -->
         @if(session()->has('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
         @endif
 
         <div class="row">
@@ -351,12 +395,12 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex align-items-center">
-                            <div class="card-title">List Pengeluaran Pengurugan</div>
-                            <button id="editButton" class="btn btn-warning btn-round ms-5 btn-sm" data-bs-toggle="modal" data-bs-target="#penguruganEditModal" style="display: none;">
+                            <div class="card-title">List Pengeluaran Material</div>
+                            <button id="editButton" class="btn btn-warning btn-round ms-5 btn-sm" data-bs-toggle="modal" data-bs-target="#materialEditModal" style="display: none;">
                                 <i class="fa fa-edit"></i>
-                                 Edit data
+                                Edit data
                             </button>
-                            <form id="deleteForm" method="POST" action="{{ url('pengurugan-delete') }}" class="d-inline">
+                            <form id="deleteForm" method="POST" action="{{ url('material-delete') }}" class="d-inline">
                                 @csrf
                                 <input type="hidden" id="allSelectRow" name="ids" value="">
                                 <button id="deleteButton" type="button" class="btn btn-danger btn-round ms-2 btn-sm" style="display: none;">
@@ -365,20 +409,20 @@
                                 </button>
                             </form>
                             <div class="ms-auto d-flex align-items-center">
-                                @if (count($pengurugan) > 0)
-                                    <button class="btn btn-success btn-round ms-2 btn-sm" data-bs-toggle="modal" data-bs-target="#penguruganExportModal">
+                                @if (count($material) > 0)
+                                    <button class="btn btn-success btn-round ms-2 btn-sm" data-bs-toggle="modal" data-bs-target="#materialExportModal">
                                         <i class="fa fa-file-excel"></i>
                                         Export data
                                     </button>
                                 @endif
-                                <button class="btn btn-primary btn-round ms-3 btn-sm" data-bs-toggle="modal" data-bs-target="#penguruganModal">
+                                <button class="btn btn-primary btn-round ms-3 btn-sm" data-bs-toggle="modal" data-bs-target="#materialModal">
                                     <i class="fa fa-plus"></i>
                                     Tambah data
                                 </button>
                             </div>
                         </div>
                     </div>
-                    @if (count($pengurugan) > 0)
+                    @if (count($material) > 0)
                     <div class="card-body">
                         <div class="table-responsive">
                             <table id="basic-datatables" class="display table table-hover">
@@ -391,8 +435,8 @@
                                         <th class="text-xxs-bold">Proyek</th>
                                         <th class="text-xxs-bold">Tanggal</th>
                                         <th class="text-xxs-bold">Nama (Barang)</th>
+                                        <th class="text-xxs-bold">Ukuran</th>
                                         <th class="text-xxs-bold">Deskripsi</th>
-                                        <th class="text-xxs-bold">Luas</th>
                                         <th class="text-xxs-bold">Jumlah</th>
                                         <th class="text-xxs-bold">Satuan</th>
                                         <!-- <th class="text-xxs-bold">Harga</th> -->
@@ -401,30 +445,32 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($pengurugan as $p)
-                                    <tr data-id="{{ $p->id_pembangunan }}" 
-                                        data-proyek="{{ $p->id_proyek }}"
-                                        data-tanggal="{{ $p->tanggal }}" 
-                                        data-nama="{{ $p->nama }}"
-                                        data-deskripsi="{{ $p->deskripsi }}"
-                                        data-ukuran="{{ $p->ukuran }}"
-                                        data-jumlah="{{ $p->jumlah }}"
-                                        data-satuan="{{ $p->id_satuan }}"
-                                        data-harga="{{ 'Rp ' . number_format($p->harga ?? 0, 0, ',', '.') }}"
-                                        data-total="{{ 'Rp ' . number_format($p->tot_harga ?? 0, 0, ',', '.') }}"
-                                        data-toko="{{ $p->toko }}">
+                                    @foreach($material as $m)
+                                    <tr data-id="{{ $m->id_pembangunan }}" 
+                                    data-ket="{{ $m->ket }}"
+                                    data-tanggal="{{ $m->tanggal }}" 
+                                    data-proyek="{{ $m->id_proyek }}"
+                                    data-kategori="{{ $m->id_kategori }}"
+                                    data-nama="{{ $m->nama }}" 
+                                    data-ukuran="{{ $m->ukuran }}" 
+                                    data-deskripsi="{{ $m->deskripsi }}" 
+                                    data-jumlah="{{ $m->jumlah }}" 
+                                    data-satuan="{{ $m->id_satuan }}" 
+                                    data-harga="{{ 'Rp ' . number_format($m->harga ?? 0, 0, ',', '.') }}" 
+                                    data-total="{{ 'Rp ' . number_format($m->tot_harga ?? 0, 0, ',', '.') }}"
+                                    data-toko="{{ $m->toko }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
-                                        <td>{{ $namaProyek[$p->id_proyek] ?? '-' }}</td>
-                                        <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $p->tanggal)->format('d-M-Y') ?? '-' }}</td>
-                                        <td>{{ $p->nama ?? '-' }}</td>
-                                        <td>{{ $p->deskripsi ?? '-' }}</td>
-                                        <td>{{ $p->ukuran ?? '-' }}</td>
-                                        <td>{{ $p->jumlah ?? '-' }}</td>
-                                        <td>{{ $namaSatuan[$p->id_satuan] ?? '-' }}</td>
-                                        <!-- <td>{{ 'Rp ' . number_format($p->harga ?? 0, 0, ',', '.') }}</td> -->
-                                        <td>{{ 'Rp ' . number_format($p->tot_harga ?? 0, 0, ',', '.') }}</td>
-                                        <td>{{ $p->toko ?? '-' }}</td>
+                                        <td>{{ $namaProyek[$m->id_proyek] ?? '-' }}</td>
+                                        <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $m->tanggal)->format('d-M-Y') ?? '-' }}</td>
+                                        <td>{{ $m->nama ?? '-' }}</td>
+                                        <td>{{ $m->ukuran ?? '-' }}</td>
+                                        <td>{{ $m->deskripsi ?? '-' }}</td>
+                                        <td>{{ $m->jumlah ?? '-' }}</td>
+                                        <td>{{ $namaSatuan[$m->id_satuan] ?? '-' }}</td>
+                                        <!-- <td>{{ 'Rp ' . number_format($m->harga ?? 0, 0, ',', '.') }}</td> -->
+                                        <td>{{ 'Rp ' . number_format($m->tot_harga ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ $m->toko ?? '-' }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -553,15 +599,30 @@
             }
         }
 
+        // Mengatur deskripsi
+        const descriptionCells = document.querySelectorAll('#basic-datatables td:nth-child(7)');
+        const maxLength = 50; // Ganti dengan panjang maksimum yang diinginkan
+
+        descriptionCells.forEach(cell => {
+            let text = cell.innerText;
+            if (text.length > maxLength) {
+                let formattedText = '';
+                for (let i = 0; i < text.length; i += maxLength) {
+                    formattedText += text.substring(i, i + maxLength) + '<br>';
+                }
+                cell.innerHTML = formattedText;
+            }
+        });
+
         // Ambil elemen harga, jumlah, dan total
-        let hargaUrug = document.querySelectorAll("#harga, #edit-harga");
+        let hargaBesi = document.querySelectorAll("#harga, #edit-harga");
         let jmlElements = document.querySelectorAll("#jumlah, #edit-jumlah");
         let totalElements = document.querySelectorAll("#total, #edit-total");
 
         // Event listener untuk perubahan pada jumlah (jumlah)
         jmlElements.forEach(function(jml, index) {
             jml.addEventListener("input", function() {
-                let harga = hargaUrug[index];
+                let harga = hargaBesi[index];
                 let total = totalElements[index];
                 let jmlValue = parseFraction(jml.value.replace(',', '.'));
 
@@ -574,11 +635,11 @@
         });
 
         // Event listener untuk perubahan pada harga
-        hargaUrug.forEach(function(hargaSm, index) {
+        hargaBesi.forEach(function(hargaSm, index) {
             hargaSm.addEventListener("input", function() {
                 let jml = jmlElements[index];
                 let total = totalElements[index];
-                
+
                 // Format input harga dengan mata uang
                 let hargaValueFormatted = this.value.replace(/[^0-9]/g, "") || 0;
                 this.value = formatCurrency(hargaValueFormatted);
@@ -649,7 +710,7 @@
             checkboxes = table.getElementsByClassName('select-checkbox');
 
             // Event listener untuk checkbox "Select All"
-            selectAllCheckbox.addEventListener('change', function () {
+            selectAllCheckbox.addEventListener('change', function() {
                 for (var i = 0; i < checkboxes.length; i++) {
                     checkboxes[i].checked = this.checked;
                     var row = checkboxes[i].parentNode.parentNode;
@@ -665,12 +726,12 @@
 
             // Event listener untuk checkbox di setiap baris
             for (var i = 0; i < checkboxes.length; i++) {
-                checkboxes[i].addEventListener('change', function () {
+                checkboxes[i].addEventListener('change', function() {
                     var row = this.parentNode.parentNode;
                     row.classList.toggle('selected', this.checked);
 
                     // Periksa apakah setidaknya satu checkbox terpilih
-                    var atLeastOneChecked = Array.from(checkboxes).some(function (checkbox) {
+                    var atLeastOneChecked = Array.from(checkboxes).some(function(checkbox) {
                         return checkbox.checked;
                     });
 
@@ -697,10 +758,10 @@
             // Fungsi untuk mengambil dan menyimpan ID semua baris yang terpilih
             function updateAllSelectRow() {
                 var selectedIds = Array.from(checkboxes)
-                    .filter(function (checkbox) {
+                    .filter(function(checkbox) {
                         return checkbox.checked;
                     })
-                    .map(function (checkbox) {
+                    .map(function(checkbox) {
                         return checkbox.closest('tr').getAttribute('data-id');
                     });
 
@@ -709,7 +770,7 @@
 
             // Fungsi untuk mengatur visibilitas tombol
             function updateButtonVisibility() {
-                var selectedCheckboxes = Array.from(checkboxes).filter(function (checkbox) {
+                var selectedCheckboxes = Array.from(checkboxes).filter(function(checkbox) {
                     return checkbox.checked;
                 }).length;
 
@@ -732,7 +793,7 @@
             }
 
             // Event listener for the delete button
-            deleteButton.addEventListener('click', function () {
+            deleteButton.addEventListener('click', function() {
                 Swal.fire({
                     title: 'Are you sure?',
                     text: 'You won\'t be able to revert this!',
@@ -748,17 +809,18 @@
                 });
             });
 
-            editButton.addEventListener('click', function () {
+            editButton.addEventListener('click', function() {
                 var selectedId = allSelectRowInput.value.split(',')[0];
                 if (selectedId) {
                     var row = $('tr[data-id="' + selectedId + '"]');
-                    
+
                     $('#edit-id').val(selectedId);
                     $('#edit-proyek').val(row.data('proyek'));
+                    $('#edit-kategori').val(row.data('kategori'));
                     $('#edit-tanggal').val(row.data('tanggal'));
                     $('#edit-nama').val(row.data('nama'));
-                    $('#edit-deskripsi').val(row.data('deskripsi'));
                     $('#edit-ukuran').val(row.data('ukuran'));
+                    $('#edit-deskripsi').val(row.data('deskripsi'));
                     $('#edit-jumlah').val(row.data('jumlah'));
                     $('#edit-satuan').val(row.data('satuan'));
                     $('#edit-harga').val(row.data('harga'));

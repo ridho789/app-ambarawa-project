@@ -13,14 +13,16 @@ class Pembangunan extends Model
 
     protected $fillable = [
         'id_proyek',
+        'id_satuan',
+        'id_kategori',
         'ket',
         'tanggal',
         'nama',
         'ukuran',
         'deskripsi',
         'jumlah',
-        'satuan',
         'harga',
         'tot_harga',
+        'toko'
     ];
 }
