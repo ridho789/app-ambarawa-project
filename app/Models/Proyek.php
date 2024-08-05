@@ -13,5 +13,6 @@ class Proyek extends Model
 
     protected $fillable = [
         'nama',
+        'subproyek'
     ];
 }

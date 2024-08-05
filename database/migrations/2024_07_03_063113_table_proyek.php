@@ -16,6 +16,7 @@ class TableProyek extends Migration
         Schema::create('tbl_proyek', function (Blueprint $table) {
             $table->id('id_proyek');
             $table->string('nama');
+            $table->string('subproyek')->nullable();
             $table->timestamps();
         });
     }

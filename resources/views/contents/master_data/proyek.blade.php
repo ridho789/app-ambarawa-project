@@ -49,13 +49,19 @@
                         @csrf
                         <div class="modal-body">
                             <p class="small mx-2">
-                                Buat data baru dengan formulir ini, pastikan Anda mengisi semuanya
+                                Buat data baru dengan formulir ini
                             </p>
 
                             <div class="form-group">
-                                <label for="nama">Nama (Proyek)</label>
-                                <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." 
+                                <label for="nama">Proyek</label>
+                                <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama proyek.." 
                                 oninput="this.value = this.value.toUpperCase()" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="subproyek">Subproyek ( <span class="text-info">Optional</span> )</label>
+                                <input type="text" class="form-control" name="subproyek" id="subproyek" placeholder="Masukkan nama subproyek.." 
+                                oninput="this.value = this.value.toUpperCase()" />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -84,15 +90,21 @@
                         @csrf
                         <div class="modal-body">
                             <p class="small mx-2">
-                                Perbaharui data dengan formulir ini, pastikan Anda mengisi semuanya
+                                Perbaharui data dengan formulir ini
                             </p>
 
                             <input type="hidden" id="edit-id" name="id_proyek">
 
                             <div class="form-group">
-                                <label for="nama">Nama (Proyek)</label>
-                                <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." 
+                                <label for="nama">Proyek</label>
+                                <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama proyek.." 
                                 oninput="this.value = this.value.toUpperCase()" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="subproyek">Subproyek ( <span class="text-info">Optional</span> )</label>
+                                <input type="text" class="form-control" name="subproyek" id="edit-subproyek" placeholder="Masukkan nama subproyek.." 
+                                oninput="this.value = this.value.toUpperCase()" />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -168,16 +180,27 @@
                                             <input type="checkbox" id="selectAllCheckbox">
                                         </th>
                                         <th class="text-xxs-bold">No.</th>
-                                        <th class="text-xxs-bold">Nama (Proyek)</th>
+                                        <th class="text-xxs-bold">Proyek</th>
+                                        <th class="text-xxs-bold">Subproyek</th>
+                                        <th class="text-xxs-bold">Aset Besi</th>
+                                        <th class="text-xxs-bold">Aset Material</th>
+                                        <th class="text-xxs-bold">Aset Urug</th>
+                                        <th class="text-xxs-bold">Total Aset</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($proyek as $p)
                                     <tr data-id="{{ $p->id_proyek }}" 
-                                        data-nama="{{ $p->nama }}">
+                                        data-nama="{{ $p->nama }}"
+                                        data-subproyek="{{ $p->subproyek }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $p->nama ?? '-' }}</td>
+                                        <td>{{ $p->subproyek ?? '-' }}</td>
+                                        <td>{{ 'Rp ' . number_format($totalBesi ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($totalMaterial ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($totalUrug ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format(($totalUrug + $totalBesi + $totalMaterial) ?? 0, 0, ',', '.') }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -319,6 +342,7 @@
                     
                     $('#edit-id').val(selectedId);
                     $('#edit-nama').val(row.data('nama'));
+                    $('#edit-subproyek').val(row.data('subproyek'));
                 }
             });
         }

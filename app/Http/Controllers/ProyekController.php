@@ -4,23 +4,27 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Proyek;
+use App\Models\Pembangunan;
 
 class ProyekController extends Controller
 {
     public function index() {
         $proyek = Proyek::orderBy('nama')->get();
-        return view('contents.master_data.proyek', compact('proyek'));
+        $totalUrug = Pembangunan::where('ket', 'pengeluaran urug')->sum('tot_harga');
+        $totalBesi = Pembangunan::where('ket', 'pengeluaran besi')->sum('tot_harga');
+        $totalMaterial = Pembangunan::whereNotNull('id_kategori')->sum('tot_harga');
+        return view('contents.master_data.proyek', compact('proyek', 'totalUrug', 'totalBesi', 'totalMaterial'));
     }
 
     public function store(Request $request) {
-        $existingProyek = Proyek::where('nama', $request->nama)->first();
+        $existingProyek = Proyek::where('nama', $request->nama)->where('subproyek', $request->subproyek)->first();
 
         if ($existingProyek) {
-            $logErrors = 'Nama proyek: ' . $request->nama . ', data tersebut sudah ada di sistem';
+            $logErrors = 'Nama proyek: ' . $request->nama . ' - ' . 'Subproyek: ' . $request->subproyek . ', data tersebut sudah ada di sistem';
             return redirect('proyek')->with('logErrors', $logErrors);
 
         } else {
-            Proyek::insert(['nama'=> $request->nama]);
+            Proyek::insert(['nama' => $request->nama, 'subproyek' => $request->subproyek]);
             return redirect('proyek');
         }
     }
@@ -29,14 +33,15 @@ class ProyekController extends Controller
         $dataProyek = Proyek::find($request->id_proyek);
         if ($dataProyek) {
             if ($dataProyek->nama != $request->nama) {
-                $checkProyek = Proyek::where('nama', $request->nama)->exists();
+                $checkProyek = Proyek::where('nama', $request->nama)->where('subproyek', $request->subproyek)->exists();
                 if ($checkProyek) {
-                    $logErrors = 'Nama proyek: ' . $request->nama . ', data tersebut sudah ada di sistem';
+                    $logErrors = 'Nama proyek: ' . $request->nama . ' - ' . 'Subproyek: ' . $request->subproyek . ', data tersebut sudah ada di sistem';
                     return redirect('proyek')->with('logErrors', $logErrors);
                 }
             }
 
             $dataProyek->nama = $request->nama;
+            $dataProyek->subproyek = $request->subproyek;
             $dataProyek->save();
             return redirect('proyek')->with('success', 'Data berhasil diperbaharui!');
         }

@@ -58,7 +58,11 @@
                                     <select class="form-select form-control" name="proyek" id="proyek" required>
                                         <option value="">...</option>
                                         @foreach ($proyek as $p)
-                                            <option value="{{ $p->id_proyek }}">{{ $p->nama }}</option>
+                                            @if ($p->subproyek && $p->subproyek != '-')
+                                                <option value="{{ $p->id_proyek }}">{{ $p->nama }} {{ $p->subproyek }}</option>
+                                            @else
+                                                <option value="{{ $p->id_proyek }}">{{ $p->nama }}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                 @else
@@ -173,7 +177,11 @@
                                     <select class="form-select form-control" name="proyek" id="edit-proyek" required>
                                         <option value="">...</option>
                                         @foreach ($proyek as $p)
-                                            <option value="{{ $p->id_proyek }}">{{ $p->nama }}</option>
+                                            @if ($p->subproyek && $p->subproyek != '-')
+                                                <option value="{{ $p->id_proyek }}">{{ $p->nama }} {{ $p->subproyek }}</option>
+                                            @else
+                                                <option value="{{ $p->id_proyek }}">{{ $p->nama }}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                 @else
