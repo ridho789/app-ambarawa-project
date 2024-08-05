@@ -182,25 +182,6 @@
 
         <div class="row">
             <div class="col-sm-6 col-md-3">
-                <a href="{{ url('/batu') }}" class="card card-stats card-round">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-icon">
-                                <div class="icon-big text-center icon-secondary bubble-shadow-small">
-                                    <i class="fas fa-chess-board"></i>
-                                </div>
-                            </div>
-                            <div class="col col-stats ms-3 ms-sm-0">
-                                <div class="numbers">
-                                    <p class="card-category">Pengeluaran Batu</p>
-                                    <h4 class="card-title">{{ 'Rp ' . number_format($batu ?? 0, 0, ',', '.') }}</h4>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-sm-6 col-md-3">
                 <a href="{{ url('/besi') }}" class="card card-stats card-round">
                     <div class="card-body">
                         <div class="row align-items-center">
@@ -220,7 +201,7 @@
                 </a>
             </div>
             <div class="col-sm-6 col-md-3">
-                <a href="{{ url('/pasir') }}" class="card card-stats card-round">
+                <a href="{{ url('/material') }}" class="card card-stats card-round">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-icon">
@@ -230,8 +211,8 @@
                             </div>
                             <div class="col col-stats ms-3 ms-sm-0">
                                 <div class="numbers">
-                                    <p class="card-category">Pengeluaran Pasir</p>
-                                    <h4 class="card-title">{{ 'Rp ' . number_format($pasir ?? 0, 0, ',', '.') }}</h4>
+                                    <p class="card-category">Pengeluaran Material</p>
+                                    <h4 class="card-title">{{ 'Rp ' . number_format($material ?? 0, 0, ',', '.') }}</h4>
                                 </div>
                             </div>
                         </div>
@@ -257,8 +238,6 @@
                     </div>
                 </a>
             </div>
-        </div>
-        <div class="row">
             <div class="col-sm-6 col-md-3">
                 <a href="{{ url('/trip') }}" class="card card-stats card-round">
                     <div class="card-body">

@@ -22,10 +22,9 @@ class DashboardController extends Controller
         $sembako = Sembako::sum('total');
         $sparepart = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])->sum('total');
         $trip = Trip::sum('total');
-        $batu = Pembangunan::where('ket', 'pengeluaran batu')->sum('tot_harga');
         $besi = Pembangunan::where('ket', 'pengeluaran besi')->sum('tot_harga');
-        $pasir = Pembangunan::where('ket', 'pengeluaran pasir')->sum('tot_harga');
+        $material = Pembangunan::whereNotNull('id_kategori')->sum('tot_harga');
         $pengurugan = Pembangunan::where('ket', 'pengeluaran urug')->sum('tot_harga');
-        return view('dashboard', compact('ac', 'bbm', 'bubut', 'cat', 'ops', 'poles', 'sembako', 'sparepart', 'trip', 'batu', 'besi', 'pasir', 'pengurugan'));
+        return view('dashboard', compact('ac', 'bbm', 'bubut', 'cat', 'ops', 'poles', 'sembako', 'sparepart', 'trip', 'besi', 'material', 'pengurugan'));
     }
 }
