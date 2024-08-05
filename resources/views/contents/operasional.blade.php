@@ -372,6 +372,9 @@
                                     @if (count($opsOffline) > 0)
                                         <option value="offline">Offline</option>
                                     @endif
+                                    @if (count($opsOnline) > 0 && count($opsOffline) > 0)
+                                        <option value="online_dan_offline">Offline dan Online</option>
+                                    @endif
                                 </select>
                             </div>
 

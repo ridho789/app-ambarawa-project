@@ -272,12 +272,28 @@ class OperasionalController extends Controller
             $rangeDate = "{$start_date->format('d M Y')} - {$end_date->format('d M Y')}";
         }
     
-        $hargaColumn = $metode_pembelian == 'online' ? 'harga_onl' : null;
-        $query = Operasional::when($hargaColumn, function ($query, $hargaColumn) {
-            return $query->where($hargaColumn, '!=', null);
-        }, function ($query) {
-            return $query->whereNull('harga_onl');
+        // $hargaColumn = $metode_pembelian == 'online' ? 'harga_onl' : null;
+        // $query = Operasional::when($hargaColumn, function ($query, $hargaColumn) {
+        //     return $query->where($hargaColumn, '!=', null);
+        // }, function ($query) {
+        //     return $query->whereNull('harga_onl');
+        // });
+
+        $query = Operasional::when($metode_pembelian == 'online_dan_offline', function ($query) {
+            return $query->where(function ($query) {
+                $query->whereNotNull('harga_onl')
+                      ->orWhereNotNull('harga_toko');
+            });
+        }, function ($query) use ($metode_pembelian) {
+            if ($metode_pembelian == 'online') {
+                return $query->whereNotNull('harga_onl');
+            } elseif ($metode_pembelian == 'offline') {
+                return $query->whereNotNull('harga_toko');
+            }
+        
+            return $query;
         });
+        
         
         if ($mode != 'all_data') {
             $query->where('tanggal', '>=', $start_date)
@@ -287,13 +303,23 @@ class OperasionalController extends Controller
         $tagihan = $query->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
     
         // Tentukan nama file
-        $fileName = $mode == 'all_data' 
-            ? ($metode_pembelian == 'online' ? 'Report Ops Online.xlsx' : 'Report Ops.xlsx') 
-            : ($metode_pembelian == 'online' 
-                ? 'Report Ops Online ' . $rangeDate . '.xlsx' 
-                : 'Report Ops ' . $rangeDate . '.xlsx');
-    
-        return Excel::download(new OperasionalExport($mode, $tagihan, $infoTagihan, $metode_pembelian), $fileName);
+        $fileName = $mode == 'all_data'
+        ? ($metode_pembelian == 'online' 
+            ? 'Report Ops Online.xlsx' 
+            : ($metode_pembelian == 'offline' 
+                ? 'Report Ops Offline.xlsx'
+                : ($metode_pembelian == 'online_dan_offline'
+                    ? 'Report Ops Online dan Offline.xlsx'
+                    : 'Report Ops.xlsx')))
+        : ($metode_pembelian == 'online'
+            ? 'Report Ops Online ' . $rangeDate . '.xlsx'
+            : ($metode_pembelian == 'offline'
+                ? 'Report Ops Offline ' . $rangeDate . '.xlsx'
+                : ($metode_pembelian == 'online_dan_offline'
+                    ? 'Report Ops Online dan Offline ' . $rangeDate . '.xlsx'
+                    : 'Report Ops ' . $rangeDate . '.xlsx')));
+
+        return Excel::download(new OperasionalExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
     }
     
 }

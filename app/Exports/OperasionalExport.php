@@ -19,13 +19,15 @@ class OperasionalExport implements WithMultipleSheets
     protected $tagihan;
     protected $infoTagihan;
     protected $metode_pembelian;
+    protected $rangeDate;
 
-    public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian)
+    public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate)
     {
         $this->mode = $mode;
         $this->tagihan = $tagihan;
         $this->infoTagihan = $infoTagihan;
         $this->metode_pembelian = $metode_pembelian;
+        $this->rangeDate = $rangeDate;
     }
 
     public function sheets(): array
@@ -60,24 +62,25 @@ class OperasionalExport implements WithMultipleSheets
                         });
 
                         $data = $this->tagihan->map(function ($item) {
+                            $harga_toko = 'Rp ' . number_format($item->harga_toko ?? 0, 0, ',', '.');
+                            $harga_onl = 'Rp ' . number_format($item->harga_onl ?? 0, 0, ',', '.');
+                            $diskon = 'Rp ' . number_format($item->diskon ?? 0, 0, ',', '.');
+                            $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
+                            $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
+                            $p_member = 'Rp ' . number_format($item->p_member ?? 0, 0, ',', '.');
+                            $b_proteksi = 'Rp ' . number_format($item->b_proteksi ?? 0, 0, ',', '.');
+                            $b_aplikasi = 'Rp ' . number_format($item->b_aplikasi ?? 0, 0, ',', '.');
+                            $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
                             $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
 
                             if ($this->metode_pembelian == 'online') {
-                                $harga_onl = 'Rp ' . number_format($item->harga_onl ?? 0, 0, ',', '.');
-                                $diskon = 'Rp ' . number_format($item->diskon ?? 0, 0, ',', '.');
-                                $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
-                                $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
-                                $p_member = 'Rp ' . number_format($item->p_member ?? 0, 0, ',', '.');
-                                $b_proteksi = 'Rp ' . number_format($item->b_proteksi ?? 0, 0, ',', '.');
-                                $b_aplikasi = 'Rp ' . number_format($item->b_aplikasi ?? 0, 0, ',', '.');
-
                                 return [
                                     'tanggal' => $item->tanggal,
                                     'uraian' => $item->uraian,
                                     'deskripsi' => $item->deskripsi,
                                     'nama' => $item->nama,
-                                    'qty' => $item->qty_onl,
-                                    'unit' => $item->unit_onl,
+                                    'qty' => $item->qty,
+                                    'unit' => $item->unit,
                                     'diskon' => $diskon,
                                     'harga_onl' => $harga_onl,
                                     'ongkir' => $ongkir,
@@ -88,9 +91,9 @@ class OperasionalExport implements WithMultipleSheets
                                     'toko' => $item->toko,
                                     'total' => $total
                                 ];
-
-                            } else {
-                                $harga_toko = 'Rp ' . number_format($item->harga_toko ?? 0, 0, ',', '.');
+                            } 
+                            
+                            if ($this->metode_pembelian == 'offline') {
                                 return [
                                     'tanggal' => $item->tanggal,
                                     'uraian' => $item->uraian,
@@ -103,6 +106,28 @@ class OperasionalExport implements WithMultipleSheets
                                     'total' => $total
                                 ];
                             }
+
+                            if ($this->metode_pembelian == 'online_dan_offline') {
+                                return [
+                                    'tanggal' => $item->tanggal,
+                                    'uraian' => $item->uraian,
+                                    'deskripsi' => $item->deskripsi,
+                                    'nama' => $item->nama,
+                                    'qty' => $item->qty,
+                                    'unit' => $item->unit,
+                                    'harga_toko' => $harga_toko,
+                                    'harga_onl' => $harga_onl,
+                                    'diskon' => $diskon,
+                                    'ongkir' => $ongkir,
+                                    'asuransi' => $asuransi,
+                                    'b_proteksi' => $b_proteksi,
+                                    'p_member' => $p_member,
+                                    'b_aplikasi' => $b_aplikasi,
+                                    'toko' => $item->toko,
+                                    'total' => $total
+                                ];
+
+                            } 
                         });
 
                         if ($this->metode_pembelian == 'online') {
@@ -123,8 +148,9 @@ class OperasionalExport implements WithMultipleSheets
                                 'toko' => '',
                                 'total' => 'Rp ' . number_format($totalKeseluruhan, 0, ',', '.'),
                             ]);
-
-                        } else {
+                        } 
+                        
+                        if ($this->metode_pembelian == 'offline') {
                             $data->push([
                                 'tanggal' => 'Total Keseluruhan',
                                 'uraian' => '',
@@ -138,6 +164,27 @@ class OperasionalExport implements WithMultipleSheets
                             ]);
                         }
 
+                        if ($this->metode_pembelian == 'online_dan_offline') {
+                            $data->push([
+                                'tanggal' => 'Total Keseluruhan',
+                                'uraian' => '',
+                                'deskripsi' => '',
+                                'nama' => '',
+                                'qty' => '',
+                                'unit' => '',
+                                'harga_toko' => '',
+                                'harga_onl' => '',
+                                'diskon' => '',
+                                'ongkir' => '',
+                                'asuransi' => '',
+                                'b_proteksi' => '',
+                                'p_member' => '',
+                                'b_aplikasi' => '',
+                                'toko' => '',
+                                'total' => 'Rp ' . number_format($totalKeseluruhan, 0, ',', '.'),
+                            ]);
+                        } 
+
                         return $data;
                     }
 
@@ -145,7 +192,8 @@ class OperasionalExport implements WithMultipleSheets
                     {
                         if ($this->metode_pembelian == 'online') {
                             return [
-                                'Tanggal',
+                                ['Pengeluaran ' . $this->infoTagihan . ' ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y')],
+                                ['Tanggal',
                                 'Uraian',
                                 'Deskripsi',
                                 'Nama Barang',
@@ -159,12 +207,14 @@ class OperasionalExport implements WithMultipleSheets
                                 'Potongan Member',
                                 'Biaya Aplikasi',
                                 'Toko',
-                                'Total',
+                                'Total',]
                             ];
-    
-                        } else {
+                        } 
+                        
+                        if ($this->metode_pembelian == 'offline') {
                             return [
-                                'Tanggal',
+                                ['Pengeluaran ' . $this->infoTagihan . ' ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y')],
+                                ['Tanggal',
                                 'Uraian',
                                 'Deskripsi',
                                 'Nama Barang',
@@ -172,15 +222,41 @@ class OperasionalExport implements WithMultipleSheets
                                 'Satuan',
                                 'Harga',
                                 'Toko',
-                                'Total',
+                                'Total',]
                             ];
                         }
+
+                        if ($this->metode_pembelian == 'online_dan_offline') {
+                            return [
+                                ['Pengeluaran ' . $this->infoTagihan . ' ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y')],
+                                ['Tanggal',
+                                'Uraian',
+                                'Deskripsi',
+                                'Nama Barang',
+                                'Jumlah',
+                                'Satuan',
+                                'Harga Toko',
+                                'Harga Online',
+                                'Diskon',
+                                'Ongkir',
+                                'Asuransi',
+                                'Biaya Proteksi',
+                                'Potongan Member',
+                                'Biaya Aplikasi',
+                                'Toko',
+                                'Total',]
+                            ];
+                        } 
                     }
 
                     public function styles(Worksheet $sheet)
                     {
                         if ($this->metode_pembelian == 'online') {
+                            // Header
+                            $sheet->mergeCells("A1:O1");
                             $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+
+                            $sheet->getStyle('A2:O2')->getFont()->setBold(true);
                             $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Online ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
@@ -190,9 +266,14 @@ class OperasionalExport implements WithMultipleSheets
                             $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
                             $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
                             $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
-
-                        } else {
+                        } 
+                        
+                        if ($this->metode_pembelian == 'offline') {
+                            // Header
+                            $sheet->mergeCells("A1:I1");
                             $sheet->getStyle('A1:I1')->getFont()->setBold(true);
+
+                            $sheet->getStyle('A2:I2')->getFont()->setBold(true);
                             $sheet->getStyle('A:I')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
@@ -203,6 +284,23 @@ class OperasionalExport implements WithMultipleSheets
                             $sheet->getStyle("I$totalRowIndex")->getFont()->setBold(true);
                             $sheet->getStyle("A$totalRowIndex:I$totalRowIndex")->getAlignment()->setHorizontal('center');
                         }
+
+                        if ($this->metode_pembelian == 'online_dan_offline') {
+                            // Header
+                            $sheet->mergeCells("A1:P1");
+                            $sheet->getStyle('A1:P1')->getFont()->setBold(true);
+
+                            $sheet->getStyle('A2:P2')->getFont()->setBold(true);
+                            $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
+                            $sheet->setTitle($this->infoTagihan . ' Online dan Offline ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
+
+                            // Menyempurnakan styling baris total
+                            $totalRowIndex = $sheet->getHighestRow();
+                            $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
+                            $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        }
                     }
                 };
             }
@@ -212,17 +310,19 @@ class OperasionalExport implements WithMultipleSheets
 
         // Handle mode lain jika ada
         return [
-            new class('All Data', $this->tagihan, $this->infoTagihan, $this->metode_pembelian) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+            new class('All Data', $this->tagihan, $this->infoTagihan, $this->metode_pembelian, $this->rangeDate) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
             {
                 protected $tagihan;
                 protected $infoTagihan;
                 protected $metode_pembelian;
+                protected $rangeDate;
 
-                public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian)
+                public function __construct($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate)
                 {
                     $this->tagihan = $tagihan;
                     $this->infoTagihan = $infoTagihan;
                     $this->metode_pembelian = $metode_pembelian;
+                    $this->rangeDate = $rangeDate;
                 }
 
                 public function collection()
@@ -232,24 +332,24 @@ class OperasionalExport implements WithMultipleSheets
                     });
 
                     $data = $this->tagihan->map(function ($item) {
+                        $harga_toko = 'Rp ' . number_format($item->harga_toko ?? 0, 0, ',', '.');
+                        $harga_onl = 'Rp ' . number_format($item->harga_onl ?? 0, 0, ',', '.');
+                        $diskon = 'Rp ' . number_format($item->diskon ?? 0, 0, ',', '.');
+                        $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
+                        $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
+                        $p_member = 'Rp ' . number_format($item->p_member ?? 0, 0, ',', '.');
+                        $b_proteksi = 'Rp ' . number_format($item->b_proteksi ?? 0, 0, ',', '.');
+                        $b_aplikasi = 'Rp ' . number_format($item->b_aplikasi ?? 0, 0, ',', '.');
                         $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
 
                         if ($this->metode_pembelian == 'online') {
-                            $harga_onl = 'Rp ' . number_format($item->harga_onl ?? 0, 0, ',', '.');
-                            $diskon = 'Rp ' . number_format($item->diskon ?? 0, 0, ',', '.');
-                            $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
-                            $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
-                            $p_member = 'Rp ' . number_format($item->p_member ?? 0, 0, ',', '.');
-                            $b_proteksi = 'Rp ' . number_format($item->b_proteksi ?? 0, 0, ',', '.');
-                            $b_aplikasi = 'Rp ' . number_format($item->b_aplikasi ?? 0, 0, ',', '.');
-
                             return [
                                 'tanggal' => $item->tanggal,
                                 'uraian' => $item->uraian,
                                 'deskripsi' => $item->deskripsi,
                                 'nama' => $item->nama,
-                                'qty' => $item->qty_onl,
-                                'unit' => $item->unit_onl,
+                                'qty' => $item->qty,
+                                'unit' => $item->unit,
                                 'diskon' => $diskon,
                                 'harga_onl' => $harga_onl,
                                 'ongkir' => $ongkir,
@@ -260,9 +360,9 @@ class OperasionalExport implements WithMultipleSheets
                                 'toko' => $item->toko,
                                 'total' => $total
                             ];
-
-                        } else {
-                            $harga_toko = 'Rp ' . number_format($item->harga_toko ?? 0, 0, ',', '.');
+                        } 
+                        
+                        if ($this->metode_pembelian == 'offline') {
                             return [
                                 'tanggal' => $item->tanggal,
                                 'uraian' => $item->uraian,
@@ -275,6 +375,28 @@ class OperasionalExport implements WithMultipleSheets
                                 'total' => $total
                             ];
                         }
+
+                        if ($this->metode_pembelian == 'online_dan_offline') {
+                            return [
+                                'tanggal' => $item->tanggal,
+                                'uraian' => $item->uraian,
+                                'deskripsi' => $item->deskripsi,
+                                'nama' => $item->nama,
+                                'qty' => $item->qty,
+                                'unit' => $item->unit,
+                                'harga_toko' => $harga_toko,
+                                'harga_onl' => $harga_onl,
+                                'diskon' => $diskon,
+                                'ongkir' => $ongkir,
+                                'asuransi' => $asuransi,
+                                'b_proteksi' => $b_proteksi,
+                                'p_member' => $p_member,
+                                'b_aplikasi' => $b_aplikasi,
+                                'toko' => $item->toko,
+                                'total' => $total
+                            ];
+
+                        } 
                     });
 
                     // Menambahkan baris total keseluruhan
@@ -296,8 +418,9 @@ class OperasionalExport implements WithMultipleSheets
                             'toko' => '',
                             'total' => 'Rp ' . number_format($totalKeseluruhan, 0, ',', '.'),
                         ]);
-
-                    } else {
+                    } 
+                    
+                    if ($this->metode_pembelian == 'offline') {
                         $data->push([
                             'tanggal' => 'Total Keseluruhan',
                             'uraian' => '',
@@ -311,6 +434,27 @@ class OperasionalExport implements WithMultipleSheets
                         ]);
                     }
 
+                    if ($this->metode_pembelian == 'online_dan_offline') {
+                        $data->push([
+                            'tanggal' => 'Total Keseluruhan',
+                            'uraian' => '',
+                            'deskripsi' => '',
+                            'nama' => '',
+                            'qty' => '',
+                            'unit' => '',
+                            'harga_toko' => '',
+                            'harga_onl' => '',
+                            'diskon' => '',
+                            'ongkir' => '',
+                            'asuransi' => '',
+                            'b_proteksi' => '',
+                            'p_member' => '',
+                            'b_aplikasi' => '',
+                            'toko' => '',
+                            'total' => 'Rp ' . number_format($totalKeseluruhan, 0, ',', '.'),
+                        ]);
+                    } 
+
                     return $data;
                 }
 
@@ -318,7 +462,8 @@ class OperasionalExport implements WithMultipleSheets
                 {
                     if ($this->metode_pembelian == 'online') {
                         return [
-                            'Tanggal',
+                            ['Pengeluaran ' . $this->infoTagihan . ' ' . $this->rangeDate],
+                            ['Tanggal',
                             'Uraian',
                             'Deskripsi',
                             'Nama Barang',
@@ -332,12 +477,14 @@ class OperasionalExport implements WithMultipleSheets
                             'Potongan Member',
                             'Biaya Aplikasi',
                             'Toko',
-                            'Total',
+                            'Total',]
                         ];
-
-                    } else {
+                    } 
+                    
+                    if ($this->metode_pembelian == 'offline') {
                         return [
-                            'Tanggal',
+                            ['Pengeluaran ' . $this->infoTagihan . ' ' . $this->rangeDate],
+                            ['Tanggal',
                             'Uraian',
                             'Deskripsi',
                             'Nama Barang',
@@ -345,17 +492,43 @@ class OperasionalExport implements WithMultipleSheets
                             'Satuan',
                             'Harga',
                             'Toko',
-                            'Total',
+                            'Total',]
                         ];
                     }
+
+                    if ($this->metode_pembelian == 'online_dan_offline') {
+                        return [
+                            ['Pengeluaran ' . $this->infoTagihan . ' ' . $this->rangeDate],
+                            ['Tanggal',
+                            'Uraian',
+                            'Deskripsi',
+                            'Nama Barang',
+                            'Jumlah',
+                            'Satuan',
+                            'Harga Toko',
+                            'Harga Online',
+                            'Diskon',
+                            'Ongkir',
+                            'Asuransi',
+                            'Biaya Proteksi',
+                            'Potongan Member',
+                            'Biaya Aplikasi',
+                            'Toko',
+                            'Total',]
+                        ];
+                    } 
                 }
 
                 public function styles(Worksheet $sheet)
                 {
                     if ($this->metode_pembelian == 'online') {
+                        // Header
+                        $sheet->mergeCells("A1:O1");
                         $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+
+                        $sheet->getStyle('A2:O2')->getFont()->setBold(true);
                         $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
-                        $sheet->setTitle($this->infoTagihan . ' Online ');
+                        $sheet->setTitle($this->infoTagihan . ' Online');
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
@@ -363,9 +536,14 @@ class OperasionalExport implements WithMultipleSheets
                         $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
                         $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
                         $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
-
-                    } else {
+                    } 
+                    
+                    if ($this->metode_pembelian == 'offline') {
+                        // Header
+                        $sheet->mergeCells("A1:I1");
                         $sheet->getStyle('A1:I1')->getFont()->setBold(true);
+
+                        $sheet->getStyle('A2:I2')->getFont()->setBold(true);
                         $sheet->getStyle('A:I')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan);
 
@@ -375,6 +553,23 @@ class OperasionalExport implements WithMultipleSheets
                         $sheet->getStyle("A$totalRowIndex:H$totalRowIndex")->getFont()->setBold(true);
                         $sheet->getStyle("I$totalRowIndex")->getFont()->setBold(true);
                         $sheet->getStyle("A$totalRowIndex:I$totalRowIndex")->getAlignment()->setHorizontal('center');
+                    }
+
+                    if ($this->metode_pembelian == 'online_dan_offline') {
+                        // Header
+                        $sheet->mergeCells("A1:P1");
+                        $sheet->getStyle('A1:P1')->getFont()->setBold(true);
+
+                        $sheet->getStyle('A2:P2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
+                        $sheet->setTitle($this->infoTagihan . ' Online dan Offline');
+
+                        // Menyempurnakan styling baris total
+                        $totalRowIndex = $sheet->getHighestRow();
+                        $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
                     }
                 }
             }
