@@ -182,6 +182,23 @@ class OperasionalController extends Controller
                 $tagihanOperasional->metode_pembelian = $request->metode_pembelian;
     
                 $tagihanOperasional->save();
+
+                // Update barang
+                foreach ($request->id_barang as $index => $barang) {
+                    $dataBarang = Barang::find($barang);
+                    $numericHarga = preg_replace("/[^0-9]/", "", $request->harga[$index]);
+                    $data = [
+                        'nama' => $request->nama_barang[$index],
+                        'jumlah' => $request->qty[$index],
+                        'harga' => $numericHarga,
+                        'id_satuan' => $request->unit[$index],
+                    ];
+                
+                    if ($dataBarang) {
+                        $dataBarang->update($data);
+                    }
+                }
+
                 return redirect('operasional')->with('success', 'Data berhasil diperbaharui!');
             }
         }
@@ -210,6 +227,23 @@ class OperasionalController extends Controller
                 $tagihanOperasional->metode_pembelian = $request->metode_pembelian;
     
                 $tagihanOperasional->save();
+
+                // Update barang
+                foreach ($request->id_barang as $index => $barang) {
+                    $dataBarang = Barang::find($barang);
+                    $numericHarga = preg_replace("/[^0-9]/", "", $request->harga[$index]);
+                    $data = [
+                        'nama' => $request->nama_barang[$index],
+                        'jumlah' => $request->qty[$index],
+                        'harga' => $numericHarga,
+                        'id_satuan' => $request->unit[$index],
+                    ];
+                
+                    if ($dataBarang) {
+                        $dataBarang->update($data);
+                    }
+                }
+
                 return redirect('operasional')->with('success', 'Data berhasil diperbaharui!');
             }
         }

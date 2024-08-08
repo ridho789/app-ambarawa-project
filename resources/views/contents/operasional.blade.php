@@ -147,6 +147,10 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Harga</span>
+                            </div>
+
                             <div id="onlineFields" class="d-none">
                                 <div class="form-group row">
                                     <div class="col-4">
@@ -271,12 +275,12 @@
                                 <!-- barang -->
                             </div>
 
-                            <div class="form-group">
-                                <span class="h5 fw-mediumbold">Informasi Harga</span>
-                            </div>
+                            <!-- <div class="form-group">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addBarangEdit()">Tambah Barang</button>
+                            </div> -->
 
                             <div class="form-group">
-                                <button type="button" class="btn btn-primary btn-sm" onclick="addBarangEdit()">Tambah Barang</button>
+                                <span class="h5 fw-mediumbold">Informasi Harga</span>
                             </div>
 
                             <div id="onlineFieldsEdit" class="d-none">
@@ -662,7 +666,6 @@
 
         // Temukan indeks terakhir dari barang yang ada
         var lastItemIndex = container.querySelectorAll('.barangEdit-item').length;
-        console.log(lastItemIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaa')
         var newIndex = lastItemIndex + 1;
 
         newItem.innerHTML = `
@@ -728,13 +731,13 @@
     function updateTotal() {
         let hargaElements = document.querySelectorAll("input[name='harga[]']");
         let qtyElements = document.querySelectorAll("input[name='qty[]']");
-        let diskonElements = document.querySelectorAll("#diskon, #edit-diskon");
-        let ongkirElements = document.querySelectorAll("#ongkir, #edit-ongkir");
-        let asuransiElements = document.querySelectorAll("#asuransi, #edit-asuransi");
-        let proteksiElements = document.querySelectorAll("#b_proteksi, #edit-b_proteksi");
-        let memberElements = document.querySelectorAll("#p_member, #edit-p_member");
-        let aplikasiElements = document.querySelectorAll("#b_aplikasi, #edit-b_aplikasi");
-        let totalElements = document.querySelectorAll("#total, #edit-total");
+        let diskonElements = document.querySelectorAll("#diskon");
+        let ongkirElements = document.querySelectorAll("#ongkir");
+        let asuransiElements = document.querySelectorAll("#asuransi");
+        let proteksiElements = document.querySelectorAll("#b_proteksi");
+        let memberElements = document.querySelectorAll("#p_member");
+        let aplikasiElements = document.querySelectorAll("#b_aplikasi");
+        let totalElements = document.querySelectorAll("#total");
         let totalElement = document.getElementById("total");
         
         // Calculate subtotal
@@ -926,20 +929,19 @@
 
         let hargaElements = document.querySelectorAll("input[name='harga[]']");
         let qtyElements = document.querySelectorAll("input[name='qty[]']");
-        let diskonElements = document.querySelectorAll("#diskon, #edit-diskon");
-        let ongkirElements = document.querySelectorAll("#ongkir, #edit-ongkir");
-        let asuransiElements = document.querySelectorAll("#asuransi, #edit-asuransi");
-        let proteksiElements = document.querySelectorAll("#b_proteksi, #edit-b_proteksi");
-        let memberElements = document.querySelectorAll("#p_member, #edit-p_member");
-        let aplikasiElements = document.querySelectorAll("#b_aplikasi, #edit-b_aplikasi");
-        let totalElements = document.querySelectorAll("#total, #edit-total");
+        let diskonElements = document.querySelectorAll("#diskon");
+        let ongkirElements = document.querySelectorAll("#ongkir");
+        let asuransiElements = document.querySelectorAll("#asuransi");
+        let proteksiElements = document.querySelectorAll("#b_proteksi");
+        let memberElements = document.querySelectorAll("#p_member");
+        let aplikasiElements = document.querySelectorAll("#b_aplikasi");
+        let totalElements = document.querySelectorAll("#total");
         let isOnlineChecked = document.getElementById('is_online')?.checked || false;
-        let editIsOnlineChecked = document.getElementById('edit-is_online')?.checked || false;
 
         let subtotal = calculateSubtotal();
         let totalValue = subtotal;
 
-        if (!isOnlineChecked || !editIsOnlineChecked) {
+        if (!isOnlineChecked) {
             [diskonElements, ongkirElements, asuransiElements, proteksiElements, memberElements, aplikasiElements].forEach((elements) => {
                 elements.forEach((element, index) => {
                     element.addEventListener("input", function() {
@@ -1170,6 +1172,7 @@
                     
                     // Barang
                     var barangEdit = document.getElementById('barangEdit');
+                    barangEdit.innerHTML = '';
                     barangEdit.innerHTML += `
                         <div class="form-group">
                             <span class="h5 fw-mediumbold">Informasi Barang</span>
@@ -1185,6 +1188,7 @@
                         barangEdit.innerHTML += `
                             <div class="barangEdit-item">
                                 <div class="form-group row">
+                                    <input type="hidden" id="edit-id_barang" name="id_barang[]" value="${item.id_barang}">
                                     <div class="col-4">
                                         <label for="nama_barang">Barang ke-${index + 1}</label>
                                         <input type="text" class="form-control" name="nama_barang[]"
@@ -1212,11 +1216,132 @@
                                     </div>
                                     <div class="col-4">
                                         <label for="harga">Harga</label>
-                                        <input type="text" class="form-control" name="harga[]" value="${item.harga}" id="harga" placeholder="Masukkan harga.." required />
+                                        <input type="text" class="form-control" name="harga[]" value="${formatCurrency(item.harga)}" id="harga" placeholder="Masukkan harga.." required />
                                     </div>
                                 </div>
                             </div>
                         `;
+                    });
+
+                    function parseFraction(fraction) {
+                        let parts = fraction.split('/');
+                        if (parts.length === 2) {
+                            return parseFloat(parts[0]) / parseFloat(parts[1]);
+                        } else {
+                            return parseFloat(fraction);
+                        }
+                    }
+
+                    function calculateSubtotal() {
+                        let hargaElements = document.querySelectorAll("input[name='harga[]']");
+                        let qtyElements = document.querySelectorAll("input[name='qty[]']");
+                        let subtotal = 0;
+
+                        hargaElements.forEach((hargaElem, index) => {
+                            let hargaValue = parseInt(hargaElem.value.replace(/[^0-9]/g, ""), 10) || 0;
+                            let qtyValue = parseFraction(qtyElements[index].value.replace(',', '.')) || 0;
+                            subtotal += hargaValue * qtyValue;
+                        });
+
+                        return subtotal;
+                    }
+
+                    function updateTotal() {
+                        let hargaElements = document.querySelectorAll("input[name='harga[]']");
+                        let qtyElements = document.querySelectorAll("input[name='qty[]']");
+                        let diskonElements = document.querySelectorAll("#edit-diskon");
+                        let ongkirElements = document.querySelectorAll("#edit-ongkir");
+                        let asuransiElements = document.querySelectorAll("#edit-asuransi");
+                        let proteksiElements = document.querySelectorAll("#edit-b_proteksi");
+                        let memberElements = document.querySelectorAll("#edit-p_member");
+                        let aplikasiElements = document.querySelectorAll("#edit-b_aplikasi");
+                        let totalElements = document.querySelectorAll("#edit-total");
+                        let totalElement = document.getElementById("#edit-total");
+                        
+                        // Calculate subtotal
+                        let subtotal = calculateSubtotal();
+
+                        // Initialize total value
+                        let totalValue = subtotal;
+
+                        let ongkirlValue = parseInt(ongkirElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+                        let asuransiValue = parseInt(asuransiElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+                        let proteksiValue = parseInt(proteksiElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+                        let memberValue = parseInt(memberElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+                        let aplikasiValue = parseInt(aplikasiElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+                        let diskonValue = parseInt(diskonElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+
+                        totalValue = subtotal + (ongkirlValue + asuransiValue + proteksiValue + aplikasiValue) - (diskonValue + memberValue);
+                        totalElements[0].value = formatCurrency(totalValue);
+                        // totalElement.value = formatCurrency(totalValue);
+
+                    }
+
+                    // Attach event listeners to dynamically added elements
+                    let hargaElements = document.querySelectorAll("input[name='harga[]']");
+                    let qtyElements = document.querySelectorAll("input[name='qty[]']");
+                    let diskonElements = document.querySelectorAll("#edit-diskon");
+                    let ongkirElements = document.querySelectorAll("#edit-ongkir");
+                    let asuransiElements = document.querySelectorAll("#edit-asuransi");
+                    let proteksiElements = document.querySelectorAll("#edit-b_proteksi");
+                    let memberElements = document.querySelectorAll("#edit-p_member");
+                    let aplikasiElements = document.querySelectorAll("#edit-b_aplikasi");
+                    let totalElements = document.querySelectorAll("#edit-total");
+                    let totalElement = document.getElementById("#edit-total");
+                    let editIsOnlineChecked = document.getElementById('edit-is_online')?.checked || false;
+
+                    let subtotal = calculateSubtotal();
+                    let totalValue = subtotal;
+
+                    if (!editIsOnlineChecked) {
+                        [diskonElements, ongkirElements, asuransiElements, proteksiElements, memberElements, aplikasiElements].forEach((elements) => {
+                            elements.forEach((element, index) => {
+                                element.addEventListener("input", function() {
+                                    this.value = formatCurrency(this.value.replace(/[^0-9]/g, ""));
+                                    updateTotal();
+                                });
+                            });
+                        });
+                    }
+
+                    qtyElements.forEach((jml, index) => {
+                        jml.addEventListener("input", function() {
+                            let harga = hargaElements[index];
+                            let total = totalElements[0];
+                            let jmlValue = parseFraction(jml.value.replace(',', '.'));
+
+                            if (harga) {
+                                let hargaValue = parseInt(harga.value.replace(/[^0-9]/g, ""), 10) || 0;
+                                let totalValue = hargaValue * jmlValue;
+                                total.value = formatCurrency(totalValue);
+                            }
+                        });
+                    });
+
+                    hargaElements.forEach((harga, index) => {
+                        harga.addEventListener("input", function() {
+                            let jml = qtyElements[index];
+                            let total = totalElements[0];
+                            let hargaValueFormatted = this.value.replace(/[^0-9]/g, "") || 0;
+                            this.value = formatCurrency(hargaValueFormatted);
+                            let jmlValue = parseFraction(jml.value.replace(',', '.'));
+
+                            if (jmlValue) {
+                                let hargaValue = parseInt(hargaValueFormatted, 10) || 0;
+                                let totalValue = hargaValue * jmlValue;
+                                total.value = formatCurrency(totalValue);
+                            }
+                        });
+                    });
+
+                    // Add currency formatter to all relevant elements
+                    [hargaElements, diskonElements, ongkirElements, asuransiElements, proteksiElements, memberElements, aplikasiElements, totalElements].forEach(elements => {
+                        elements.forEach(element => {
+                            element.addEventListener("input", function() {
+                                this.value = formatCurrency(this.value.replace(/[^0-9]/g, ""));
+                                updateTotal();
+                            });
+                        });
                     });
                 }
             });
