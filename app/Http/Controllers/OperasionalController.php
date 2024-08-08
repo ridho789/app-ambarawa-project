@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Operasional;
+use App\Models\Barang;
+use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\OperasionalExport;
 use Carbon\Carbon;
@@ -12,47 +14,62 @@ class OperasionalController extends Controller
 {
     public function index() {
         $operasional = Operasional::orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
-        $opsOnline = Operasional::whereNotNull('harga_onl')->get();
-        $opsOffline = Operasional::whereNull('harga_onl')->get();
+        $opsOnline = Operasional::where('metode_pembelian', 'online')->get();
+        $opsOffline = Operasional::where('metode_pembelian', 'offline')->get();
+        $barang = Barang::all();
+        $satuan = Satuan::all();
+        $namaSatuan = Satuan::pluck('nama', 'id_satuan');
         $periodes = Operasional::select(Operasional::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
             ->distinct()
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        return view('contents.operasional', compact('operasional', 'opsOnline', 'opsOffline', 'periodes'));
+        return view('contents.operasional', compact('operasional', 'opsOnline', 'opsOffline', 'barang', 'satuan', 'namaSatuan', 'periodes'));
     }
 
     public function store(Request $request) {
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
 
         if ($request->metode_pembelian == 'offline') {
-            $numericHargaToko = preg_replace("/[^0-9]/", "", explode(",", $request->harga_toko)[0]);
-
             $dataOperasional = [
                 'tanggal' => $request->tanggal,
                 'uraian' => $request->uraian,
-                'qty' => $request->qty,
-                'unit' => $request->unit,
                 'deskripsi' => $request->deskripsi,
                 'nama' => $request->nama,
-                'harga_toko' => $numericHargaToko,
                 'total' => $numericTotal,
-                'toko' => $request->toko
+                'toko' => $request->toko,
+                'metode_pembelian' => $request->metode_pembelian
             ];
 
-            $exitingOperasional = Operasional::where('tanggal', $request->tanggal)->where('uraian', $request->uraian)->where('qty', $request->qty)
-                ->where('unit', $request->unit)->where('deskripsi', $request->deskripsi)->where('nama', $request->nama)
-                ->where('harga_toko', $numericHargaToko)->where('total', $numericTotal)->where('toko', $request->toko)->first();
+            $exitingOperasional = Operasional::where('tanggal', $request->tanggal)->where('uraian', $request->uraian)
+                ->where('deskripsi', $request->deskripsi)->where('nama', $request->nama)
+                ->where('total', $numericTotal)->where('toko', $request->toko)->where('metode_pembelian', $request->metode_pembelian)->first();
     
             if ($exitingOperasional) {
                 $logErrors = 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Uraian: ' . $request->uraian . ' - ' . 
-                'Jumlah: ' . $request->qty . ' - ' . 'Satuan: ' . $request->unit . ' - ' . 'Deskripsi: ' . $request->deskripsi . ' - ' . 'Nama: ' . $request->nama . 
+                ' - ' . 'Deskripsi: ' . $request->deskripsi . ' - ' . 'Nama: ' . $request->nama . 
                 ' - ' . 'Total: ' . $request->total . ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
     
                 return redirect('operasional')->with('logErrors', $logErrors);
     
             } else {
-                Operasional::create($dataOperasional);
+                $createdOperasional = Operasional::create($dataOperasional);
+                $operasionalId = $createdOperasional->id_operasional;
+
+                // Barang
+                foreach ($request->nama_barang as $index => $namaBarang) {
+                    $numericHarga = preg_replace("/[^0-9]/", "", $request->harga[$index]);
+                    $dataBarang = [
+                        'nama' => $namaBarang,
+                        'jumlah' => $request->qty[$index],
+                        'harga' => $numericHarga,
+                        'id_satuan' => $request->unit[$index],
+                        'id_relasi' => $operasionalId
+                    ];
+                
+                    Barang::create($dataBarang);
+                }
+
                 return redirect('operasional');
             }
 
@@ -60,7 +77,6 @@ class OperasionalController extends Controller
 
         if ($request->metode_pembelian == 'online') {
             $numericDiskon = preg_replace("/[^0-9]/", "", explode(",", $request->diskon)[0]);
-            $numericHargaOnl = preg_replace("/[^0-9]/", "", explode(",", $request->harga_onl)[0]);
             $numericOngkir = preg_replace("/[^0-9]/", "", explode(",", $request->ongkir)[0]);
             $numericAsuransi = preg_replace("/[^0-9]/", "", explode(",", $request->asuransi)[0]);
             $numericProteksi = preg_replace("/[^0-9]/", "", explode(",", $request->b_proteksi)[0]);
@@ -71,36 +87,50 @@ class OperasionalController extends Controller
             $dataOperasional = [
                 'tanggal' => $request->tanggal,
                 'uraian' => $request->uraian,
-                'qty' => $request->qty_onl,
-                'unit' => $request->unit_onl,
                 'deskripsi' => $request->deskripsi,
                 'nama' => $request->nama,
                 'diskon' => $numericDiskon,
-                'harga_onl' => $numericHargaOnl,
                 'ongkir' => $numericOngkir,
                 'asuransi' => $numericAsuransi,
                 'b_proteksi' => $numericProteksi,
                 'p_member' => $numericMember,
                 'b_aplikasi' => $numericAplikasi,
                 'total' => $numericTotal,
-                'toko' => $request->toko
+                'toko' => $request->toko,
+                'metode_pembelian' => $request->metode_pembelian
             ];
             
-            $exitingOperasional = Operasional::where('tanggal', $request->tanggal)->where('uraian', $request->uraian)->where('qty', $request->qty)
-                ->where('unit', $request->unit)->where('deskripsi', $request->deskripsi)->where('nama', $request->nama)
-                ->where('diskon', $numericDiskon)->where('harga_onl', $numericHargaOnl)->where('ongkir', $numericOngkir)
+            $exitingOperasional = Operasional::where('tanggal', $request->tanggal)->where('uraian', $request->uraian)
+                ->where('deskripsi', $request->deskripsi)->where('nama', $request->nama)
+                ->where('diskon', $numericDiskon)->where('ongkir', $numericOngkir)
                 ->where('asuransi', $numericAsuransi)->where('b_proteksi', $numericProteksi)->where('p_member', $numericMember)->where('b_aplikasi', $numericAplikasi)
-                ->where('total', $numericTotal)->where('toko', $request->toko)->first();
+                ->where('total', $numericTotal)->where('toko', $request->toko)->where('metode_pembelian', $request->metode_pembelian)->first();
     
             if ($exitingOperasional) {
                 $logErrors = 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Uraian: ' . $request->uraian . ' - ' . 
-                'Jumlah: ' . $request->qty . ' - ' . 'Satuan: ' . $request->unit . ' - ' . 'Deskripsi: ' . $request->deskripsi . ' - ' . 'Nama: ' . $request->nama . 
+                ' - ' . 'Deskripsi: ' . $request->deskripsi . ' - ' . 'Nama: ' . $request->nama . 
                 ' - ' . 'Total: ' . $request->total . ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
     
                 return redirect('operasional')->with('logErrors', $logErrors);
     
             } else {
-                Operasional::create($dataOperasional);
+                $createdOperasional = Operasional::create($dataOperasional);
+                $operasionalId = $createdOperasional->id_operasional;
+
+                // Barang
+                foreach ($request->nama_barang as $index) {
+                    $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga[$index]));
+                    $dataBarang = [
+                        'nama' => $request->nama_barang[$index],
+                        'jumlah' => $request->qty[$index],
+                        'harga' => $numericHarga,
+                        'id_satuan' => $request->unit[$index],
+                        'id_relasi' => $operasionalId
+                    ];
+
+                    Barang::create($dataBarang);
+                }
+                
                 return redirect('operasional');
             }
         }
@@ -111,11 +141,12 @@ class OperasionalController extends Controller
             'deskripsi' => $request->deskripsi,
             'nama' => $request->nama,
             'total' => $numericTotal,
-            'toko' => $request->toko
+            'toko' => $request->toko,
+            'metode_pembelian' => $request->metode_pembelian
         ];
 
         $exitingOperasional = Operasional::where('tanggal', $request->tanggal)->where('uraian', $request->uraian)->where('deskripsi', $request->deskripsi)
-        ->where('nama', $request->nama)->where('total', $numericTotal)->where('toko', $request->toko)->first();
+        ->where('nama', $request->nama)->where('total', $numericTotal)->where('toko', $request->toko)->where('metode_pembelian', $request->metode_pembelian)->first();
 
         if ($exitingOperasional) {
             $logErrors = 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Uraian: ' . $request->uraian . ' - ' . 
@@ -135,17 +166,11 @@ class OperasionalController extends Controller
         $tagihanOperasional = Operasional::find($request->id_operasional);
 
         if ($request->metode_pembelian == 'offline') {
-            $numericHargaToko = preg_replace("/[^0-9]/", "", explode(",", $request->harga_toko)[0]);
-
             if ($tagihanOperasional) {
                 $tagihanOperasional->tanggal = $request->tanggal;
                 $tagihanOperasional->uraian = $request->uraian;
                 $tagihanOperasional->deskripsi = $request->deskripsi;
                 $tagihanOperasional->nama = $request->nama;
-                $tagihanOperasional->qty = $request->qty;
-                $tagihanOperasional->unit = $request->unit;
-                $tagihanOperasional->harga_toko = $numericHargaToko;
-                $tagihanOperasional->harga_onl = null;
                 $tagihanOperasional->diskon = null;
                 $tagihanOperasional->ongkir = null;
                 $tagihanOperasional->asuransi = null;
@@ -154,6 +179,7 @@ class OperasionalController extends Controller
                 $tagihanOperasional->b_aplikasi = null;
                 $tagihanOperasional->total = $numericTotal;
                 $tagihanOperasional->toko = $request->toko;
+                $tagihanOperasional->metode_pembelian = $request->metode_pembelian;
     
                 $tagihanOperasional->save();
                 return redirect('operasional')->with('success', 'Data berhasil diperbaharui!');
@@ -161,7 +187,6 @@ class OperasionalController extends Controller
         }
 
         if ($request->metode_pembelian == 'online') {
-            $numericHargaOnl = preg_replace("/[^0-9]/", "", explode(",", $request->harga_onl)[0]);
             $numericDiskon = preg_replace("/[^0-9]/", "", explode(",", $request->diskon)[0]);
             $numericOngkir = preg_replace("/[^0-9]/", "", explode(",", $request->ongkir)[0]);
             $numericAsuransi = preg_replace("/[^0-9]/", "", explode(",", $request->asuransi)[0]);
@@ -174,10 +199,6 @@ class OperasionalController extends Controller
                 $tagihanOperasional->uraian = $request->uraian;
                 $tagihanOperasional->deskripsi = $request->deskripsi;
                 $tagihanOperasional->nama = $request->nama;
-                $tagihanOperasional->qty = $request->qty_onl;
-                $tagihanOperasional->unit = $request->unit_onl;
-                $tagihanOperasional->harga_toko = null;
-                $tagihanOperasional->harga_onl = $numericHargaOnl;
                 $tagihanOperasional->diskon = $numericDiskon;
                 $tagihanOperasional->ongkir = $numericOngkir;
                 $tagihanOperasional->asuransi = $numericAsuransi;
@@ -186,6 +207,7 @@ class OperasionalController extends Controller
                 $tagihanOperasional->b_aplikasi = $numericAplikasi;
                 $tagihanOperasional->total = $numericTotal;
                 $tagihanOperasional->toko = $request->toko;
+                $tagihanOperasional->metode_pembelian = $request->metode_pembelian;
     
                 $tagihanOperasional->save();
                 return redirect('operasional')->with('success', 'Data berhasil diperbaharui!');
@@ -197,10 +219,6 @@ class OperasionalController extends Controller
             $tagihanOperasional->uraian = $request->uraian;
             $tagihanOperasional->deskripsi = $request->deskripsi;
             $tagihanOperasional->nama = $request->nama;
-            $tagihanOperasional->qty = null;
-            $tagihanOperasional->unit = null;
-            $tagihanOperasional->harga_toko = null;
-            $tagihanOperasional->harga_onl = null;
             $tagihanOperasional->diskon = null;
             $tagihanOperasional->ongkir = null;
             $tagihanOperasional->asuransi = null;
@@ -209,6 +227,7 @@ class OperasionalController extends Controller
             $tagihanOperasional->b_aplikasi = null;
             $tagihanOperasional->total = $numericTotal;
             $tagihanOperasional->toko = $request->toko;
+            $tagihanOperasional->metode_pembelian = $request->metode_pembelian;
 
             $tagihanOperasional->save();
             return redirect('operasional')->with('success', 'Data berhasil diperbaharui!');
@@ -281,14 +300,14 @@ class OperasionalController extends Controller
 
         $query = Operasional::when($metode_pembelian == 'online_dan_offline', function ($query) {
             return $query->where(function ($query) {
-                $query->whereNotNull('harga_onl')
-                      ->orWhereNotNull('harga_toko');
+                $query->where('metode_pembelian', 'online')
+                      ->where('metode_pembelian', 'offline');
             });
         }, function ($query) use ($metode_pembelian) {
             if ($metode_pembelian == 'online') {
-                return $query->whereNotNull('harga_onl');
+                return $query->where('metode_pembelian', 'online');
             } elseif ($metode_pembelian == 'offline') {
-                return $query->whereNotNull('harga_toko');
+                return $query->where('metode_pembelian', 'offline');
             }
         
             return $query;

@@ -10,6 +10,8 @@ use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Carbon\Carbon;
+use App\Models\Barang;
+use App\Models\Satuan;
 
 class OperasionalExport implements WithMultipleSheets
 {
@@ -62,8 +64,6 @@ class OperasionalExport implements WithMultipleSheets
                         });
 
                         $data = $this->tagihan->map(function ($item) {
-                            $harga_toko = 'Rp ' . number_format($item->harga_toko ?? 0, 0, ',', '.');
-                            $harga_onl = 'Rp ' . number_format($item->harga_onl ?? 0, 0, ',', '.');
                             $diskon = 'Rp ' . number_format($item->diskon ?? 0, 0, ',', '.');
                             $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
                             $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
@@ -81,8 +81,8 @@ class OperasionalExport implements WithMultipleSheets
                                     'nama' => $item->nama,
                                     'qty' => $item->qty,
                                     'unit' => $item->unit,
+                                    'harga' => '',
                                     'diskon' => $diskon,
-                                    'harga_onl' => $harga_onl,
                                     'ongkir' => $ongkir,
                                     'asuransi' => $asuransi,
                                     'b_proteksi' => $b_proteksi,
@@ -101,7 +101,7 @@ class OperasionalExport implements WithMultipleSheets
                                     'nama' => $item->nama,
                                     'qty' => $item->qty,
                                     'unit' => $item->unit,
-                                    'harga_toko' => $harga_toko,
+                                    'harga' => '',
                                     'toko' => $item->toko,
                                     'total' => $total
                                 ];
@@ -115,8 +115,7 @@ class OperasionalExport implements WithMultipleSheets
                                     'nama' => $item->nama,
                                     'qty' => $item->qty,
                                     'unit' => $item->unit,
-                                    'harga_toko' => $harga_toko,
-                                    'harga_onl' => $harga_onl,
+                                    'harga' => '',
                                     'diskon' => $diskon,
                                     'ongkir' => $ongkir,
                                     'asuransi' => $asuransi,
@@ -138,8 +137,8 @@ class OperasionalExport implements WithMultipleSheets
                                 'nama' => '',
                                 'qty' => '',
                                 'unit' => '',
+                                'harga' => '',
                                 'diskon' => '',
-                                'harga_onl' => '',
                                 'ongkir' => '',
                                 'asuransi' => '',
                                 'b_proteksi' => '',
@@ -158,7 +157,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'nama' => '',
                                 'qty' => '',
                                 'unit' => '',
-                                'harga_toko' => '',
+                                'harga' => '',
                                 'toko' => '',
                                 'total' => 'Rp ' . number_format($totalKeseluruhan, 0, ',', '.'),
                             ]);
@@ -172,8 +171,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'nama' => '',
                                 'qty' => '',
                                 'unit' => '',
-                                'harga_toko' => '',
-                                'harga_onl' => '',
+                                'harga' => '',
                                 'diskon' => '',
                                 'ongkir' => '',
                                 'asuransi' => '',
@@ -199,8 +197,8 @@ class OperasionalExport implements WithMultipleSheets
                                 'Nama Barang',
                                 'Jumlah',
                                 'Satuan',
+                                'Harga',
                                 'Diskon',
-                                'Harga Online',
                                 'Ongkir',
                                 'Asuransi',
                                 'Biaya Proteksi',
@@ -235,8 +233,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'Nama Barang',
                                 'Jumlah',
                                 'Satuan',
-                                'Harga Toko',
-                                'Harga Online',
+                                'Harga',
                                 'Diskon',
                                 'Ongkir',
                                 'Asuransi',
@@ -253,19 +250,19 @@ class OperasionalExport implements WithMultipleSheets
                     {
                         if ($this->metode_pembelian == 'online') {
                             // Header
-                            $sheet->mergeCells("A1:O1");
-                            $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+                            $sheet->mergeCells("A1:N1");
+                            $sheet->getStyle('A1:N1')->getFont()->setBold(true);
 
-                            $sheet->getStyle('A2:O2')->getFont()->setBold(true);
-                            $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
+                            $sheet->getStyle('A2:N2')->getFont()->setBold(true);
+                            $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Online ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
                             // Menyempurnakan styling baris total
                             $totalRowIndex = $sheet->getHighestRow();
-                            $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
-                            $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
+                            $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
+                            $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
                         } 
                         
                         if ($this->metode_pembelian == 'offline') {
@@ -287,19 +284,19 @@ class OperasionalExport implements WithMultipleSheets
 
                         if ($this->metode_pembelian == 'online_dan_offline') {
                             // Header
-                            $sheet->mergeCells("A1:P1");
-                            $sheet->getStyle('A1:P1')->getFont()->setBold(true);
+                            $sheet->mergeCells("A1:O1");
+                            $sheet->getStyle('A1:O1')->getFont()->setBold(true);
 
-                            $sheet->getStyle('A2:P2')->getFont()->setBold(true);
-                            $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
+                            $sheet->getStyle('A2:O2')->getFont()->setBold(true);
+                            $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Online dan Offline ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
                             // Menyempurnakan styling baris total
                             $totalRowIndex = $sheet->getHighestRow();
-                            $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
-                            $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
+                            $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
+                            $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
                         }
                     }
                 };
@@ -332,8 +329,6 @@ class OperasionalExport implements WithMultipleSheets
                     });
 
                     $data = $this->tagihan->map(function ($item) {
-                        $harga_toko = 'Rp ' . number_format($item->harga_toko ?? 0, 0, ',', '.');
-                        $harga_onl = 'Rp ' . number_format($item->harga_onl ?? 0, 0, ',', '.');
                         $diskon = 'Rp ' . number_format($item->diskon ?? 0, 0, ',', '.');
                         $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
                         $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
@@ -350,8 +345,8 @@ class OperasionalExport implements WithMultipleSheets
                                 'nama' => $item->nama,
                                 'qty' => $item->qty,
                                 'unit' => $item->unit,
+                                'harga' => '',
                                 'diskon' => $diskon,
-                                'harga_onl' => $harga_onl,
                                 'ongkir' => $ongkir,
                                 'asuransi' => $asuransi,
                                 'b_proteksi' => $b_proteksi,
@@ -370,7 +365,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'nama' => $item->nama,
                                 'qty' => $item->qty,
                                 'unit' => $item->unit,
-                                'harga_toko' => $harga_toko,
+                                'harga' => '',
                                 'toko' => $item->toko,
                                 'total' => $total
                             ];
@@ -384,8 +379,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'nama' => $item->nama,
                                 'qty' => $item->qty,
                                 'unit' => $item->unit,
-                                'harga_toko' => $harga_toko,
-                                'harga_onl' => $harga_onl,
+                                'harga' => '',
                                 'diskon' => $diskon,
                                 'ongkir' => $ongkir,
                                 'asuransi' => $asuransi,
@@ -408,8 +402,8 @@ class OperasionalExport implements WithMultipleSheets
                             'nama' => '',
                             'qty' => '',
                             'unit' => '',
+                            'harga' => '',
                             'diskon' => '',
-                            'harga_onl' => '',
                             'ongkir' => '',
                             'asuransi' => '',
                             'b_proteksi' => '',
@@ -428,7 +422,7 @@ class OperasionalExport implements WithMultipleSheets
                             'nama' => '',
                             'qty' => '',
                             'unit' => '',
-                            'harga_toko' => '',
+                            'harga' => '',
                             'toko' => '',
                             'total' => 'Rp ' . number_format($totalKeseluruhan, 0, ',', '.'),
                         ]);
@@ -442,8 +436,7 @@ class OperasionalExport implements WithMultipleSheets
                             'nama' => '',
                             'qty' => '',
                             'unit' => '',
-                            'harga_toko' => '',
-                            'harga_onl' => '',
+                            'harga' => '',
                             'diskon' => '',
                             'ongkir' => '',
                             'asuransi' => '',
@@ -469,8 +462,8 @@ class OperasionalExport implements WithMultipleSheets
                             'Nama Barang',
                             'Jumlah',
                             'Satuan',
+                            'Harga',
                             'Diskon',
-                            'Harga Online',
                             'Ongkir',
                             'Asuransi',
                             'Biaya Proteksi',
@@ -505,8 +498,7 @@ class OperasionalExport implements WithMultipleSheets
                             'Nama Barang',
                             'Jumlah',
                             'Satuan',
-                            'Harga Toko',
-                            'Harga Online',
+                            'Harga',
                             'Diskon',
                             'Ongkir',
                             'Asuransi',
@@ -523,19 +515,19 @@ class OperasionalExport implements WithMultipleSheets
                 {
                     if ($this->metode_pembelian == 'online') {
                         // Header
-                        $sheet->mergeCells("A1:O1");
-                        $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+                        $sheet->mergeCells("A1:N1");
+                        $sheet->getStyle('A1:N1')->getFont()->setBold(true);
 
-                        $sheet->getStyle('A2:O2')->getFont()->setBold(true);
-                        $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
+                        $sheet->getStyle('A2:N2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan . ' Online');
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
                     } 
                     
                     if ($this->metode_pembelian == 'offline') {
@@ -557,19 +549,19 @@ class OperasionalExport implements WithMultipleSheets
 
                     if ($this->metode_pembelian == 'online_dan_offline') {
                         // Header
-                        $sheet->mergeCells("A1:P1");
-                        $sheet->getStyle('A1:P1')->getFont()->setBold(true);
+                        $sheet->mergeCells("A1:O1");
+                        $sheet->getStyle('A1:O1')->getFont()->setBold(true);
 
-                        $sheet->getStyle('A2:P2')->getFont()->setBold(true);
-                        $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
+                        $sheet->getStyle('A2:O2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan . ' Online dan Offline');
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
                     }
                 }
             }

@@ -74,7 +74,8 @@
                                 </div>
                                 <div class="col-4">
                                     <label for="nama">Nama / Pemesan</label>
-                                    <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." required />
+                                    <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                             </div>
 
@@ -99,43 +100,54 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <span class="h5 fw-mediumbold">Informasi Harga</span>
-                            </div>
+                            <div id="barang" class="d-none">
+                                <div class="form-group">
+                                    <span class="h5 fw-mediumbold">Informasi Barang</span>
+                                </div>
 
-                            <div id="offlineFields" class="d-none">
-                                <div class="form-group row">
-                                    <div class="col-4">
-                                        <label for="qty_offline">Jumlah</label>
-                                        <input type="text" class="form-control" name="qty" id="qty_offline" placeholder="Masukkan jumlah.." />
+                                <div id="barangFields" class="form-group row">
+                                    <!-- Template for Barang Fields -->
+                                    <div class="barang-item">
+                                        <div class="form-group row">
+                                            <div class="col-4">
+                                                <label for="nama_barang">Barang ke-1</label>
+                                                <input type="text" class="form-control" name="nama_barang[]" 
+                                                oninput="this.value = this.value.toUpperCase()" placeholder="Masukkan nama barang.." required />
+                                            </div>
+                                            <div class="col-2">
+                                                <label for="qty">Jumlah</label>
+                                                <input type="text" class="form-control" name="qty[]" id="qty" placeholder="Jumlah.." required />
+                                            </div>
+                                            <div class="col-2">
+                                                @if (count($satuan) > 0)
+                                                    <label for="satuan">Satuan</label>
+                                                    <select class="form-select form-control" name="unit[]" id="unit" required>
+                                                        <option value="">...</option>
+                                                        @foreach ($satuan as $s)
+                                                            <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                @else
+                                                    <label>Satuan</label>
+                                                    <select class="form-control" disabled>
+                                                        <option value="">Tidak ada data</option>
+                                                    </select>
+                                                @endif
+                                            </div>
+                                            <div class="col-4">
+                                                <label for="harga">Harga</label>
+                                                <input type="text" class="form-control" name="harga[]" id="harga" placeholder="Masukkan harga.." required />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-4">
-                                        <label for="unit_offline">Satuan</label>
-                                        <input type="text" class="form-control" name="unit" id="unit_offline" placeholder="Masukkan satuan.." />
-                                    </div>
-                                    <div class="col-4">
-                                        <label for="harga_toko">Harga Toko</label>
-                                        <input type="text" class="form-control" name="harga_toko" id="harga_toko" placeholder="Masukkan harga toko.." />
-                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="addBarang()">Tambah Barang</button>
                                 </div>
                             </div>
 
                             <div id="onlineFields" class="d-none">
-                                <div class="form-group row">
-                                    <div class="col-4">
-                                        <label for="qty_online">Jumlah</label>
-                                        <input type="text" class="form-control" name="qty_onl" id="qty_online" placeholder="Masukkan jumlah.." />
-                                    </div>
-                                    <div class="col-4">
-                                        <label for="unit_online">Satuan</label>
-                                        <input type="text" class="form-control" name="unit_onl" id="unit_online" placeholder="Masukkan satuan.." />
-                                    </div>
-                                    <div class="col-4">
-                                        <label for="harga_onl">Harga Online</label>
-                                        <input type="text" class="form-control" name="harga_onl" id="harga_onl" placeholder="Harga online.." />
-                                    </div>
-                                </div>
-
                                 <div class="form-group row">
                                     <div class="col-4">
                                         <label for="diskon">Diskon</label>
@@ -249,49 +261,25 @@
                                             Offline
                                         </label>
                                     </div>
-                                    <div>
+                                    <!-- <div>
                                         <span type="button" class="badge badge-black" style="margin-bottom: 8px;" onclick="resetFieldsEdit()">Reset</span>
-                                    </div>
+                                    </div> -->
                                 </div>
+                            </div>
+
+                            <div id="barangEdit">
+                                <!-- barang -->
                             </div>
 
                             <div class="form-group">
                                 <span class="h5 fw-mediumbold">Informasi Harga</span>
                             </div>
 
-                            <div id="offlineFieldsEdit" class="d-none">
-                                <div class="form-group row">
-                                    <div class="col-4">
-                                        <label for="qty_offline">Jumlah</label>
-                                        <input type="text" class="form-control" name="qty" id="edit-qty_offline" placeholder="Masukkan jumlah.." />
-                                    </div>
-                                    <div class="col-4">
-                                        <label for="unit_offline">Satuan</label>
-                                        <input type="text" class="form-control" name="unit" id="edit-unit_offline" placeholder="Masukkan satuan.." />
-                                    </div>
-                                    <div class="col-4">
-                                        <label for="harga_toko">Harga Toko</label>
-                                        <input type="text" class="form-control" name="harga_toko" id="edit-harga_toko" placeholder="Masukkan harga toko.." />
-                                    </div>
-                                </div>
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addBarangEdit()">Tambah Barang</button>
                             </div>
 
                             <div id="onlineFieldsEdit" class="d-none">
-                                <div class="form-group row">
-                                    <div class="col-4">
-                                        <label for="qty_online">Jumlah</label>
-                                        <input type="text" class="form-control" name="qty_onl" id="edit-qty_online" placeholder="Masukkan jumlah.." />
-                                    </div>
-                                    <div class="col-4">
-                                        <label for="unit_online">Satuan</label>
-                                        <input type="text" class="form-control" name="unit_onl" id="edit-unit_online" placeholder="Masukkan satuan.." />
-                                    </div>
-                                    <div class="col-4">
-                                        <label for="harga_onl">Harga Online</label>
-                                        <input type="text" class="form-control" name="harga_onl" id="edit-harga_onl" placeholder="Harga online.." />
-                                    </div>
-                                </div>
-
                                 <div class="form-group row">
                                     <div class="col-4">
                                         <label for="diskon">Diskon</label>
@@ -497,9 +485,10 @@
                                         <th class="text-xxs-bold">Tanggal</th>
                                         <th class="text-xxs-bold">Uraian</th>
                                         <!-- <th class="text-xxs-bold">Deskripsi</th> -->
-                                        <th class="text-xxs-bold">Nama</th>
-                                        <th class="text-xxs-bold">Jumlah</th>
-                                        <th class="text-xxs-bold">Satuan</th>
+                                        <th class="text-xxs-bold">Pemesan</th>
+                                        <th class="text-xxs-bold">Barang</th>
+                                        <!-- <th class="text-xxs-bold">Jumlah</th>
+                                        <th class="text-xxs-bold">Satuan</th> -->
                                         <!-- <th class="text-xxs-bold">Harga Toko</th>
                                         <th class="text-xxs-bold">Diskon</th>
                                         <th class="text-xxs-bold">Harga Online</th>
@@ -520,10 +509,6 @@
                                         data-uraian="{{ $o->uraian }}"
                                         data-deskripsi="{{ $o->deskripsi }}"
                                         data-nama="{{ $o->nama }}"
-                                        data-qty="{{ $o->qty }}"
-                                        data-unit="{{ $o->unit }}"
-                                        data-harga_toko="{{ 'Rp ' . number_format($o->harga_toko ?? 0, 0, ',', '.') }}"
-                                        data-harga_onl="{{ 'Rp ' . number_format($o->harga_onl ?? 0, 0, ',', '.') }}"
                                         data-diskon="{{ 'Rp ' . number_format($o->diskon ?? 0, 0, ',', '.') }}"
                                         data-ongkir="{{ 'Rp ' . number_format($o->ongkir ?? 0, 0, ',', '.') }}"
                                         data-asuransi="{{ 'Rp ' . number_format($o->asuransi ?? 0, 0, ',', '.') }}"
@@ -531,15 +516,28 @@
                                         data-p_member="{{ 'Rp ' . number_format($o->p_member ?? 0, 0, ',', '.') }}"
                                         data-b_aplikasi="{{ 'Rp ' . number_format($o->b_aplikasi ?? 0, 0, ',', '.') }}"
                                         data-total="{{ 'Rp ' . number_format($o->total ?? 0, 0, ',', '.') }}"
-                                        data-toko="{{ $o->toko }}">
+                                        data-toko="{{ $o->toko }}"
+                                        data-metode_pembelian="{{ $o->metode_pembelian }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $o->tanggal)->format('d-M-Y') ?? '-' }}</td>
                                         <td>{{ $o->uraian ?? '-' }}</td>
                                         <!-- <td>{{ $o->deskripsi ?? '-' }}</td> -->
                                         <td>{{ $o->nama ?? '-' }}</td>
-                                        <td>{{ $o->qty ?? '-' }}</td>
-                                        <td>{{ $o->unit ?? '-' }}</td>
+                                        @php
+                                            $databarang = $barang->where('id_relasi', $o->id_operasional);
+                                            if ($databarang->count() > 0) {
+                                                // Menggabungkan nama barang dengan koma hanya jika ada lebih dari satu barang
+                                                $listBarang = $databarang->pluck('nama')->count() > 1 
+                                                    ? $databarang->pluck('nama')->join(', ') 
+                                                    : $databarang->pluck('nama')->first();
+                                            } else {
+                                                $listBarang = '-';
+                                            }
+                                        @endphp
+                                        <td>{{ $listBarang }}</td>
+                                        <!-- <td>{{ $o->qty ?? '-' }}</td>
+                                        <td>{{ $o->unit ?? '-' }}</td> -->
                                         <!-- <td>{{ 'Rp ' . number_format($o->harga_toko ?? 0, 0, ',', '.') }}</td>
                                         <td>{{ 'Rp ' . number_format($o->diskon ?? 0, 0, ',', '.') }}</td>
                                         <td>{{ 'Rp ' . number_format($o->harga_onl ?? 0, 0, ',', '.') }}</td>
@@ -550,13 +548,7 @@
                                         <td>{{ 'Rp ' . number_format($o->b_aplikasi ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($o->total ?? 0, 0, ',', '.') }}</td>
                                         <td>{{ $o->toko ?? '-' }}</td>
-                                        <td>
-                                            @if ($o->harga_onl)
-                                                Online
-                                            @else
-                                                Offline
-                                            @endif
-                                        </td>
+                                        <td>{{ $o->metode_pembelian ?? '-' }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -618,22 +610,213 @@
         }
     }
 
+    let itemCount = 2;
+
+    function addBarang() {
+        var container = document.getElementById('barangFields');
+        var newItem = document.createElement('div');
+        newItem.className = 'barang-item';
+        newItem.innerHTML = `
+            <div class="form-group row">
+                <div class="col-4">
+                    <label for="nama_barang">Barang ke-${itemCount}</label>
+                    <input type="text" class="form-control" name="nama_barang[]" id="nama_barang" placeholder="Masukkan nama barang.." required />
+                </div>
+                <div class="col-2">
+                    <label for="qty">Jumlah</label>
+                    <input type="text" class="form-control" name="qty[]" id="qty" placeholder="Jumlah.." required />
+                </div>
+                <div class="col-2">
+                    @if (count($satuan) > 0)
+                        <label for="satuan">Satuan</label>
+                        <select class="form-select form-control" name="unit[]" id="unit" required>
+                            <option value="">...</option>
+                            @foreach ($satuan as $s)
+                                <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <label>Satuan</label>
+                        <select class="form-control" disabled>
+                            <option value="">Tidak ada data</option>
+                        </select>
+                    @endif
+                </div>
+                <div class="col-4">
+                    <label for="harga">Harga</label>
+                    <input type="text" class="form-control" name="harga[]" id="harga" placeholder="Masukkan harga.." required />
+                </div>
+            </div>
+        `;
+        container.appendChild(newItem);
+        itemCount++;
+        attachEventListeners();
+    }
+
+    let itemCountEdit = 1;
+
+    function addBarangEdit() {
+        var container = document.getElementById('barangFieldsEdit');
+        var newItem = document.createElement('div');
+        newItem.className = 'barangEdit-item';
+
+        // Temukan indeks terakhir dari barang yang ada
+        var lastItemIndex = container.querySelectorAll('.barangEdit-item').length;
+        console.log(lastItemIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaa')
+        var newIndex = lastItemIndex + 1;
+
+        newItem.innerHTML = `
+            <div class="form-group row">
+                <div class="col-4">
+                    <label for="nama_barang">Barang ke-${newIndex}</label>
+                    <input type="text" class="form-control" name="nama_barang[]" id="nama_barang" placeholder="Masukkan nama barang.." required />
+                </div>
+                <div class="col-2">
+                    <label for="qty">Jumlah</label>
+                    <input type="text" class="form-control" name="qty[]" id="qty" placeholder="Jumlah.." required />
+                </div>
+                <div class="col-2">
+                    @if (count($satuan) > 0)
+                        <label for="satuan">Satuan</label>
+                        <select class="form-select form-control" name="unit[]" id="unit" required>
+                            <option value="">...</option>
+                            @foreach ($satuan as $s)
+                                <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <label>Satuan</label>
+                        <select class="form-control" disabled>
+                            <option value="">Tidak ada data</option>
+                        </select>
+                    @endif
+                </div>
+                <div class="col-4">
+                    <label for="harga">Harga</label>
+                    <input type="text" class="form-control" name="harga[]" id="harga" placeholder="Masukkan harga.." required />
+                </div>
+            </div>
+        `;
+        container.appendChild(newItem);
+        itemCountEdit = newIndex;
+        attachEventListeners();
+    }
+
+    function parseFraction(fraction) {
+        let parts = fraction.split('/');
+        if (parts.length === 2) {
+            return parseFloat(parts[0]) / parseFloat(parts[1]);
+        } else {
+            return parseFloat(fraction);
+        }
+    }
+
+    function calculateSubtotal() {
+        let hargaElements = document.querySelectorAll("input[name='harga[]']");
+        let qtyElements = document.querySelectorAll("input[name='qty[]']");
+        let subtotal = 0;
+
+        hargaElements.forEach((hargaElem, index) => {
+            let hargaValue = parseInt(hargaElem.value.replace(/[^0-9]/g, ""), 10) || 0;
+            let qtyValue = parseFraction(qtyElements[index].value.replace(',', '.')) || 0;
+            subtotal += hargaValue * qtyValue;
+        });
+
+        return subtotal;
+    }
+
+    function updateTotal() {
+        let hargaElements = document.querySelectorAll("input[name='harga[]']");
+        let qtyElements = document.querySelectorAll("input[name='qty[]']");
+        let diskonElements = document.querySelectorAll("#diskon, #edit-diskon");
+        let ongkirElements = document.querySelectorAll("#ongkir, #edit-ongkir");
+        let asuransiElements = document.querySelectorAll("#asuransi, #edit-asuransi");
+        let proteksiElements = document.querySelectorAll("#b_proteksi, #edit-b_proteksi");
+        let memberElements = document.querySelectorAll("#p_member, #edit-p_member");
+        let aplikasiElements = document.querySelectorAll("#b_aplikasi, #edit-b_aplikasi");
+        let totalElements = document.querySelectorAll("#total, #edit-total");
+        let totalElement = document.getElementById("total");
+        
+        // Calculate subtotal
+        let subtotal = calculateSubtotal();
+
+        // Initialize total value
+        let totalValue = subtotal;
+
+        let ongkirlValue = parseInt(ongkirElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+        let asuransiValue = parseInt(asuransiElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+        let proteksiValue = parseInt(proteksiElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+        let memberValue = parseInt(memberElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+        let aplikasiValue = parseInt(aplikasiElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+        let diskonValue = parseInt(diskonElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+
+        totalValue = subtotal + (ongkirlValue + asuransiValue + proteksiValue + aplikasiValue) - (diskonValue + memberValue);
+        totalElements[0].value = formatCurrency(totalValue);
+        // totalElement.value = formatCurrency(totalValue);
+
+    }
+
+    function attachEventListeners() {
+        let hargaElements = document.querySelectorAll("input[name='harga[]']");
+        let qtyElements = document.querySelectorAll("input[name='qty[]']");
+
+        hargaElements.forEach(harga => {
+            harga.addEventListener("input", function() {
+                this.value = formatCurrency(this.value);
+                updateTotal();
+            });
+        });
+
+        qtyElements.forEach(function(qty) {
+            qty.addEventListener("input", updateTotal);
+        });
+    }
+
     function toggleFields() {
         const isOnlineChecked = document.getElementById('is_online').checked;
-        const offlineFields = document.getElementById('offlineFields');
+        const barangDiv = document.getElementById('barang');
         const onlineFields = document.getElementById('onlineFields');
+        const inputs = onlineFields.querySelectorAll('input');
 
         if (isOnlineChecked) {
             setFieldsRequired(onlineFields, true);
-            setFieldsRequired(offlineFields, false);
-            offlineFields.classList.add('d-none');
+            barangDiv.classList.remove('d-none');
             onlineFields.classList.remove('d-none');
 
         } else {
+            // Clear online fields
+            inputs.forEach(input => input.value = '');
+            
+            // Update total based on non-online fields
+            updateTotal();
+
             setFieldsRequired(onlineFields, false);
-            setFieldsRequired(offlineFields, true);
-            offlineFields.classList.remove('d-none');
+            barangDiv.classList.remove('d-none');
             onlineFields.classList.add('d-none');
+        }
+    }
+
+    function toggleFieldsEdit() {
+        const isOnlineEditChecked = document.getElementById('edit-is_online').checked;
+        const barangDivEdit = document.getElementById('barangEdit');
+        const onlineFieldsEdit = document.getElementById('onlineFieldsEdit');
+        const inputs = onlineFields.querySelectorAll('input');
+
+        if (isOnlineEditChecked) {
+            setFieldsRequired(onlineFieldsEdit, true);
+            barangDivEdit.classList.remove('d-none');
+            onlineFieldsEdit.classList.remove('d-none');
+
+        } else {
+            // Clear online fields
+            inputs.forEach(input => input.value = '');
+            
+            // Update total based on non-online fields
+            updateTotal();
+
+            setFieldsRequired(onlineFieldsEdit, false);
+            barangDivEdit.classList.remove('d-none');
+            onlineFieldsEdit.classList.add('d-none');
         }
     }
 
@@ -648,42 +831,39 @@
         });
     }
 
+    // Reset radio buttons
     function resetFields() {
         document.getElementById('is_online').checked = false;
         document.getElementById('is_offline').checked = false;
-        setFieldsRequired(document.getElementById('offlineFields'), false);
+        document.getElementById('barang').classList.add('d-none');
         setFieldsRequired(document.getElementById('onlineFields'), false);
-        document.getElementById('offlineFields').classList.add('d-none');
         document.getElementById('onlineFields').classList.add('d-none');
-    }
-
-    // Modal Edit
-    function toggleFieldsEdit() {
-        const isOnlineCheckedEdit = document.getElementById('edit-is_online').checked;
-        const offlineFieldsEdit = document.getElementById('offlineFieldsEdit');
-        const onlineFieldsEdit = document.getElementById('onlineFieldsEdit');
-
-        if (isOnlineCheckedEdit) {
-            setFieldsRequired(onlineFieldsEdit, true);
-            setFieldsRequired(offlineFieldsEdit, false);
-            offlineFieldsEdit.classList.add('d-none');
-            onlineFieldsEdit.classList.remove('d-none');
-
-        } else {
-            setFieldsRequired(onlineFieldsEdit, false);
-            setFieldsRequired(offlineFieldsEdit, true);
-            offlineFieldsEdit.classList.remove('d-none');
-            onlineFieldsEdit.classList.add('d-none');
+        
+        var barangFieldsContainer = document.getElementById('barangFields');
+        while (barangFieldsContainer.firstChild) {
+            barangFieldsContainer.removeChild(barangFieldsContainer.firstChild);
         }
+        
+        itemCount = 1;
+        addBarang();
+        document.getElementById('total').value = '';
     }
 
     function resetFieldsEdit() {
         document.getElementById('edit-is_online').checked = false;
         document.getElementById('edit-is_offline').checked = false;
-        setFieldsRequired(document.getElementById('offlineFieldsEdit'), false);
+        document.getElementById('barangEdit').classList.add('d-none');
         setFieldsRequired(document.getElementById('onlineFieldsEdit'), false);
-        document.getElementById('offlineFieldsEdit').classList.add('d-none');
         document.getElementById('onlineFieldsEdit').classList.add('d-none');
+
+        var barangFieldsContainerEdit = document.getElementById('barangFieldsEdit');
+        while (barangFieldsContainerEdit.firstChild) {
+            barangFieldsContainerEdit.removeChild(barangFieldsContainerEdit.firstChild);
+        }
+        
+        itemCount = 1;
+        addBarangEdit();
+        document.getElementById('edit-total').value = '';
     }
 
     function toggleCustomFields() {
@@ -744,19 +924,8 @@
 
         calculateTotal();
 
-        function parseFraction(fraction) {
-            let parts = fraction.split('/');
-            if (parts.length === 2) {
-                return parseFloat(parts[0]) / parseFloat(parts[1]);
-            } else {
-                return parseFloat(fraction);
-            }
-        }
-
-        let jmlOnlineElements = document.querySelectorAll("#qty_online, #edit-qty_online");
-        let jmlOfflineElements = document.querySelectorAll("#qty_offline, #edit-qty_offline");
-        let hargaTokoElements = document.querySelectorAll("#harga_toko, #edit-harga_toko");
-        let hargaOnlElements = document.querySelectorAll("#harga_onl, #edit-harga_onl");
+        let hargaElements = document.querySelectorAll("input[name='harga[]']");
+        let qtyElements = document.querySelectorAll("input[name='qty[]']");
         let diskonElements = document.querySelectorAll("#diskon, #edit-diskon");
         let ongkirElements = document.querySelectorAll("#ongkir, #edit-ongkir");
         let asuransiElements = document.querySelectorAll("#asuransi, #edit-asuransi");
@@ -764,103 +933,61 @@
         let memberElements = document.querySelectorAll("#p_member, #edit-p_member");
         let aplikasiElements = document.querySelectorAll("#b_aplikasi, #edit-b_aplikasi");
         let totalElements = document.querySelectorAll("#total, #edit-total");
+        let isOnlineChecked = document.getElementById('is_online')?.checked || false;
+        let editIsOnlineChecked = document.getElementById('edit-is_online')?.checked || false;
 
-        // Calculate price in method online
-        if (document.getElementById('is_online').checked == false || document.getElementById('edit-is_online').checked == false) {
-            function updateTotal(index) {
-                let hargaOnl = hargaOnlElements[index];
-                let jmlOnl = jmlOnlineElements[index];
-                let diskon = diskonElements[index];
-                let ongkir = ongkirElements[index];
-                let asuransi = asuransiElements[index];
-                let proteksi = proteksiElements[index];
-                let member = memberElements[index];
-                let aplikasi = aplikasiElements[index];
-                let total = totalElements[index];
-                
-                let jmlOnlValue = parseFraction(jmlOnl.value.replace(',', '.'));
-                let hargaOnlValue = parseInt(hargaOnl.value.replace(/[^0-9]/g, ""), 10) || 0;
-                let ongkirlValue = parseInt(ongkir.value.replace(/[^0-9]/g, ""), 10) || 0;
-                let asuransiValue = parseInt(asuransi.value.replace(/[^0-9]/g, ""), 10) || 0;
-                let proteksiValue = parseInt(proteksi.value.replace(/[^0-9]/g, ""), 10) || 0;
-                let memberValue = parseInt(member.value.replace(/[^0-9]/g, ""), 10) || 0;
-                let aplikasiValue = parseInt(aplikasi.value.replace(/[^0-9]/g, ""), 10) || 0;
-                let diskonValue = parseInt(diskon.value.replace(/[^0-9]/g, ""), 10) || 0;
+        let subtotal = calculateSubtotal();
+        let totalValue = subtotal;
 
-                let totalValue = ((hargaOnlValue * jmlOnlValue) - (diskonValue + memberValue)) + (ongkirlValue + asuransiValue + proteksiValue + aplikasiValue);
-                total.value = formatCurrency(totalValue);
-            }
-
-            function formatInput(element) {
-                let valueFormatted = element.value.replace(/[^0-9]/g, "") || 0;
-                element.value = formatCurrency(valueFormatted);
-            }
-
-            [jmlOnlineElements, hargaOnlElements, diskonElements, ongkirElements, asuransiElements, proteksiElements
-                , memberElements, aplikasiElements
-            ].forEach(function(elements, elementsIndex) {
-                elements.forEach(function(element, index) {
+        if (!isOnlineChecked || !editIsOnlineChecked) {
+            [diskonElements, ongkirElements, asuransiElements, proteksiElements, memberElements, aplikasiElements].forEach((elements) => {
+                elements.forEach((element, index) => {
                     element.addEventListener("input", function() {
-                        if (elementsIndex !== 0) formatInput(element);
-                        updateTotal(index);
+                        this.value = formatCurrency(this.value.replace(/[^0-9]/g, ""));
+                        updateTotal();
                     });
                 });
             });
         }
 
-        // Calculate price in method oflline
-        if (document.getElementById('is_offline').checked == false || document.getElementById('edit-is_offline').checked == false) {
-            jmlOfflineElements.forEach(function(jml, index) {
-                jml.addEventListener("input", function() {
-                    let harga = hargaTokoElements[index];
-                    let total = totalElements[index];
-                    let jmlValue = parseFraction(jml.value.replace(',', '.'));
+        qtyElements.forEach((jml, index) => {
+            jml.addEventListener("input", function() {
+                let harga = hargaElements[index];
+                let total = totalElements[0];
+                let jmlValue = parseFraction(jml.value.replace(',', '.'));
 
-                    if (harga) {
-                        let hargaValue = parseInt(harga.value.replace(/[^0-9]/g, ""), 10) || 0;
-                        let totalValue = hargaValue * jmlValue;
-                        total.value = formatCurrency(totalValue);
-                    }
-                });
+                if (harga) {
+                    let hargaValue = parseInt(harga.value.replace(/[^0-9]/g, ""), 10) || 0;
+                    let totalValue = hargaValue * jmlValue;
+                    total.value = formatCurrency(totalValue);
+                }
             });
+        });
 
-            hargaTokoElements.forEach(function(harga, index) {
-                harga.addEventListener("input", function() {
-                    let jml = jmlOfflineElements[index];
-                    let total = totalElements[index];
+        hargaElements.forEach((harga, index) => {
+            harga.addEventListener("input", function() {
+                let jml = qtyElements[index];
+                let total = totalElements[0];
+                let hargaValueFormatted = this.value.replace(/[^0-9]/g, "") || 0;
+                this.value = formatCurrency(hargaValueFormatted);
+                let jmlValue = parseFraction(jml.value.replace(',', '.'));
 
-                    // Format input harga dengan mata uang
-                    let hargaValueFormatted = this.value.replace(/[^0-9]/g, "") || 0;
-                    this.value = formatCurrency(hargaValueFormatted);
-
-                    let jmlValue = parseFraction(jml.value.replace(',', '.'));
-                    if (jmlValue) {
-                        let hargaValue = parseInt(hargaValueFormatted, 10) || 0;
-                        let totalValue = hargaValue * jmlValue;
-                        total.value = formatCurrency(totalValue);
-                    }
-                });
+                if (jmlValue) {
+                    let hargaValue = parseInt(hargaValueFormatted, 10) || 0;
+                    let totalValue = hargaValue * jmlValue;
+                    total.value = formatCurrency(totalValue);
+                }
             });
-        }
+        });
 
-        // Format currency
-        function addCurrencyFormatter(elements) {
-            elements.forEach(function(element) {
+        // Add currency formatter to all relevant elements
+        [hargaElements, diskonElements, ongkirElements, asuransiElements, proteksiElements, memberElements, aplikasiElements, totalElements].forEach(elements => {
+            elements.forEach(element => {
                 element.addEventListener("input", function() {
-                    this.value = formatCurrency(this.value);
+                    this.value = formatCurrency(this.value.replace(/[^0-9]/g, ""));
                 });
             });
-        }
-
-        addCurrencyFormatter(hargaTokoElements);
-        addCurrencyFormatter(hargaOnlElements);
-        addCurrencyFormatter(diskonElements);
-        addCurrencyFormatter(ongkirElements);
-        addCurrencyFormatter(asuransiElements);
-        addCurrencyFormatter(proteksiElements);
-        addCurrencyFormatter(memberElements);
-        addCurrencyFormatter(aplikasiElements);
-        addCurrencyFormatter(totalElements);
+        });
 
         // Datepicker
         var reportrange = document.getElementById('reportrange');
@@ -1024,13 +1151,10 @@
                     $('#edit-total').val(row.data('total'));
                     $('#edit-toko').val(row.data('toko'));
 
-                    if (row.data('harga_onl') && row.data('harga_onl') != 'Rp 0') {
+                    if (row.data('metode_pembelian') == 'online') {
                         $('#edit-is_online').prop('checked', true);
                         toggleFieldsEdit();
 
-                        $('#edit-qty_online').val(row.data('qty'));
-                        $('#edit-unit_online').val(row.data('unit'));
-                        $('#edit-harga_onl').val(row.data('harga_onl'));
                         $('#edit-diskon').val(row.data('diskon'));
                         $('#edit-ongkir').val(row.data('ongkir'));
                         $('#edit-asuransi').val(row.data('asuransi'));
@@ -1039,15 +1163,61 @@
                         $('#edit-b_aplikasi').val(row.data('b_aplikasi'));
                     }
 
-                    if (row.data('harga_toko') && row.data('harga_toko') != 'Rp 0') {
+                    if (row.data('metode_pembelian') == 'offline') {
                         $('#edit-is_offline').prop('checked', true);
                         toggleFieldsEdit();
-
-                        $('#edit-qty_offline').val(row.data('qty'));
-                        $('#edit-unit_offline').val(row.data('unit'));
-                        $('#edit-harga_toko').val(row.data('harga_toko'));
                     }
                     
+                    // Barang
+                    var barangEdit = document.getElementById('barangEdit');
+                    barangEdit.innerHTML += `
+                        <div class="form-group">
+                            <span class="h5 fw-mediumbold">Informasi Barang</span>
+                        </div>
+                        <div id="barangFieldsEdit" class="form-group row">
+                        </div>`;
+
+                    // Generate fields for barang data
+                    var barangData = @json($barang->toArray());
+                    var satuanData = @json($satuan->toArray());
+                    var barang = barangData.filter(item => item.id_relasi == selectedId);
+                    barang.forEach(function(item, index) {
+                        barangEdit.innerHTML += `
+                            <div class="barangEdit-item">
+                                <div class="form-group row">
+                                    <div class="col-4">
+                                        <label for="nama_barang">Barang ke-${index + 1}</label>
+                                        <input type="text" class="form-control" name="nama_barang[]"
+                                        value="${item.nama}" oninput="this.value = this.value.toUpperCase()" placeholder="Masukkan nama barang.." required />
+                                    </div>
+                                    <div class="col-2">
+                                        <label for="qty">Jumlah</label>
+                                        <input type="text" class="form-control" name="qty[]" value="${item.jumlah}" id="qty" placeholder="Jumlah.." required />
+                                    </div>
+                                    <div class="col-2">
+                                        @if (count($satuan) > 0)
+                                            <label for="satuan">Satuan</label>
+                                            <select class="form-select form-control" name="unit[]" id="unit" required>
+                                                <option value="">...</option>
+                                                @foreach ($satuan as $s)
+                                                    <option value="{{ $s->id_satuan }}" ${item.id_satuan == '{{ $s->id_satuan }}' ? 'selected' : ''}>{{ $s->nama }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <label>Satuan</label>
+                                            <select class="form-control" disabled>
+                                                <option value="">Tidak ada data</option>
+                                            </select>
+                                        @endif
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="harga">Harga</label>
+                                        <input type="text" class="form-control" name="harga[]" value="${item.harga}" id="harga" placeholder="Masukkan harga.." required />
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
                 }
             });
         }

@@ -15,13 +15,10 @@ return new class extends Migration
             $table->id('id_operasional');
             $table->date('tanggal');
             $table->string('uraian');
-            $table->string('qty')->nullable();
-            $table->string('unit')->nullable();
             $table->string('deskripsi');
             $table->string('nama');
-            $table->string('harga_toko')->nullable();
+            $table->string('metode_pembelian')->nullable();
             $table->string('diskon')->nullable();
-            $table->string('harga_onl')->nullable();
             $table->string('ongkir')->nullable();
             $table->string('asuransi')->nullable();
             $table->string('b_proteksi')->nullable();
