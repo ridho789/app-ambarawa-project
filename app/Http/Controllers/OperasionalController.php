@@ -118,16 +118,16 @@ class OperasionalController extends Controller
                 $operasionalId = $createdOperasional->id_operasional;
 
                 // Barang
-                foreach ($request->nama_barang as $index) {
-                    $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga[$index]));
+                foreach ($request->nama_barang as $index => $namaBarang) {
+                    $numericHarga = preg_replace("/[^0-9]/", "", $request->harga[$index]);
                     $dataBarang = [
-                        'nama' => $request->nama_barang[$index],
+                        'nama' => $namaBarang,
                         'jumlah' => $request->qty[$index],
                         'harga' => $numericHarga,
                         'id_satuan' => $request->unit[$index],
                         'id_relasi' => $operasionalId
                     ];
-
+                
                     Barang::create($dataBarang);
                 }
                 
@@ -291,17 +291,10 @@ class OperasionalController extends Controller
             $rangeDate = "{$start_date->format('d M Y')} - {$end_date->format('d M Y')}";
         }
     
-        // $hargaColumn = $metode_pembelian == 'online' ? 'harga_onl' : null;
-        // $query = Operasional::when($hargaColumn, function ($query, $hargaColumn) {
-        //     return $query->where($hargaColumn, '!=', null);
-        // }, function ($query) {
-        //     return $query->whereNull('harga_onl');
-        // });
-
         $query = Operasional::when($metode_pembelian == 'online_dan_offline', function ($query) {
             return $query->where(function ($query) {
                 $query->where('metode_pembelian', 'online')
-                      ->where('metode_pembelian', 'offline');
+                      ->orWhere('metode_pembelian', 'offline');
             });
         }, function ($query) use ($metode_pembelian) {
             if ($metode_pembelian == 'online') {
@@ -312,7 +305,6 @@ class OperasionalController extends Controller
         
             return $query;
         });
-        
         
         if ($mode != 'all_data') {
             $query->where('tanggal', '>=', $start_date)

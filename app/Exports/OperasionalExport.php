@@ -63,7 +63,7 @@ class OperasionalExport implements WithMultipleSheets
                             return $item->total ?? 0;
                         });
 
-                        $data = $this->tagihan->map(function ($item) {
+                        $data = $this->tagihan->flatMap(function ($item) {
                             $diskon = 'Rp ' . number_format($item->diskon ?? 0, 0, ',', '.');
                             $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
                             $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
@@ -72,61 +72,71 @@ class OperasionalExport implements WithMultipleSheets
                             $b_aplikasi = 'Rp ' . number_format($item->b_aplikasi ?? 0, 0, ',', '.');
                             $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
                             $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
-
-                            if ($this->metode_pembelian == 'online') {
-                                return [
-                                    'tanggal' => $item->tanggal,
-                                    'uraian' => $item->uraian,
-                                    'deskripsi' => $item->deskripsi,
-                                    'nama' => $item->nama,
-                                    'qty' => $item->qty,
-                                    'unit' => $item->unit,
-                                    'harga' => '',
-                                    'diskon' => $diskon,
-                                    'ongkir' => $ongkir,
-                                    'asuransi' => $asuransi,
-                                    'b_proteksi' => $b_proteksi,
-                                    'p_member' => $p_member,
-                                    'b_aplikasi' => $b_aplikasi,
-                                    'toko' => $item->toko,
-                                    'total' => $total
-                                ];
-                            } 
                             
-                            if ($this->metode_pembelian == 'offline') {
-                                return [
-                                    'tanggal' => $item->tanggal,
-                                    'uraian' => $item->uraian,
-                                    'deskripsi' => $item->deskripsi,
-                                    'nama' => $item->nama,
-                                    'qty' => $item->qty,
-                                    'unit' => $item->unit,
-                                    'harga' => '',
-                                    'toko' => $item->toko,
-                                    'total' => $total
-                                ];
+                            // Barang
+                            $barang = Barang::where('id_relasi', $item->id_operasional)->get();
+                            if ($barang->isNotEmpty()) {
+                                return $barang->map(function ($data) use ($item, $diskon, $ongkir, $asuransi, $p_member, $b_proteksi, $b_aplikasi, $total) {
+                                    $harga = 'Rp ' . number_format($data->harga ?? 0, 0, ',', '.');
+                                    $satuan = Satuan::find($data->id_satuan);
+                                    if ($this->metode_pembelian == 'online') {
+                                        return [
+                                            'tanggal' => $item->tanggal,
+                                            'uraian' => $item->uraian,
+                                            'deskripsi' => $item->deskripsi,
+                                            'nama' => $item->nama,
+                                            'barang' => $data->nama,
+                                            'qty' => $data->jumlah,
+                                            'unit' => $satuan->nama,
+                                            'harga' => $harga,
+                                            'diskon' => $diskon,
+                                            'ongkir' => $ongkir,
+                                            'asuransi' => $asuransi,
+                                            'b_proteksi' => $b_proteksi,
+                                            'p_member' => $p_member,
+                                            'b_aplikasi' => $b_aplikasi,
+                                            'toko' => $item->toko,
+                                            'total' => $total
+                                        ];
+                                    } 
+                                    
+                                    if ($this->metode_pembelian == 'offline') {
+                                        return [
+                                            'tanggal' => $item->tanggal,
+                                            'uraian' => $item->uraian,
+                                            'deskripsi' => $item->deskripsi,
+                                            'nama' => $item->nama,
+                                            'barang' => $data->nama,
+                                            'qty' => $data->jumlah,
+                                            'unit' => $satuan->nama,
+                                            'harga' => $harga,
+                                            'toko' => $item->toko,
+                                            'total' => $total
+                                        ];
+                                    }
+        
+                                    if ($this->metode_pembelian == 'online_dan_offline') {
+                                        return [
+                                            'tanggal' => $item->tanggal,
+                                            'uraian' => $item->uraian,
+                                            'deskripsi' => $item->deskripsi,
+                                            'nama' => $item->nama,
+                                            'barang' => $data->nama,
+                                            'qty' => $data->jumlah,
+                                            'unit' => $satuan->nama,
+                                            'harga' => $harga,
+                                            'diskon' => $diskon,
+                                            'ongkir' => $ongkir,
+                                            'asuransi' => $asuransi,
+                                            'b_proteksi' => $b_proteksi,
+                                            'p_member' => $p_member,
+                                            'b_aplikasi' => $b_aplikasi,
+                                            'toko' => $item->toko,
+                                            'total' => $total
+                                        ];
+                                    }
+                                });
                             }
-
-                            if ($this->metode_pembelian == 'online_dan_offline') {
-                                return [
-                                    'tanggal' => $item->tanggal,
-                                    'uraian' => $item->uraian,
-                                    'deskripsi' => $item->deskripsi,
-                                    'nama' => $item->nama,
-                                    'qty' => $item->qty,
-                                    'unit' => $item->unit,
-                                    'harga' => '',
-                                    'diskon' => $diskon,
-                                    'ongkir' => $ongkir,
-                                    'asuransi' => $asuransi,
-                                    'b_proteksi' => $b_proteksi,
-                                    'p_member' => $p_member,
-                                    'b_aplikasi' => $b_aplikasi,
-                                    'toko' => $item->toko,
-                                    'total' => $total
-                                ];
-
-                            } 
                         });
 
                         if ($this->metode_pembelian == 'online') {
@@ -135,6 +145,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'uraian' => '',
                                 'deskripsi' => '',
                                 'nama' => '',
+                                'barang' => '',
                                 'qty' => '',
                                 'unit' => '',
                                 'harga' => '',
@@ -155,6 +166,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'uraian' => '',
                                 'deskripsi' => '',
                                 'nama' => '',
+                                'barang' => '',
                                 'qty' => '',
                                 'unit' => '',
                                 'harga' => '',
@@ -169,6 +181,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'uraian' => '',
                                 'deskripsi' => '',
                                 'nama' => '',
+                                'barang' => '',
                                 'qty' => '',
                                 'unit' => '',
                                 'harga' => '',
@@ -194,6 +207,7 @@ class OperasionalExport implements WithMultipleSheets
                                 ['Tanggal',
                                 'Uraian',
                                 'Deskripsi',
+                                'Pemesan',
                                 'Nama Barang',
                                 'Jumlah',
                                 'Satuan',
@@ -215,6 +229,7 @@ class OperasionalExport implements WithMultipleSheets
                                 ['Tanggal',
                                 'Uraian',
                                 'Deskripsi',
+                                'Pemesan',
                                 'Nama Barang',
                                 'Jumlah',
                                 'Satuan',
@@ -230,6 +245,7 @@ class OperasionalExport implements WithMultipleSheets
                                 ['Tanggal',
                                 'Uraian',
                                 'Deskripsi',
+                                'Pemesan',
                                 'Nama Barang',
                                 'Jumlah',
                                 'Satuan',
@@ -250,55 +266,126 @@ class OperasionalExport implements WithMultipleSheets
                     {
                         if ($this->metode_pembelian == 'online') {
                             // Header
-                            $sheet->mergeCells("A1:N1");
-                            $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+                            $sheet->mergeCells("A1:P1");
+                            $sheet->getStyle('A1:P1')->getFont()->setBold(true);
 
-                            $sheet->getStyle('A2:N2')->getFont()->setBold(true);
-                            $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
+                            $sheet->getStyle('A2:P2')->getFont()->setBold(true);
+                            $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Online ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
                             // Menyempurnakan styling baris total
                             $totalRowIndex = $sheet->getHighestRow();
-                            $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
-                            $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
+                            $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
+                            $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
                         } 
                         
                         if ($this->metode_pembelian == 'offline') {
                             // Header
-                            $sheet->mergeCells("A1:I1");
-                            $sheet->getStyle('A1:I1')->getFont()->setBold(true);
+                            $sheet->mergeCells("A1:J1");
+                            $sheet->getStyle('A1:J1')->getFont()->setBold(true);
 
-                            $sheet->getStyle('A2:I2')->getFont()->setBold(true);
-                            $sheet->getStyle('A:I')->getAlignment()->setHorizontal('center');
+                            $sheet->getStyle('A2:J2')->getFont()->setBold(true);
+                            $sheet->getStyle('A:J')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
                             // Menyempurnakan styling baris total
                             $totalRowIndex = $sheet->getHighestRow();
-                            $sheet->mergeCells("A$totalRowIndex:H$totalRowIndex");
-                            $sheet->getStyle("A$totalRowIndex:H$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("I$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("A$totalRowIndex:I$totalRowIndex")->getAlignment()->setHorizontal('center');
+                            $sheet->mergeCells("A$totalRowIndex:I$totalRowIndex");
+                            $sheet->getStyle("A$totalRowIndex:I$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("J$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("A$totalRowIndex:J$totalRowIndex")->getAlignment()->setHorizontal('center');
                         }
 
                         if ($this->metode_pembelian == 'online_dan_offline') {
                             // Header
-                            $sheet->mergeCells("A1:O1");
-                            $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+                            $sheet->mergeCells("A1:P1");
+                            $sheet->getStyle('A1:P1')->getFont()->setBold(true);
 
-                            $sheet->getStyle('A2:O2')->getFont()->setBold(true);
-                            $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
+                            $sheet->getStyle('A2:P2')->getFont()->setBold(true);
+                            $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Online dan Offline ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
                             // Menyempurnakan styling baris total
                             $totalRowIndex = $sheet->getHighestRow();
-                            $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
-                            $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
+                            $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
+                            $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        }
+
+                        // Merge cells based on tanggal
+                        $this->mergeCellsByDate($sheet, $this->metode_pembelian);
+                    }
+
+                    private function mergeCellsByDate(Worksheet $sheet, $metode_pembelian)
+                    {
+                        $highestRow = $sheet->getHighestRow();
+                        $dateColumn = 'A'; // Kolom tanggal
+                        $columnsToMerge = ['A', 'B', 'C', 'D']; // Kolom yang ingin digabungkan
+
+                        // Tambahkan kolom I dan J jika metode pembelian adalah 'offline'
+                        if ($metode_pembelian == 'offline') {
+                            $columnsToMerge = array_merge($columnsToMerge, ['I', 'J']);
+                        }
+
+                        if ($metode_pembelian == 'online' || $metode_pembelian == 'online_dan_offline') {
+                            $columnsToMerge = array_merge($columnsToMerge, ['I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']);
+                        }
+
+                        $startRow = 2; // Assuming header starts at row 2
+
+                        $currentDate = '';
+                        $currentUraian = '';
+                        $currentDeskripsi = '';
+                        $currentPemesan = '';
+                        $currentToko = '';
+                        $startMergeRow = $startRow;
+
+                        for ($row = $startRow; $row <= $highestRow; $row++) {
+                            $cellDateValue = $sheet->getCell("$dateColumn$row")->getValue();
+                            $cellUraianValue = $sheet->getCell("B$row")->getValue();
+                            $cellDeskripsiValue = $sheet->getCell("C$row")->getValue();
+                            $cellPemesanValue = $sheet->getCell("D$row")->getValue();
+                            $cellTokoValue = $metode_pembelian == 'offline' ? $sheet->getCell("I$row")->getValue() : '';
+
+                            // Check if the date or other columns change
+                            if ($cellDateValue != $currentDate || 
+                                $cellUraianValue != $currentUraian || 
+                                $cellDeskripsiValue != $currentDeskripsi || 
+                                $cellPemesanValue != $currentPemesan || 
+                                ($metode_pembelian == 'offline' && $cellTokoValue != $currentToko)) {
+
+                                // Merge cells for the previous group
+                                if ($row - 1 > $startMergeRow) {
+                                    foreach ($columnsToMerge as $column) {
+                                        $sheet->mergeCells("$column$startMergeRow:$column" . ($row - 1));
+                                        $sheet->getStyle("$column$startMergeRow:$column" . ($row - 1))
+                                            ->getAlignment()->setHorizontal('center')->setVertical('center');
+                                    }
+                                }
+
+                                // Update current values and start new merge range
+                                $currentDate = $cellDateValue;
+                                $currentUraian = $cellUraianValue;
+                                $currentDeskripsi = $cellDeskripsiValue;
+                                $currentPemesan = $cellPemesanValue;
+                                $currentToko = $cellTokoValue;
+                                $startMergeRow = $row;
+                            }
+                        }
+
+                        // Merge the last group if necessary
+                        if ($highestRow > $startMergeRow) {
+                            foreach ($columnsToMerge as $column) {
+                                $sheet->mergeCells("$column$startMergeRow:$column$highestRow");
+                                $sheet->getStyle("$column$startMergeRow:$column$highestRow")
+                                    ->getAlignment()->setHorizontal('center')->setVertical('center');
+                            }
                         }
                     }
+
                 };
             }
 
@@ -328,7 +415,7 @@ class OperasionalExport implements WithMultipleSheets
                         return $item->total ?? 0;
                     });
 
-                    $data = $this->tagihan->map(function ($item) {
+                    $data = $this->tagihan->flatMap(function ($item) {
                         $diskon = 'Rp ' . number_format($item->diskon ?? 0, 0, ',', '.');
                         $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
                         $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
@@ -336,70 +423,81 @@ class OperasionalExport implements WithMultipleSheets
                         $b_proteksi = 'Rp ' . number_format($item->b_proteksi ?? 0, 0, ',', '.');
                         $b_aplikasi = 'Rp ' . number_format($item->b_aplikasi ?? 0, 0, ',', '.');
                         $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
-
-                        if ($this->metode_pembelian == 'online') {
-                            return [
-                                'tanggal' => $item->tanggal,
-                                'uraian' => $item->uraian,
-                                'deskripsi' => $item->deskripsi,
-                                'nama' => $item->nama,
-                                'qty' => $item->qty,
-                                'unit' => $item->unit,
-                                'harga' => '',
-                                'diskon' => $diskon,
-                                'ongkir' => $ongkir,
-                                'asuransi' => $asuransi,
-                                'b_proteksi' => $b_proteksi,
-                                'p_member' => $p_member,
-                                'b_aplikasi' => $b_aplikasi,
-                                'toko' => $item->toko,
-                                'total' => $total
-                            ];
-                        } 
+                        $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
                         
-                        if ($this->metode_pembelian == 'offline') {
-                            return [
-                                'tanggal' => $item->tanggal,
-                                'uraian' => $item->uraian,
-                                'deskripsi' => $item->deskripsi,
-                                'nama' => $item->nama,
-                                'qty' => $item->qty,
-                                'unit' => $item->unit,
-                                'harga' => '',
-                                'toko' => $item->toko,
-                                'total' => $total
-                            ];
+                        // Barang
+                        $barang = Barang::where('id_relasi', $item->id_operasional)->get();
+                        if ($barang->isNotEmpty()) {
+                            return $barang->map(function ($data) use ($item, $diskon, $ongkir, $asuransi, $p_member, $b_proteksi, $b_aplikasi, $total) {
+                                $harga = 'Rp ' . number_format($data->harga ?? 0, 0, ',', '.');
+                                $satuan = Satuan::find($data->id_satuan);
+                                if ($this->metode_pembelian == 'online') {
+                                    return [
+                                        'tanggal' => $item->tanggal,
+                                        'uraian' => $item->uraian,
+                                        'deskripsi' => $item->deskripsi,
+                                        'nama' => $item->nama,
+                                        'barang' => $data->nama,
+                                        'qty' => $data->jumlah,
+                                        'unit' => $satuan->nama,
+                                        'harga' => $harga,
+                                        'diskon' => $diskon,
+                                        'ongkir' => $ongkir,
+                                        'asuransi' => $asuransi,
+                                        'b_proteksi' => $b_proteksi,
+                                        'p_member' => $p_member,
+                                        'b_aplikasi' => $b_aplikasi,
+                                        'toko' => $item->toko,
+                                        'total' => $total
+                                    ];
+                                } 
+                                
+                                if ($this->metode_pembelian == 'offline') {
+                                    return [
+                                        'tanggal' => $item->tanggal,
+                                        'uraian' => $item->uraian,
+                                        'deskripsi' => $item->deskripsi,
+                                        'nama' => $item->nama,
+                                        'barang' => $data->nama,
+                                        'qty' => $data->jumlah,
+                                        'unit' => $satuan->nama,
+                                        'harga' => $harga,
+                                        'toko' => $item->toko,
+                                        'total' => $total
+                                    ];
+                                }
+    
+                                if ($this->metode_pembelian == 'online_dan_offline') {
+                                    return [
+                                        'tanggal' => $item->tanggal,
+                                        'uraian' => $item->uraian,
+                                        'deskripsi' => $item->deskripsi,
+                                        'nama' => $item->nama,
+                                        'barang' => $data->nama,
+                                        'qty' => $data->jumlah,
+                                        'unit' => $satuan->nama,
+                                        'harga' => $harga,
+                                        'diskon' => $diskon,
+                                        'ongkir' => $ongkir,
+                                        'asuransi' => $asuransi,
+                                        'b_proteksi' => $b_proteksi,
+                                        'p_member' => $p_member,
+                                        'b_aplikasi' => $b_aplikasi,
+                                        'toko' => $item->toko,
+                                        'total' => $total
+                                    ];
+                                }
+                            });
                         }
-
-                        if ($this->metode_pembelian == 'online_dan_offline') {
-                            return [
-                                'tanggal' => $item->tanggal,
-                                'uraian' => $item->uraian,
-                                'deskripsi' => $item->deskripsi,
-                                'nama' => $item->nama,
-                                'qty' => $item->qty,
-                                'unit' => $item->unit,
-                                'harga' => '',
-                                'diskon' => $diskon,
-                                'ongkir' => $ongkir,
-                                'asuransi' => $asuransi,
-                                'b_proteksi' => $b_proteksi,
-                                'p_member' => $p_member,
-                                'b_aplikasi' => $b_aplikasi,
-                                'toko' => $item->toko,
-                                'total' => $total
-                            ];
-
-                        } 
                     });
 
-                    // Menambahkan baris total keseluruhan
                     if ($this->metode_pembelian == 'online') {
                         $data->push([
                             'tanggal' => 'Total Keseluruhan',
                             'uraian' => '',
                             'deskripsi' => '',
                             'nama' => '',
+                            'barang' => '',
                             'qty' => '',
                             'unit' => '',
                             'harga' => '',
@@ -420,6 +518,7 @@ class OperasionalExport implements WithMultipleSheets
                             'uraian' => '',
                             'deskripsi' => '',
                             'nama' => '',
+                            'barang' => '',
                             'qty' => '',
                             'unit' => '',
                             'harga' => '',
@@ -434,6 +533,7 @@ class OperasionalExport implements WithMultipleSheets
                             'uraian' => '',
                             'deskripsi' => '',
                             'nama' => '',
+                            'barang' => '',
                             'qty' => '',
                             'unit' => '',
                             'harga' => '',
@@ -459,6 +559,7 @@ class OperasionalExport implements WithMultipleSheets
                             ['Tanggal',
                             'Uraian',
                             'Deskripsi',
+                            'Pemesan',
                             'Nama Barang',
                             'Jumlah',
                             'Satuan',
@@ -480,6 +581,7 @@ class OperasionalExport implements WithMultipleSheets
                             ['Tanggal',
                             'Uraian',
                             'Deskripsi',
+                            'Pemesan',
                             'Nama Barang',
                             'Jumlah',
                             'Satuan',
@@ -495,6 +597,7 @@ class OperasionalExport implements WithMultipleSheets
                             ['Tanggal',
                             'Uraian',
                             'Deskripsi',
+                            'Pemesan',
                             'Nama Barang',
                             'Jumlah',
                             'Satuan',
@@ -515,53 +618,123 @@ class OperasionalExport implements WithMultipleSheets
                 {
                     if ($this->metode_pembelian == 'online') {
                         // Header
-                        $sheet->mergeCells("A1:N1");
-                        $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+                        $sheet->mergeCells("A1:P1");
+                        $sheet->getStyle('A1:P1')->getFont()->setBold(true);
 
-                        $sheet->getStyle('A2:N2')->getFont()->setBold(true);
-                        $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
+                        $sheet->getStyle('A2:P2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan . ' Online');
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
                     } 
                     
                     if ($this->metode_pembelian == 'offline') {
                         // Header
-                        $sheet->mergeCells("A1:I1");
-                        $sheet->getStyle('A1:I1')->getFont()->setBold(true);
+                        $sheet->mergeCells("A1:J1");
+                        $sheet->getStyle('A1:J1')->getFont()->setBold(true);
 
-                        $sheet->getStyle('A2:I2')->getFont()->setBold(true);
-                        $sheet->getStyle('A:I')->getAlignment()->setHorizontal('center');
+                        $sheet->getStyle('A2:J2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:J')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan);
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:H$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:H$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("I$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:I$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:I$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:I$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("J$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:J$totalRowIndex")->getAlignment()->setHorizontal('center');
                     }
 
                     if ($this->metode_pembelian == 'online_dan_offline') {
                         // Header
-                        $sheet->mergeCells("A1:O1");
-                        $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+                        $sheet->mergeCells("A1:P1");
+                        $sheet->getStyle('A1:P1')->getFont()->setBold(true);
 
-                        $sheet->getStyle('A2:O2')->getFont()->setBold(true);
-                        $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
+                        $sheet->getStyle('A2:P2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan . ' Online dan Offline');
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
+                    }
+
+                    // Merge cells based on tanggal
+                    $this->mergeCellsByDate($sheet, $this->metode_pembelian);
+                }
+
+                private function mergeCellsByDate(Worksheet $sheet, $metode_pembelian)
+                {
+                    $highestRow = $sheet->getHighestRow();
+                    $dateColumn = 'A'; // Kolom tanggal
+                    $columnsToMerge = ['A', 'B', 'C', 'D']; // Kolom yang ingin digabungkan
+
+                    // Tambahkan kolom I dan J jika metode pembelian adalah 'offline'
+                    if ($metode_pembelian == 'offline') {
+                        $columnsToMerge = array_merge($columnsToMerge, ['I', 'J']);
+                    }
+
+                    if ($metode_pembelian == 'online' || $metode_pembelian == 'online_dan_offline') {
+                        $columnsToMerge = array_merge($columnsToMerge, ['I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']);
+                    }
+
+                    $startRow = 2; // Assuming header starts at row 2
+
+                    $currentDate = '';
+                    $currentUraian = '';
+                    $currentDeskripsi = '';
+                    $currentPemesan = '';
+                    $currentToko = '';
+                    $startMergeRow = $startRow;
+
+                    for ($row = $startRow; $row <= $highestRow; $row++) {
+                        $cellDateValue = $sheet->getCell("$dateColumn$row")->getValue();
+                        $cellUraianValue = $sheet->getCell("B$row")->getValue();
+                        $cellDeskripsiValue = $sheet->getCell("C$row")->getValue();
+                        $cellPemesanValue = $sheet->getCell("D$row")->getValue();
+                        $cellTokoValue = $metode_pembelian == 'offline' ? $sheet->getCell("I$row")->getValue() : '';
+
+                        // Check if the date or other columns change
+                        if ($cellDateValue != $currentDate || 
+                            $cellUraianValue != $currentUraian || 
+                            $cellDeskripsiValue != $currentDeskripsi || 
+                            $cellPemesanValue != $currentPemesan || 
+                            ($metode_pembelian == 'offline' && $cellTokoValue != $currentToko)) {
+
+                            // Merge cells for the previous group
+                            if ($row - 1 > $startMergeRow) {
+                                foreach ($columnsToMerge as $column) {
+                                    $sheet->mergeCells("$column$startMergeRow:$column" . ($row - 1));
+                                    $sheet->getStyle("$column$startMergeRow:$column" . ($row - 1))
+                                        ->getAlignment()->setHorizontal('center')->setVertical('center');
+                                }
+                            }
+
+                            // Update current values and start new merge range
+                            $currentDate = $cellDateValue;
+                            $currentUraian = $cellUraianValue;
+                            $currentDeskripsi = $cellDeskripsiValue;
+                            $currentPemesan = $cellPemesanValue;
+                            $currentToko = $cellTokoValue;
+                            $startMergeRow = $row;
+                        }
+                    }
+
+                    // Merge the last group if necessary
+                    if ($highestRow > $startMergeRow) {
+                        foreach ($columnsToMerge as $column) {
+                            $sheet->mergeCells("$column$startMergeRow:$column$highestRow");
+                            $sheet->getStyle("$column$startMergeRow:$column$highestRow")
+                                ->getAlignment()->setHorizontal('center')->setVertical('center');
+                        }
                     }
                 }
             }
