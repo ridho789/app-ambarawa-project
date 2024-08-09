@@ -146,7 +146,7 @@
                                 </div>
                                 <div class="col-6">
                                     <label for="total">Total Harga</label>
-                                    <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." />
+                                    <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." style="background-color: #fff !important;" required />
                                 </div>
                             </div>
                         </div>
@@ -274,7 +274,7 @@
                                 </div>
                                 <div class="col-6">
                                     <label for="total">Total Harga</label>
-                                    <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." style="background-color: #fff !important;" readonly />
+                                    <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." style="background-color: #fff !important;" required />
                                 </div>
                             </div>
                         </div>

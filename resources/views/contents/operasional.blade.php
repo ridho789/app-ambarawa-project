@@ -112,16 +112,16 @@
                                             <div class="col-4">
                                                 <label for="nama_barang">Barang ke-1</label>
                                                 <input type="text" class="form-control" name="nama_barang[]" 
-                                                oninput="this.value = this.value.toUpperCase()" placeholder="Masukkan nama barang.." required />
+                                                oninput="this.value = this.value.toUpperCase()" placeholder="Masukkan nama barang.." />
                                             </div>
                                             <div class="col-2">
                                                 <label for="qty">Jumlah</label>
-                                                <input type="text" class="form-control" name="qty[]" id="qty" placeholder="Jumlah.." required />
+                                                <input type="text" class="form-control" name="qty[]" id="qty" placeholder="Jumlah.." />
                                             </div>
                                             <div class="col-2">
                                                 @if (count($satuan) > 0)
                                                     <label for="satuan">Satuan</label>
-                                                    <select class="form-select form-control" name="unit[]" id="unit" required>
+                                                    <select class="form-select form-control" name="unit[]" id="unit">
                                                         <option value="">...</option>
                                                         @foreach ($satuan as $s)
                                                             <option value="{{ $s->id_satuan }}">{{ $s->nama }}</option>
@@ -136,7 +136,7 @@
                                             </div>
                                             <div class="col-4">
                                                 <label for="harga">Harga</label>
-                                                <input type="text" class="form-control" name="harga[]" id="harga" placeholder="Masukkan harga.." required />
+                                                <input type="text" class="form-control" name="harga[]" id="harga" placeholder="Masukkan harga.." />
                                             </div>
                                         </div>
                                     </div>
@@ -185,7 +185,7 @@
 
                             <div class="form-group">
                                 <label for="total">Total Harga</label>
-                                <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." style="background-color: #fff !important;" />
+                                <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." style="background-color: #fff !important;" required />
                             </div>
 
                             <div class="form-group">
@@ -317,7 +317,7 @@
 
                             <div class="form-group">
                                 <label for="total">Total Harga</label>
-                                <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." style="background-color: #fff !important;" />
+                                <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." style="background-color: #fff !important;" required />
                             </div>
 
                             <div class="form-group">
@@ -787,6 +787,8 @@
             onlineFields.classList.remove('d-none');
 
         } else {
+            // Clear online fields
+            inputs.forEach(input => input.value = '');
             
             // Update total based on non-online fields
             updateTotal();
@@ -795,16 +797,13 @@
             barangDiv.classList.remove('d-none');
             onlineFields.classList.add('d-none');
         }
-
-        // Clear online fields
-        inputs.forEach(input => input.value = '');
     }
 
     function toggleFieldsEdit() {
         const isOnlineEditChecked = document.getElementById('edit-is_online').checked;
         const barangDivEdit = document.getElementById('barangEdit');
         const onlineFieldsEdit = document.getElementById('onlineFieldsEdit');
-        const inputs = onlineFields.querySelectorAll('input');
+        const inputs = onlineFieldsEdit.querySelectorAll('input');
 
         if (isOnlineEditChecked) {
             setFieldsRequired(onlineFieldsEdit, true);
@@ -815,13 +814,13 @@
             // Clear online fields
             inputs.forEach(input => input.value = '');
 
+            // Update total based on non-online fields
+            updateTotalEdit();
+            
             setFieldsRequired(onlineFieldsEdit, false);
             barangDivEdit.classList.remove('d-none');
             onlineFieldsEdit.classList.add('d-none');
         }
-
-        // Update total based on non-online fields
-        // updateTotalEdit();
     }
 
     function calculateSubtotalEdit() {
@@ -864,8 +863,10 @@
         let diskonValue = parseInt(diskonElementsEdit[0].value.replace(/[^0-9]/g, ""), 10) || 0;
 
         totalValue = subtotalEdit + (ongkirlValue + asuransiValue + proteksiValue + aplikasiValue) - (diskonValue + memberValue);
-        totalElementsEdit[0].value = formatCurrency(totalValue);
-        // totalElement.value = formatCurrency(totalValue);
+        if (totalValue != '0') {
+            totalElementsEdit[0].value = formatCurrency(totalValue);
+            // totalElement.value = formatCurrency(totalValue);
+        }
 
     }
 

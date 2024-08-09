@@ -93,7 +93,7 @@
 
                             <div class="form-group">
                                 <label for="total">Total Harga</label>
-                                <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." />
+                                <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." required />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -168,7 +168,7 @@
 
                             <div class="form-group">
                                 <label for="total">Total Harga</label>
-                                <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." />
+                                <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." required />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">

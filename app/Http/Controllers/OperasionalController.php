@@ -142,7 +142,7 @@ class OperasionalController extends Controller
             'nama' => $request->nama,
             'total' => $numericTotal,
             'toko' => $request->toko,
-            'metode_pembelian' => $request->metode_pembelian
+            'metode_pembelian' => 'offline'
         ];
 
         $exitingOperasional = Operasional::where('tanggal', $request->tanggal)->where('uraian', $request->uraian)->where('deskripsi', $request->deskripsi)
@@ -261,7 +261,7 @@ class OperasionalController extends Controller
             $tagihanOperasional->b_aplikasi = null;
             $tagihanOperasional->total = $numericTotal;
             $tagihanOperasional->toko = $request->toko;
-            $tagihanOperasional->metode_pembelian = $request->metode_pembelian;
+            $tagihanOperasional->metode_pembelian = 'offline';
 
             $tagihanOperasional->save();
             return redirect('operasional')->with('success', 'Data berhasil diperbaharui!');
@@ -280,6 +280,7 @@ class OperasionalController extends Controller
         });
 
         Operasional::whereIn('id_operasional', $validatedIds)->delete();
+        Barang::whereIn('id_relasi', $validatedIds)->delete();
         return redirect('operasional');
     }
 

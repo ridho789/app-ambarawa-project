@@ -64,6 +64,7 @@ class OperasionalExport implements WithMultipleSheets
                         });
 
                         $data = $this->tagihan->flatMap(function ($item) {
+                            // Format nilai uang
                             $diskon = 'Rp ' . number_format($item->diskon ?? 0, 0, ',', '.');
                             $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
                             $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
@@ -71,14 +72,16 @@ class OperasionalExport implements WithMultipleSheets
                             $b_proteksi = 'Rp ' . number_format($item->b_proteksi ?? 0, 0, ',', '.');
                             $b_aplikasi = 'Rp ' . number_format($item->b_aplikasi ?? 0, 0, ',', '.');
                             $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
-                            $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
-                            
-                            // Barang
+                        
+                            // Ambil barang
                             $barang = Barang::where('id_relasi', $item->id_operasional)->get();
+                        
                             if ($barang->isNotEmpty()) {
+                                // Jika ada barang, map untuk setiap item
                                 return $barang->map(function ($data) use ($item, $diskon, $ongkir, $asuransi, $p_member, $b_proteksi, $b_aplikasi, $total) {
                                     $harga = 'Rp ' . number_format($data->harga ?? 0, 0, ',', '.');
                                     $satuan = Satuan::find($data->id_satuan);
+                        
                                     if ($this->metode_pembelian == 'online') {
                                         return [
                                             'tanggal' => $item->tanggal,
@@ -98,8 +101,8 @@ class OperasionalExport implements WithMultipleSheets
                                             'toko' => $item->toko,
                                             'total' => $total
                                         ];
-                                    } 
-                                    
+                                    }
+                        
                                     if ($this->metode_pembelian == 'offline') {
                                         return [
                                             'tanggal' => $item->tanggal,
@@ -114,7 +117,7 @@ class OperasionalExport implements WithMultipleSheets
                                             'total' => $total
                                         ];
                                     }
-        
+                        
                                     if ($this->metode_pembelian == 'online_dan_offline') {
                                         return [
                                             'tanggal' => $item->tanggal,
@@ -136,6 +139,70 @@ class OperasionalExport implements WithMultipleSheets
                                         ];
                                     }
                                 });
+                            }
+                        
+                            // Jika tidak ada barang
+                            if ($this->metode_pembelian == 'online') {
+                                return [
+                                    [
+                                        'tanggal' => $item->tanggal,
+                                        'uraian' => $item->uraian,
+                                        'deskripsi' => $item->deskripsi,
+                                        'nama' => $item->nama,
+                                        'barang' => '-',
+                                        'qty' => '-',
+                                        'unit' => '-',
+                                        'harga' => '-',
+                                        'diskon' => $diskon,
+                                        'ongkir' => $ongkir,
+                                        'asuransi' => $asuransi,
+                                        'b_proteksi' => $b_proteksi,
+                                        'p_member' => $p_member,
+                                        'b_aplikasi' => $b_aplikasi,
+                                        'toko' => $item->toko,
+                                        'total' => $total
+                                    ]
+                                ];
+                            }
+                        
+                            if ($this->metode_pembelian == 'offline') {
+                                return [
+                                    [
+                                        'tanggal' => $item->tanggal,
+                                        'uraian' => $item->uraian,
+                                        'deskripsi' => $item->deskripsi,
+                                        'nama' => $item->nama,
+                                        'barang' => '-',
+                                        'qty' => '-',
+                                        'unit' => '-',
+                                        'harga' => '-',
+                                        'toko' => $item->toko,
+                                        'total' => $total
+                                    ]
+                                ];
+                            }
+                        
+                            if ($this->metode_pembelian == 'online_dan_offline') {
+                                return [
+                                    [
+                                        'tanggal' => $item->tanggal,
+                                        'uraian' => $item->uraian,
+                                        'deskripsi' => $item->deskripsi,
+                                        'nama' => $item->nama,
+                                        'barang' => '-',
+                                        'qty' => '-',
+                                        'unit' => '-',
+                                        'harga' => '-',
+                                        'diskon' => $diskon,
+                                        'ongkir' => $ongkir,
+                                        'asuransi' => $asuransi,
+                                        'b_proteksi' => $b_proteksi,
+                                        'p_member' => $p_member,
+                                        'b_aplikasi' => $b_aplikasi,
+                                        'toko' => $item->toko,
+                                        'total' => $total
+                                    ]
+                                ];
                             }
                         });
 
@@ -259,7 +326,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'Toko',
                                 'Total',]
                             ];
-                        } 
+                        }
                     }
 
                     public function styles(Worksheet $sheet)
@@ -416,6 +483,7 @@ class OperasionalExport implements WithMultipleSheets
                     });
 
                     $data = $this->tagihan->flatMap(function ($item) {
+                        // Format nilai uang
                         $diskon = 'Rp ' . number_format($item->diskon ?? 0, 0, ',', '.');
                         $ongkir = 'Rp ' . number_format($item->ongkir ?? 0, 0, ',', '.');
                         $asuransi = 'Rp ' . number_format($item->asuransi ?? 0, 0, ',', '.');
@@ -423,14 +491,16 @@ class OperasionalExport implements WithMultipleSheets
                         $b_proteksi = 'Rp ' . number_format($item->b_proteksi ?? 0, 0, ',', '.');
                         $b_aplikasi = 'Rp ' . number_format($item->b_aplikasi ?? 0, 0, ',', '.');
                         $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
-                        $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
-                        
-                        // Barang
+                    
+                        // Ambil barang
                         $barang = Barang::where('id_relasi', $item->id_operasional)->get();
+                    
                         if ($barang->isNotEmpty()) {
+                            // Jika ada barang, map untuk setiap item
                             return $barang->map(function ($data) use ($item, $diskon, $ongkir, $asuransi, $p_member, $b_proteksi, $b_aplikasi, $total) {
                                 $harga = 'Rp ' . number_format($data->harga ?? 0, 0, ',', '.');
                                 $satuan = Satuan::find($data->id_satuan);
+                    
                                 if ($this->metode_pembelian == 'online') {
                                     return [
                                         'tanggal' => $item->tanggal,
@@ -450,8 +520,8 @@ class OperasionalExport implements WithMultipleSheets
                                         'toko' => $item->toko,
                                         'total' => $total
                                     ];
-                                } 
-                                
+                                }
+                    
                                 if ($this->metode_pembelian == 'offline') {
                                     return [
                                         'tanggal' => $item->tanggal,
@@ -466,7 +536,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'total' => $total
                                     ];
                                 }
-    
+                    
                                 if ($this->metode_pembelian == 'online_dan_offline') {
                                     return [
                                         'tanggal' => $item->tanggal,
@@ -488,6 +558,70 @@ class OperasionalExport implements WithMultipleSheets
                                     ];
                                 }
                             });
+                        }
+                    
+                        // Jika tidak ada barang
+                        if ($this->metode_pembelian == 'online') {
+                            return [
+                                [
+                                    'tanggal' => $item->tanggal,
+                                    'uraian' => $item->uraian,
+                                    'deskripsi' => $item->deskripsi,
+                                    'nama' => $item->nama,
+                                    'barang' => '-',
+                                    'qty' => '-',
+                                    'unit' => '-',
+                                    'harga' => '-',
+                                    'diskon' => $diskon,
+                                    'ongkir' => $ongkir,
+                                    'asuransi' => $asuransi,
+                                    'b_proteksi' => $b_proteksi,
+                                    'p_member' => $p_member,
+                                    'b_aplikasi' => $b_aplikasi,
+                                    'toko' => $item->toko,
+                                    'total' => $total
+                                ]
+                            ];
+                        }
+                    
+                        if ($this->metode_pembelian == 'offline') {
+                            return [
+                                [
+                                    'tanggal' => $item->tanggal,
+                                    'uraian' => $item->uraian,
+                                    'deskripsi' => $item->deskripsi,
+                                    'nama' => $item->nama,
+                                    'barang' => '-',
+                                    'qty' => '-',
+                                    'unit' => '-',
+                                    'harga' => '-',
+                                    'toko' => $item->toko,
+                                    'total' => $total
+                                ]
+                            ];
+                        }
+                    
+                        if ($this->metode_pembelian == 'online_dan_offline') {
+                            return [
+                                [
+                                    'tanggal' => $item->tanggal,
+                                    'uraian' => $item->uraian,
+                                    'deskripsi' => $item->deskripsi,
+                                    'nama' => $item->nama,
+                                    'barang' => '-',
+                                    'qty' => '-',
+                                    'unit' => '-',
+                                    'harga' => '-',
+                                    'diskon' => $diskon,
+                                    'ongkir' => $ongkir,
+                                    'asuransi' => $asuransi,
+                                    'b_proteksi' => $b_proteksi,
+                                    'p_member' => $p_member,
+                                    'b_aplikasi' => $b_aplikasi,
+                                    'toko' => $item->toko,
+                                    'total' => $total
+                                ]
+                            ];
                         }
                     });
 
