@@ -426,7 +426,7 @@
                                         <th class="text-xxs-bold">Tanggal</th>
                                         <th class="text-xxs-bold">Kota</th>
                                         <th class="text-xxs-bold">Keterangan</th>
-                                        <!-- <th class="text-xxs-bold">Uraian</th> -->
+                                        <th class="text-xxs-bold">Uraian</th>
                                         <th class="text-xxs-bold">Nopol / Kode Unit</th>
                                         <th class="text-xxs-bold">Merk</th>
                                         <th class="text-xxs-bold">Jumlah</th>
@@ -460,8 +460,8 @@
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $t->tanggal)->format('d-M-Y') ?? '-' }}</td>
                                         <td>{{ $t->kota ?? '-' }}</td>
-                                        <!-- <td>{{ $t->ket ?? '-' }}</td> -->
-                                        <td>{{ $t->uraian ?? '-' }}</td>
+                                        <td>{{ $t->ket ?? '-' }}</td>
+                                        <td class="uraian">{{ $t->uraian ?? '-' }}</td>
                                         <td>{{ $nopolKendaraan[$t->id_kendaraan] ?? '-' }}</td>
                                         <td>{{ $merkKendaraan[$t->id_kendaraan] ?? '-' }}</td>
                                         <td>{{ $t->qty ? $t->qty : '-' }}</td>
@@ -522,8 +522,8 @@
     function calculateTotal() {
         let totalSum = 0;
         document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
-            if (row.querySelector('td:nth-child(13)')) {
-                const totalText = row.querySelector('td:nth-child(13)').innerText;
+            if (row.querySelector('td:nth-child(14)')) {
+                const totalText = row.querySelector('td:nth-child(14)').innerText;
                 const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
                 totalSum += totalValue;
             }
@@ -609,6 +609,28 @@
 
         calculateTotal();
 
+        var batasKarakter = 55;
+        var cells = document.querySelectorAll('td.uraian');
+
+        cells.forEach(function(cell) {
+            var text = cell.textContent;
+            var words = text.split(' ');
+            var newText = '';
+            var line = '';
+
+            words.forEach(function(word) {
+                if ((line + word).length > batasKarakter) {
+                    newText += line.trim() + '<br>';
+                    line = word + ' ';
+                } else {
+                    line += word + ' ';
+                }
+            });
+
+            newText += line.trim();
+            cell.innerHTML = newText;
+        });
+
         let qtyElements = document.querySelectorAll("#qty, #edit-qty");
         let kmAwalElements = document.querySelectorAll("#km_awal, #edit-km_awal");
         let kmIsiElements = document.querySelectorAll("#km_isi, #edit-km_isi");
@@ -627,8 +649,8 @@
                 let harga = hargaTrip[index];
                 let qtyValue = parseFloat(qty.value.replace(',', '.'));
     
-                if (literValue && kmAwal.value && kmAkhir.value) {
-                    let valueKmLiter = (kmAkhir.value - kmAwal.value) / literValue;
+                if (qtyValue && kmAwal.value && kmAkhir.value) {
+                    let valueKmLiter = (kmAkhir.value - kmAwal.value) / qtyValue;
                     kmLiter.value = parseFloat(valueKmLiter.toFixed(3));
 
                 } else {

@@ -426,7 +426,7 @@
                                         <td>{{ $namaProyek[$p->id_proyek] ?? '-' }}</td>
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $p->tanggal)->format('d-M-Y') ?? '-' }}</td>
                                         <td>{{ $p->nama ?? '-' }}</td>
-                                        <td>{{ $p->deskripsi ?? '-' }}</td>
+                                        <td class="deskripsi">{{ $p->deskripsi ?? '-' }}</td>
                                         <td>{{ $p->ukuran ?? '-' }}</td>
                                         <td>{{ $p->jumlah ?? '-' }}</td>
                                         <td>{{ $namaSatuan[$p->id_satuan] ?? '-' }}</td>
@@ -560,6 +560,28 @@
                 return parseFloat(fraction);
             }
         }
+
+        var batasKarakter = 55;
+        var cells = document.querySelectorAll('td.deskripsi');
+
+        cells.forEach(function(cell) {
+            var text = cell.textContent;
+            var words = text.split(' ');
+            var newText = '';
+            var line = '';
+
+            words.forEach(function(word) {
+                if ((line + word).length > batasKarakter) {
+                    newText += line.trim() + '<br>';
+                    line = word + ' ';
+                } else {
+                    line += word + ' ';
+                }
+            });
+
+            newText += line.trim();
+            cell.innerHTML = newText;
+        });
 
         // Ambil elemen harga, jumlah, dan total
         let hargaUrug = document.querySelectorAll("#harga, #edit-harga");

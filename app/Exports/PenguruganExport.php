@@ -41,7 +41,7 @@ class PenguruganExport implements WithMultipleSheets
 
             $sheets = [];
             foreach ($groupedData as $period => $data) {
-                $sheets[] = new class($period, $data, $this->nama) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+                $sheets[] = new class($period, $data, $this->nama) implements FromCollection, WithHeadings, WithStyles
                 {
                     protected $period;
                     protected $pengurugan;
@@ -164,6 +164,18 @@ class PenguruganExport implements WithMultipleSheets
                         $sheet->mergeCells("A1:J1");
                         $sheet->getStyle('A1:J1')->getFont()->setBold(true);
 
+                        // Mengatur kolom D
+                        $sheet->getColumnDimension('D')->setWidth(50);
+                        $sheet->getStyle('D4:D' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                        // Menyesuaikan lebar kolom lainnya
+                        foreach (range('A', 'J') as $column) {
+                            if ($column !== 'D') {
+                                $sheet->getColumnDimension($column)->setAutoSize(true);
+                                $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
+                            }
+                        }
+
                         $sheet->getStyle('A2:J2')->getFont()->setBold(true);
                         $sheet->getStyle('A:J')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->nama . ' Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
@@ -176,7 +188,7 @@ class PenguruganExport implements WithMultipleSheets
 
         // Handle mode lain jika ada
         return [
-            new class('All Data', $this->pengurugan, $this->nama, $this->rangeDate) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+            new class('All Data', $this->pengurugan, $this->nama, $this->rangeDate) implements FromCollection, WithHeadings, WithStyles
             {
                 protected $pengurugan;
                 protected $nama;
@@ -298,6 +310,18 @@ class PenguruganExport implements WithMultipleSheets
                     // Header
                     $sheet->mergeCells("A1:J1");
                     $sheet->getStyle('A1:J1')->getFont()->setBold(true);
+
+                    // Mengatur kolom D
+                    $sheet->getColumnDimension('D')->setWidth(50);
+                    $sheet->getStyle('D4:D' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                    // Menyesuaikan lebar kolom lainnya
+                    foreach (range('A', 'J') as $column) {
+                        if ($column !== 'D') {
+                            $sheet->getColumnDimension($column)->setAutoSize(true);
+                            $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
+                        }
+                    }
 
                     $sheet->getStyle('A2:J2')->getFont()->setBold(true);
                     $sheet->getStyle('A:J')->getAlignment()->setHorizontal('center');

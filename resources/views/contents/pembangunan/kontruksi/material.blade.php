@@ -473,7 +473,7 @@
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $m->tanggal)->format('d-M-Y') ?? '-' }}</td>
                                         <td>{{ $m->nama ?? '-' }}</td>
                                         <td>{{ $m->ukuran ?? '-' }}</td>
-                                        <td>{{ $m->deskripsi ?? '-' }}</td>
+                                        <td class="deskripsi">{{ $m->deskripsi ?? '-' }}</td>
                                         <td>{{ $m->jumlah ?? '-' }}</td>
                                         <td>{{ $namaSatuan[$m->id_satuan] ?? '-' }}</td>
                                         <!-- <td>{{ 'Rp ' . number_format($m->harga ?? 0, 0, ',', '.') }}</td> -->
@@ -606,6 +606,30 @@
                 return parseFloat(fraction);
             }
         }
+
+        var batasKarakter = 55;
+        var cells = document.querySelectorAll('td.deskripsi');
+
+        cells.forEach(function(cell) {
+            var text = cell.textContent;
+            var words = text.split(' ');
+            var newText = '';
+            var line = '';
+
+            words.forEach(function(word) {
+                // Tambahkan spasi jika line tidak kosong
+                var tempLine = line.trim() ? line + ' ' + word : word;
+                if (tempLine.length > batasKarakter) {
+                    newText += line.trim() + '<br>';
+                    line = word;
+                } else {
+                    line = tempLine;
+                }
+            });
+
+            newText += line.trim();
+            cell.innerHTML = newText;
+        });
 
         // Mengatur deskripsi
         const descriptionCells = document.querySelectorAll('#basic-datatables td:nth-child(7)');

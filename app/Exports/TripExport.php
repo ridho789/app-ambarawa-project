@@ -38,7 +38,7 @@ class TripExport implements WithMultipleSheets
 
             $sheets = [];
             foreach ($groupedData as $period => $data) {
-                $sheets[] = new class($period, $data) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+                $sheets[] = new class($period, $data) implements FromCollection, WithHeadings, WithStyles
                 {
                     protected $period;
                     protected $trip;
@@ -130,6 +130,18 @@ class TripExport implements WithMultipleSheets
                         $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle('Trip Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
+                        // Mengatur kolom D
+                        $sheet->getColumnDimension('D')->setWidth(50);
+                        $sheet->getStyle('D3:D' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                        // Menyesuaikan lebar kolom lainnya
+                        foreach (range('A', 'N') as $column) {
+                            if ($column !== 'D') {
+                                $sheet->getColumnDimension($column)->setAutoSize(true);
+                                $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
+                            }
+                        }
+
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
                         $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
@@ -145,7 +157,7 @@ class TripExport implements WithMultipleSheets
 
         // Handle mode lain jika ada
         return [
-            new class('All Data', $this->trip, $this->rangeDate) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+            new class('All Data', $this->trip, $this->rangeDate) implements FromCollection, WithHeadings, WithStyles
             {
                 protected $trip;
                 protected $rangeDate;
@@ -236,6 +248,18 @@ class TripExport implements WithMultipleSheets
                     $sheet->getStyle('A2:N2')->getFont()->setBold(true);
                     $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
                     $sheet->setTitle('Pengeluaran Trip');
+
+                    // Mengatur kolom D
+                    $sheet->getColumnDimension('D')->setWidth(50);
+                    $sheet->getStyle('D3:D' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                    // Menyesuaikan lebar kolom lainnya
+                    foreach (range('A', 'N') as $column) {
+                        if ($column !== 'D') {
+                            $sheet->getColumnDimension($column)->setAutoSize(true);
+                            $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
+                        }
+                    }
 
                     // Menyempurnakan styling baris total
                     $totalRowIndex = $sheet->getHighestRow();

@@ -488,7 +488,7 @@
                                         <th class="text-xxs-bold">No.</th>
                                         <th class="text-xxs-bold">Tanggal</th>
                                         <th class="text-xxs-bold">Uraian</th>
-                                        <!-- <th class="text-xxs-bold">Deskripsi</th> -->
+                                        <th class="text-xxs-bold">Deskripsi</th>
                                         <th class="text-xxs-bold">Pemesan</th>
                                         <th class="text-xxs-bold">Barang</th>
                                         <!-- <th class="text-xxs-bold">Jumlah</th>
@@ -526,7 +526,7 @@
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $o->tanggal)->format('d-M-Y') ?? '-' }}</td>
                                         <td>{{ $o->uraian ?? '-' }}</td>
-                                        <!-- <td>{{ $o->deskripsi ?? '-' }}</td> -->
+                                        <td class="deskripsi">{{ $o->deskripsi ?? '-' }}</td>
                                         <td>{{ $o->nama ?? '-' }}</td>
                                         @php
                                             $databarang = $barang->where('id_relasi', $o->id_operasional);
@@ -603,8 +603,8 @@
     function calculateTotal() {
         let totalSum = 0;
         document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
-            if (row.querySelector('td:nth-child(7)')) {
-                const totalText = row.querySelector('td:nth-child(7)').innerText;
+            if (row.querySelector('td:nth-child(8)')) {
+                const totalText = row.querySelector('td:nth-child(8)').innerText;
                 const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
                 totalSum += totalValue;
             }
@@ -973,6 +973,28 @@
         });
 
         calculateTotal();
+
+        var batasKarakter = 55;
+        var cells = document.querySelectorAll('td.deskripsi');
+
+        cells.forEach(function(cell) {
+            var text = cell.textContent;
+            var words = text.split(' ');
+            var newText = '';
+            var line = '';
+
+            words.forEach(function(word) {
+                if ((line + word).length > batasKarakter) {
+                    newText += line.trim() + '<br>';
+                    line = word + ' ';
+                } else {
+                    line += word + ' ';
+                }
+            });
+
+            newText += line.trim();
+            cell.innerHTML = newText;
+        });
 
         let hargaElements = document.querySelectorAll("#harga");
         let qtyElements = document.querySelectorAll("#qty");

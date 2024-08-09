@@ -42,7 +42,7 @@ class OperasionalExport implements WithMultipleSheets
 
             $sheets = [];
             foreach ($groupedData as $period => $data) {
-                $sheets[] = new class($period, $data, $this->infoTagihan, $this->metode_pembelian) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+                $sheets[] = new class($period, $data, $this->infoTagihan, $this->metode_pembelian) implements FromCollection, WithHeadings, WithStyles
                 {
                     protected $period;
                     protected $tagihan;
@@ -340,6 +340,18 @@ class OperasionalExport implements WithMultipleSheets
                             $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Online ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
+                            // Mengatur kolom C
+                            $sheet->getColumnDimension('C')->setWidth(50);
+                            $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                            // Menyesuaikan lebar kolom lainnya
+                            foreach (range('A', 'P') as $column) {
+                                if ($column !== 'C') {
+                                    $sheet->getColumnDimension($column)->setAutoSize(true);
+                                    $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
+                                }
+                            }
+
                             // Menyempurnakan styling baris total
                             $totalRowIndex = $sheet->getHighestRow();
                             $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
@@ -357,6 +369,18 @@ class OperasionalExport implements WithMultipleSheets
                             $sheet->getStyle('A:J')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
+                            // Mengatur kolom C
+                            $sheet->getColumnDimension('C')->setWidth(50);
+                            $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                            // Menyesuaikan lebar kolom lainnya
+                            foreach (range('A', 'J') as $column) {
+                                if ($column !== 'C') {
+                                    $sheet->getColumnDimension($column)->setAutoSize(true);
+                                    $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
+                                }
+                            }
+
                             // Menyempurnakan styling baris total
                             $totalRowIndex = $sheet->getHighestRow();
                             $sheet->mergeCells("A$totalRowIndex:I$totalRowIndex");
@@ -373,6 +397,18 @@ class OperasionalExport implements WithMultipleSheets
                             $sheet->getStyle('A2:P2')->getFont()->setBold(true);
                             $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Online dan Offline ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
+
+                            // Mengatur kolom C
+                            $sheet->getColumnDimension('C')->setWidth(50);
+                            $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                            // Menyesuaikan lebar kolom lainnya
+                            foreach (range('A', 'P') as $column) {
+                                if ($column !== 'C') {
+                                    $sheet->getColumnDimension($column)->setAutoSize(true);
+                                    $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
+                                }
+                            }
 
                             // Menyempurnakan styling baris total
                             $totalRowIndex = $sheet->getHighestRow();
@@ -461,7 +497,7 @@ class OperasionalExport implements WithMultipleSheets
 
         // Handle mode lain jika ada
         return [
-            new class('All Data', $this->tagihan, $this->infoTagihan, $this->metode_pembelian, $this->rangeDate) implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
+            new class('All Data', $this->tagihan, $this->infoTagihan, $this->metode_pembelian, $this->rangeDate) implements FromCollection, WithHeadings, WithStyles
             {
                 protected $tagihan;
                 protected $infoTagihan;
@@ -759,6 +795,18 @@ class OperasionalExport implements WithMultipleSheets
                         $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan . ' Online');
 
+                        // Mengatur kolom C
+                        $sheet->getColumnDimension('C')->setWidth(50);
+                        $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                        // Menyesuaikan lebar kolom lainnya
+                        foreach (range('A', 'P') as $column) {
+                            if ($column !== 'C') {
+                                $sheet->getColumnDimension($column)->setAutoSize(true);
+                                $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
+                            }
+                        }
+
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
                         $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
@@ -776,6 +824,18 @@ class OperasionalExport implements WithMultipleSheets
                         $sheet->getStyle('A:J')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan);
 
+                        // Mengatur kolom C
+                        $sheet->getColumnDimension('C')->setWidth(50);
+                        $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                        // Menyesuaikan lebar kolom lainnya
+                        foreach (range('A', 'j') as $column) {
+                            if ($column !== 'C') {
+                                $sheet->getColumnDimension($column)->setAutoSize(true);
+                                $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
+                            }
+                        }
+
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
                         $sheet->mergeCells("A$totalRowIndex:I$totalRowIndex");
@@ -792,6 +852,18 @@ class OperasionalExport implements WithMultipleSheets
                         $sheet->getStyle('A2:P2')->getFont()->setBold(true);
                         $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan . ' Online dan Offline');
+
+                        // Mengatur kolom C
+                        $sheet->getColumnDimension('C')->setWidth(50);
+                        $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                        // Menyesuaikan lebar kolom lainnya
+                        foreach (range('A', 'P') as $column) {
+                            if ($column !== 'C') {
+                                $sheet->getColumnDimension($column)->setAutoSize(true);
+                                $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
+                            }
+                        }
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
