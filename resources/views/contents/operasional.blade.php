@@ -624,7 +624,7 @@
             <div class="form-group row">
                 <div class="col-4">
                     <label for="nama_barang">Barang ke-${itemCount}</label>
-                    <input type="text" class="form-control" name="nama_barang[]" id="nama_barang" placeholder="Masukkan nama barang.." required />
+                    <input type="text" class="form-control" name="nama_barang[]" id="nama_barang" id="barang" placeholder="Masukkan nama barang.." required />
                 </div>
                 <div class="col-2">
                     <label for="qty">Jumlah</label>
@@ -715,8 +715,8 @@
     }
 
     function calculateSubtotal() {
-        let hargaElements = document.querySelectorAll("input[name='harga[]']");
-        let qtyElements = document.querySelectorAll("input[name='qty[]']");
+        let hargaElements = document.querySelectorAll("#harga");
+        let qtyElements = document.querySelectorAll("#qty");
         let subtotal = 0;
 
         hargaElements.forEach((hargaElem, index) => {
@@ -729,8 +729,8 @@
     }
 
     function updateTotal() {
-        let hargaElements = document.querySelectorAll("input[name='harga[]']");
-        let qtyElements = document.querySelectorAll("input[name='qty[]']");
+        let hargaElements = document.querySelectorAll("#harga");
+        let qtyElements = document.querySelectorAll("#qty");
         let diskonElements = document.querySelectorAll("#diskon");
         let ongkirElements = document.querySelectorAll("#ongkir");
         let asuransiElements = document.querySelectorAll("#asuransi");
@@ -760,8 +760,8 @@
     }
 
     function attachEventListeners() {
-        let hargaElements = document.querySelectorAll("input[name='harga[]']");
-        let qtyElements = document.querySelectorAll("input[name='qty[]']");
+        let hargaElements = document.querySelectorAll("#harga");
+        let qtyElements = document.querySelectorAll("#qty");
 
         hargaElements.forEach(harga => {
             harga.addEventListener("input", function() {
@@ -787,16 +787,17 @@
             onlineFields.classList.remove('d-none');
 
         } else {
-            // Clear online fields
-            inputs.forEach(input => input.value = '');
             
             // Update total based on non-online fields
             updateTotal();
-
+            
             setFieldsRequired(onlineFields, false);
             barangDiv.classList.remove('d-none');
             onlineFields.classList.add('d-none');
         }
+
+        // Clear online fields
+        inputs.forEach(input => input.value = '');
     }
 
     function toggleFieldsEdit() {
@@ -813,14 +814,59 @@
         } else {
             // Clear online fields
             inputs.forEach(input => input.value = '');
-            
-            // Update total based on non-online fields
-            updateTotal();
 
             setFieldsRequired(onlineFieldsEdit, false);
             barangDivEdit.classList.remove('d-none');
             onlineFieldsEdit.classList.add('d-none');
         }
+
+        // Update total based on non-online fields
+        // updateTotalEdit();
+    }
+
+    function calculateSubtotalEdit() {
+        let hargaElementsEdit = document.querySelectorAll("#edit-harga");
+        let qtyElementsEdit = document.querySelectorAll("#edit-qty");
+        let subtotalEdit = 0;
+
+        hargaElementsEdit.forEach((hargaElem, index) => {
+            let hargaValue = parseInt(hargaElem.value.replace(/[^0-9]/g, ""), 10) || 0;
+            let qtyValue = parseFraction(qtyElementsEdit[index].value.replace(',', '.')) || 0;
+            subtotalEdit += hargaValue * qtyValue;
+        });
+
+        return subtotalEdit;
+    }
+
+    function updateTotalEdit() {
+        let hargaElementsEdit = document.querySelectorAll("#edit-harga");
+        let qtyElementsEdit = document.querySelectorAll("#edit-qty");
+        let diskonElementsEdit = document.querySelectorAll("#edit-diskon");
+        let ongkirElementsEdit = document.querySelectorAll("#edit-ongkir");
+        let asuransiElementsEdit = document.querySelectorAll("#edit-asuransi");
+        let proteksiElementsEdit = document.querySelectorAll("#edit-b_proteksi");
+        let memberElementsEdit = document.querySelectorAll("#edit-p_member");
+        let aplikasiElementsEdit = document.querySelectorAll("#edit-b_aplikasi");
+        let totalElementsEdit = document.querySelectorAll("#edit-total");
+        let totalElement = document.getElementById("#edit-total");
+        
+        // Calculate subtotalEdit
+        let subtotalEdit = calculateSubtotalEdit();
+
+        // Initialize total value
+        let totalValue = subtotalEdit;
+
+        let ongkirlValue = parseInt(ongkirElementsEdit[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+        let asuransiValue = parseInt(asuransiElementsEdit[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+        let proteksiValue = parseInt(proteksiElementsEdit[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+        let memberValue = parseInt(memberElementsEdit[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+        let aplikasiValue = parseInt(aplikasiElementsEdit[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+        let diskonValue = parseInt(diskonElementsEdit[0].value.replace(/[^0-9]/g, ""), 10) || 0;
+
+        totalValue = subtotalEdit + (ongkirlValue + asuransiValue + proteksiValue + aplikasiValue) - (diskonValue + memberValue);
+        totalElementsEdit[0].value = formatCurrency(totalValue);
+        // totalElement.value = formatCurrency(totalValue);
+
     }
 
     function setFieldsRequired(fieldsContainer, isRequired) {
@@ -852,22 +898,22 @@
         document.getElementById('total').value = '';
     }
 
-    function resetFieldsEdit() {
-        document.getElementById('edit-is_online').checked = false;
-        document.getElementById('edit-is_offline').checked = false;
-        document.getElementById('barangEdit').classList.add('d-none');
-        setFieldsRequired(document.getElementById('onlineFieldsEdit'), false);
-        document.getElementById('onlineFieldsEdit').classList.add('d-none');
+    // function resetFieldsEdit() {
+    //     document.getElementById('edit-is_online').checked = false;
+    //     document.getElementById('edit-is_offline').checked = false;
+    //     document.getElementById('barangEdit').classList.add('d-none');
+    //     setFieldsRequired(document.getElementById('onlineFieldsEdit'), false);
+    //     document.getElementById('onlineFieldsEdit').classList.add('d-none');
 
-        var barangFieldsContainerEdit = document.getElementById('barangFieldsEdit');
-        while (barangFieldsContainerEdit.firstChild) {
-            barangFieldsContainerEdit.removeChild(barangFieldsContainerEdit.firstChild);
-        }
+    //     var barangFieldsContainerEdit = document.getElementById('barangFieldsEdit');
+    //     while (barangFieldsContainerEdit.firstChild) {
+    //         barangFieldsContainerEdit.removeChild(barangFieldsContainerEdit.firstChild);
+    //     }
         
-        itemCount = 1;
-        addBarangEdit();
-        document.getElementById('edit-total').value = '';
-    }
+    //     itemCount = 1;
+    //     addBarangEdit();
+    //     document.getElementById('edit-total').value = '';
+    // }
 
     function toggleCustomFields() {
         const isCustomChecked = document.getElementById('custom').checked;
@@ -927,8 +973,8 @@
 
         calculateTotal();
 
-        let hargaElements = document.querySelectorAll("input[name='harga[]']");
-        let qtyElements = document.querySelectorAll("input[name='qty[]']");
+        let hargaElements = document.querySelectorAll("#harga");
+        let qtyElements = document.querySelectorAll("#qty");
         let diskonElements = document.querySelectorAll("#diskon");
         let ongkirElements = document.querySelectorAll("#ongkir");
         let asuransiElements = document.querySelectorAll("#asuransi");
@@ -962,6 +1008,8 @@
                     let hargaValue = parseInt(harga.value.replace(/[^0-9]/g, ""), 10) || 0;
                     let totalValue = hargaValue * jmlValue;
                     total.value = formatCurrency(totalValue);
+
+                    updateTotal();
                 }
             });
         });
@@ -978,6 +1026,8 @@
                     let hargaValue = parseInt(hargaValueFormatted, 10) || 0;
                     let totalValue = hargaValue * jmlValue;
                     total.value = formatCurrency(totalValue);
+
+                    updateTotal();
                 }
             });
         });
@@ -1191,17 +1241,17 @@
                                     <input type="hidden" id="edit-id_barang" name="id_barang[]" value="${item.id_barang}">
                                     <div class="col-4">
                                         <label for="nama_barang">Barang ke-${index + 1}</label>
-                                        <input type="text" class="form-control" name="nama_barang[]"
+                                        <input type="text" class="form-control" name="nama_barang[]" id="edit-barang"
                                         value="${item.nama}" oninput="this.value = this.value.toUpperCase()" placeholder="Masukkan nama barang.." required />
                                     </div>
                                     <div class="col-2">
                                         <label for="qty">Jumlah</label>
-                                        <input type="text" class="form-control" name="qty[]" value="${item.jumlah}" id="qty" placeholder="Jumlah.." required />
+                                        <input type="text" class="form-control" name="qty[]" value="${item.jumlah}" id="edit-qty" placeholder="Jumlah.." required />
                                     </div>
                                     <div class="col-2">
                                         @if (count($satuan) > 0)
                                             <label for="satuan">Satuan</label>
-                                            <select class="form-select form-control" name="unit[]" id="unit" required>
+                                            <select class="form-select form-control" name="unit[]" id="edit-unit" required>
                                                 <option value="">...</option>
                                                 @foreach ($satuan as $s)
                                                     <option value="{{ $s->id_satuan }}" ${item.id_satuan == '{{ $s->id_satuan }}' ? 'selected' : ''}>{{ $s->nama }}</option>
@@ -1216,112 +1266,60 @@
                                     </div>
                                     <div class="col-4">
                                         <label for="harga">Harga</label>
-                                        <input type="text" class="form-control" name="harga[]" value="${formatCurrency(item.harga)}" id="harga" placeholder="Masukkan harga.." required />
+                                        <input type="text" class="form-control" name="harga[]" value="${formatCurrency(item.harga)}" id="edit-harga" placeholder="Masukkan harga.." required />
                                     </div>
                                 </div>
                             </div>
                         `;
                     });
 
-                    function parseFraction(fraction) {
-                        let parts = fraction.split('/');
-                        if (parts.length === 2) {
-                            return parseFloat(parts[0]) / parseFloat(parts[1]);
-                        } else {
-                            return parseFloat(fraction);
-                        }
-                    }
-
-                    function calculateSubtotal() {
-                        let hargaElements = document.querySelectorAll("input[name='harga[]']");
-                        let qtyElements = document.querySelectorAll("input[name='qty[]']");
-                        let subtotal = 0;
-
-                        hargaElements.forEach((hargaElem, index) => {
-                            let hargaValue = parseInt(hargaElem.value.replace(/[^0-9]/g, ""), 10) || 0;
-                            let qtyValue = parseFraction(qtyElements[index].value.replace(',', '.')) || 0;
-                            subtotal += hargaValue * qtyValue;
-                        });
-
-                        return subtotal;
-                    }
-
-                    function updateTotal() {
-                        let hargaElements = document.querySelectorAll("input[name='harga[]']");
-                        let qtyElements = document.querySelectorAll("input[name='qty[]']");
-                        let diskonElements = document.querySelectorAll("#edit-diskon");
-                        let ongkirElements = document.querySelectorAll("#edit-ongkir");
-                        let asuransiElements = document.querySelectorAll("#edit-asuransi");
-                        let proteksiElements = document.querySelectorAll("#edit-b_proteksi");
-                        let memberElements = document.querySelectorAll("#edit-p_member");
-                        let aplikasiElements = document.querySelectorAll("#edit-b_aplikasi");
-                        let totalElements = document.querySelectorAll("#edit-total");
-                        let totalElement = document.getElementById("#edit-total");
-                        
-                        // Calculate subtotal
-                        let subtotal = calculateSubtotal();
-
-                        // Initialize total value
-                        let totalValue = subtotal;
-
-                        let ongkirlValue = parseInt(ongkirElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
-                        let asuransiValue = parseInt(asuransiElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
-                        let proteksiValue = parseInt(proteksiElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
-                        let memberValue = parseInt(memberElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
-                        let aplikasiValue = parseInt(aplikasiElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
-                        let diskonValue = parseInt(diskonElements[0].value.replace(/[^0-9]/g, ""), 10) || 0;
-
-                        totalValue = subtotal + (ongkirlValue + asuransiValue + proteksiValue + aplikasiValue) - (diskonValue + memberValue);
-                        totalElements[0].value = formatCurrency(totalValue);
-                        // totalElement.value = formatCurrency(totalValue);
-
-                    }
-
                     // Attach event listeners to dynamically added elements
-                    let hargaElements = document.querySelectorAll("input[name='harga[]']");
-                    let qtyElements = document.querySelectorAll("input[name='qty[]']");
-                    let diskonElements = document.querySelectorAll("#edit-diskon");
-                    let ongkirElements = document.querySelectorAll("#edit-ongkir");
-                    let asuransiElements = document.querySelectorAll("#edit-asuransi");
-                    let proteksiElements = document.querySelectorAll("#edit-b_proteksi");
-                    let memberElements = document.querySelectorAll("#edit-p_member");
-                    let aplikasiElements = document.querySelectorAll("#edit-b_aplikasi");
-                    let totalElements = document.querySelectorAll("#edit-total");
-                    let totalElement = document.getElementById("#edit-total");
+                    let hargaElementsEdit = document.querySelectorAll("#edit-harga");
+                    let qtyElementsEdit = document.querySelectorAll("#edit-qty");
+                    let diskonElementsEdit = document.querySelectorAll("#edit-diskon");
+                    let ongkirElementsEdit = document.querySelectorAll("#edit-ongkir");
+                    let asuransiElementsEdit = document.querySelectorAll("#edit-asuransi");
+                    let proteksiElementsEdit = document.querySelectorAll("#edit-b_proteksi");
+                    let memberElementsEdit = document.querySelectorAll("#edit-p_member");
+                    let aplikasiElementsEdit = document.querySelectorAll("#edit-b_aplikasi");
+                    let totalElementsEdit = document.querySelectorAll("#edit-total");
                     let editIsOnlineChecked = document.getElementById('edit-is_online')?.checked || false;
+                    let editIsOfflineChecked = document.getElementById('edit-is_offline')?.checked || false;
 
-                    let subtotal = calculateSubtotal();
-                    let totalValue = subtotal;
+                    let subtotalEdit = calculateSubtotalEdit();
+                    let totalValueEdit = subtotalEdit;
 
                     if (!editIsOnlineChecked) {
-                        [diskonElements, ongkirElements, asuransiElements, proteksiElements, memberElements, aplikasiElements].forEach((elements) => {
+                        [diskonElementsEdit, ongkirElementsEdit, asuransiElementsEdit, proteksiElementsEdit, memberElementsEdit, aplikasiElementsEdit].forEach((elements) => {
                             elements.forEach((element, index) => {
                                 element.addEventListener("input", function() {
                                     this.value = formatCurrency(this.value.replace(/[^0-9]/g, ""));
-                                    updateTotal();
+                                    updateTotalEdit();
                                 });
                             });
                         });
                     }
 
-                    qtyElements.forEach((jml, index) => {
+                    qtyElementsEdit.forEach((jml, index) => {
                         jml.addEventListener("input", function() {
-                            let harga = hargaElements[index];
-                            let total = totalElements[0];
+                            let harga = hargaElementsEdit[index];
+                            let total = totalElementsEdit[0];
                             let jmlValue = parseFraction(jml.value.replace(',', '.'));
 
                             if (harga) {
                                 let hargaValue = parseInt(harga.value.replace(/[^0-9]/g, ""), 10) || 0;
-                                let totalValue = hargaValue * jmlValue;
-                                total.value = formatCurrency(totalValue);
+                                let totalValueEdit = hargaValue * jmlValue;
+                                total.value = formatCurrency(totalValueEdit);
+
+                                updateTotalEdit();
                             }
                         });
                     });
 
-                    hargaElements.forEach((harga, index) => {
+                    hargaElementsEdit.forEach((harga, index) => {
                         harga.addEventListener("input", function() {
-                            let jml = qtyElements[index];
-                            let total = totalElements[0];
+                            let jml = qtyElementsEdit[index];
+                            let total = totalElementsEdit[0];
                             let hargaValueFormatted = this.value.replace(/[^0-9]/g, "") || 0;
                             this.value = formatCurrency(hargaValueFormatted);
                             let jmlValue = parseFraction(jml.value.replace(',', '.'));
@@ -1330,16 +1328,18 @@
                                 let hargaValue = parseInt(hargaValueFormatted, 10) || 0;
                                 let totalValue = hargaValue * jmlValue;
                                 total.value = formatCurrency(totalValue);
+
+                                updateTotalEdit();
                             }
                         });
                     });
 
                     // Add currency formatter to all relevant elements
-                    [hargaElements, diskonElements, ongkirElements, asuransiElements, proteksiElements, memberElements, aplikasiElements, totalElements].forEach(elements => {
+                    [hargaElementsEdit, diskonElementsEdit, ongkirElementsEdit, asuransiElementsEdit, proteksiElementsEdit, memberElementsEdit, aplikasiElementsEdit, totalElementsEdit].forEach(elements => {
                         elements.forEach(element => {
                             element.addEventListener("input", function() {
                                 this.value = formatCurrency(this.value.replace(/[^0-9]/g, ""));
-                                updateTotal();
+                                updateTotalEdit();
                             });
                         });
                     });
