@@ -34,7 +34,8 @@ class BBMController extends Controller
             'id_kendaraan' => $request->kendaraan,
             'liter' => $request->liter,
             'km_awal' => $request->km_awal,
-            'km_isi' => $request->km_isi,
+            'km_isi_seb' => $request->km_isi_seb,
+            'km_isi_sek' => $request->km_isi_sek,
             'km_akhir' => $request->km_akhir,
             'km_ltr' => $request->km_ltr,
             'harga' => $numericHarga,
@@ -50,8 +51,9 @@ class BBMController extends Controller
         }
 
         $exitingBBM = BBM::where('nama', $request->nama)->where('tanggal', $request->tanggal)->where('id_kendaraan', $request->kendaraan)
-            ->where('liter', $request->liter)->where('km_awal', $request->km_awal)->where('km_isi', $request->km_isi)->where('km_akhir', $request->km_akhir)
-            ->where('km_ltr', $request->km_ltr)->where('harga', $numericHarga)->where('tot_harga', $numericTotalHarga)->where('ket', $request->ket)->where('tot_km', $request->tot_km)
+            ->where('liter', $request->liter)->where('km_awal', $request->km_awal)->where('km_isi_seb', $request->km_isi_seb)->where('km_isi_sek', $request->km_isi_sek)
+            ->where('km_akhir', $request->km_akhir)->where('km_ltr', $request->km_ltr)->where('harga', $numericHarga)->where('tot_harga', $numericTotalHarga)
+            ->where('ket', $request->ket)->where('tot_km', $request->tot_km)
             ->first();
 
         if ($exitingBBM) {
@@ -78,7 +80,8 @@ class BBMController extends Controller
             $dataBBM->id_kendaraan = $request->kendaraan;
             $dataBBM->liter = $request->liter;
             $dataBBM->km_awal = $request->km_awal;
-            $dataBBM->km_isi = $request->km_isi;
+            $dataBBM->km_isi_seb = $request->km_isi_seb;
+            $dataBBM->km_isi_sek = $request->km_isi_sek;
             $dataBBM->km_akhir = $request->km_akhir;
             $dataBBM->km_ltr = $request->km_ltr;
             $dataBBM->harga = $numericHarga;

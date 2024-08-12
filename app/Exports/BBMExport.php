@@ -69,7 +69,8 @@ class BBMExport implements WithMultipleSheets
                                 'jns_bbm' => $kendaraan->jns_bbm ?? '-',
                                 'liter' => $item->liter ? $item->liter : '-',
                                 'km_awal' => $item->km_awal ? $item->km_awal : '-',
-                                'km_isi' => $item->km_isi ? $item->km_isi : '-',
+                                'km_isi_seb' => $item->km_isi_seb ? $item->km_isi_seb : '-',
+                                'km_isi_sek' => $item->km_isi_sek ? $item->km_isi_sek : '-',
                                 'km_akhir' => $item->km_akhir ? $item->km_akhir : '-',
                                 'km_ltr' => $item->km_ltr ? $item->km_ltr : '-',
                                 'harga' => $harga ? $harga : '-',
@@ -88,7 +89,8 @@ class BBMExport implements WithMultipleSheets
                             'jns_bbm' => '',
                             'liter' => '',
                             'km_awal' => '',
-                            'km_isi' => '',
+                            'km_isi_seb' => '',
+                            'km_isi_sek' => '',
                             'km_akhir' => '',
                             'km_ltr' => '',
                             'harga' => '',
@@ -111,7 +113,8 @@ class BBMExport implements WithMultipleSheets
                             'Jenis BBM',
                             'Liter',
                             'KM Awal',
-                            'KM Pengisian',
+                            'KM Pengisian (Sebelumnya)',
+                            'KM Pengisian (Saat ini)',
                             'KM Akhir',
                             'KM/Liter',
                             'Harga',
@@ -124,31 +127,41 @@ class BBMExport implements WithMultipleSheets
                     public function styles(Worksheet $sheet)
                     {
                         // Header
-                        $sheet->mergeCells("A1:N1");
-                        $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+                        $sheet->mergeCells("A1:O1");
+                        $sheet->getStyle('A1:O1')->getFont()->setBold(true);
 
-                        $sheet->getStyle('A2:N2')->getFont()->setBold(true);
-                        $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
+                        $sheet->getStyle('A2:O2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle('BBM Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
-                        // Mengatur kolom L
-                        $sheet->getColumnDimension('L')->setWidth(50);
-                        $sheet->getStyle('L3:L' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+                        // Mengatur kolom
+                        $sheet->getColumnDimension('H')->setWidth(15);
+                        $sheet->getStyle('H2:H2' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                        $sheet->getColumnDimension('I')->setWidth(15);
+                        $sheet->getStyle('I2:I2' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                        $sheet->getColumnDimension('M')->setWidth(50);
+                        $sheet->getStyle('M3:M' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
 
                         // Menyesuaikan lebar kolom lainnya
-                        foreach (range('A', 'N') as $column) {
-                            if ($column !== 'L') {
+                        foreach (range('A', 'O') as $column) {
+                            if (!in_array($column, ['H', 'I', 'M'])) {
                                 $sheet->getColumnDimension($column)->setAutoSize(true);
-                                $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
                             }
+                            $sheet->getStyle($column . '2:' . $column . '2') ->getAlignment()->setHorizontal('center')->setVertical('center');
+                            $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())
+                                ->getAlignment()
+                                ->setHorizontal('center')
+                                ->setVertical('center');
                         }
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
                     }
                 };
             }
@@ -188,7 +201,8 @@ class BBMExport implements WithMultipleSheets
                             'jns_bbm' => $kendaraan->jns_bbm ?? '-',
                             'liter' => $item->liter ? $item->liter : '-',
                             'km_awal' => $item->km_awal ? $item->km_awal : '-',
-                            'km_isi' => $item->km_isi ? $item->km_isi : '-',
+                            'km_isi_seb' => $item->km_isi_seb ? $item->km_isi_seb : '-',
+                            'km_isi_sek' => $item->km_isi_sek ? $item->km_isi_sek : '-',
                             'km_akhir' => $item->km_akhir ? $item->km_akhir : '-',
                             'km_ltr' => $item->km_ltr ? $item->km_ltr : '-',
                             'harga' => $harga ? $harga : '-',
@@ -207,7 +221,8 @@ class BBMExport implements WithMultipleSheets
                         'jns_bbm' => '',
                         'liter' => '',
                         'km_awal' => '',
-                        'km_isi' => '',
+                        'km_isi_seb' => '',
+                        'km_isi_sek' => '',
                         'km_akhir' => '',
                         'km_ltr' => '',
                         'harga' => '',
@@ -230,7 +245,8 @@ class BBMExport implements WithMultipleSheets
                         'Jenis BBM',
                         'Liter',
                         'KM Awal',
-                        'KM Pengisian',
+                        'KM Pengisian (Sebelumnya)',
+                        'KM Pengisian (Saat ini)',
                         'KM Akhir',
                         'KM/Liter',
                         'Harga',
@@ -243,31 +259,41 @@ class BBMExport implements WithMultipleSheets
                 public function styles(Worksheet $sheet)
                 {
                     // Header
-                    $sheet->mergeCells("A1:N1");
-                    $sheet->getStyle('A1:N1')->getFont()->setBold(true);
+                    $sheet->mergeCells("A1:O1");
+                    $sheet->getStyle('A1:O1')->getFont()->setBold(true);
 
-                    $sheet->getStyle('A2:N2')->getFont()->setBold(true);
-                    $sheet->getStyle('A:N')->getAlignment()->setHorizontal('center');
+                    $sheet->getStyle('A2:O2')->getFont()->setBold(true);
+                    $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
                     $sheet->setTitle('Pengeluaran BBM');
 
-                    // Mengatur kolom L
-                    $sheet->getColumnDimension('L')->setWidth(50);
-                    $sheet->getStyle('L3:L' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+                    // Mengatur kolom
+                    $sheet->getColumnDimension('H')->setWidth(15);
+                    $sheet->getStyle('H2:H2' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                    $sheet->getColumnDimension('I')->setWidth(15);
+                    $sheet->getStyle('I2:I2' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+
+                    $sheet->getColumnDimension('M')->setWidth(50);
+                    $sheet->getStyle('M3:M' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
 
                     // Menyesuaikan lebar kolom lainnya
-                    foreach (range('A', 'N') as $column) {
-                        if ($column !== 'L') {
+                    foreach (range('A', 'O') as $column) {
+                        if (!in_array($column, ['H', 'I', 'M'])) {
                             $sheet->getColumnDimension($column)->setAutoSize(true);
-                            $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
                         }
+                        $sheet->getStyle($column . '2:' . $column . '2') ->getAlignment()->setHorizontal('center')->setVertical('center');
+                        $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())
+                              ->getAlignment()
+                              ->setHorizontal('center')
+                              ->setVertical('center');
                     }
 
                     // Menyempurnakan styling baris total
                     $totalRowIndex = $sheet->getHighestRow();
-                    $sheet->mergeCells("A$totalRowIndex:M$totalRowIndex");
-                    $sheet->getStyle("A$totalRowIndex:M$totalRowIndex")->getFont()->setBold(true);
-                    $sheet->getStyle("N$totalRowIndex")->getFont()->setBold(true);
-                    $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getAlignment()->setHorizontal('center');
+                    $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
+                    $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
+                    $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
+                    $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
                 }
             }
         ];

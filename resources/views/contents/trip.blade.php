@@ -116,22 +116,33 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Kilometer</span>
+                            </div>
+
                             <div class="form-group row">
-                                <div class="col-3">
+                                <div class="col-6">
                                     <label for="km_awal">KM Awal</label>
                                     <input type="number" class="form-control" name="km_awal" min="0" id="km_awal" placeholder="km awal.." required />
                                 </div>
-                                <div class="col-3">
-                                    <label for="km_isi">KM Pengisian</label>
-                                    <input type="number" class="form-control" name="km_isi" min="0" id="km_isi" placeholder="km pengisian.." required />
-                                </div>
-                                <div class="col-3">
+                                <div class="col-6">
                                     <label for="km_akhir">KM Akhir</label>
                                     <input type="number" class="form-control" name="km_akhir" min="0" id="km_akhir" placeholder="km akhir.." required />
                                 </div>
-                                <div class="col-3">
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4">
+                                    <label for="km_isi_seb">KM Pengisian (Sebelumnya)</label>
+                                    <input type="number" class="form-control" name="km_isi_seb" min="0" id="km_isi_seb" placeholder="Pengisian sebelumnya.." required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="km_isi_sek">KM Pengisian (Saat ini)</label>
+                                    <input type="number" class="form-control" name="km_isi_sek" min="0" id="km_isi_sek" placeholder="Pengisian saat ini.." required />
+                                </div>
+                                <div class="col-4">
                                     <label for="km_ltr">KM/Liter</label>
-                                    <input type="text" class="form-control" name="km_ltr" id="km_ltr" placeholder="km per liter.." style="background-color: #fff !important;" readonly />
+                                    <input type="text" class="form-control" name="km_ltr" id="km_ltr" placeholder="KM per liter.." style="background-color: #fff !important;" readonly />
                                 </div>
                             </div>
 
@@ -244,22 +255,33 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Kilometer</span>
+                            </div>
+
                             <div class="form-group row">
-                                <div class="col-3">
+                                <div class="col-6">
                                     <label for="km_awal">KM Awal</label>
                                     <input type="number" class="form-control" name="km_awal" min="0" id="edit-km_awal" placeholder="km awal.." required />
                                 </div>
-                                <div class="col-3">
-                                    <label for="km_isi">KM Pengisian</label>
-                                    <input type="number" class="form-control" name="km_isi" min="0" id="edit-km_isi" placeholder="km pengisian.." required />
-                                </div>
-                                <div class="col-3">
+                                <div class="col-6">
                                     <label for="km_akhir">KM Akhir</label>
                                     <input type="number" class="form-control" name="km_akhir" min="0" id="edit-km_akhir" placeholder="km akhir.." required />
                                 </div>
-                                <div class="col-3">
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4">
+                                    <label for="km_isi_seb">KM Pengisian (Sebelumnya)</label>
+                                    <input type="number" class="form-control" name="km_isi_seb" min="0" id="edit-km_isi_seb" placeholder="Pengisian sebelumnya.." required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="km_isi_sek">KM Pengisian (Saat ini)</label>
+                                    <input type="number" class="form-control" name="km_isi_sek" min="0" id="edit-km_isi_sek" placeholder="Pengisian saat ini.." required />
+                                </div>
+                                <div class="col-4">
                                     <label for="km_ltr">KM/Liter</label>
-                                    <input type="text" class="form-control" name="km_ltr" id="edit-km_ltr" placeholder="km per liter.." />
+                                    <input type="text" class="form-control" name="km_ltr" id="edit-km_ltr" placeholder="km per liter.." style="background-color: #fff !important;" readonly />
                                 </div>
                             </div>
 
@@ -432,7 +454,8 @@
                                         <th class="text-xxs-bold">Jumlah</th>
                                         <!-- <th class="text-xxs-bold">Satuan</th> -->
                                         <th class="text-xxs-bold">KM Awal</th>
-                                        <th class="text-xxs-bold">KM Pengisian</th>
+                                        <th class="text-xxs-bold">KM Pengisian <br> (Sebelumnya)</th>
+                                        <th class="text-xxs-bold">KM Pengisian <br> (Saat ini)</th>
                                         <th class="text-xxs-bold">KM Akhir</th>
                                         <th class="text-xxs-bold">KM/Liter</th>
                                         <!-- <th class="text-xxs-bold">Harga</th> -->
@@ -451,7 +474,8 @@
                                         data-qty="{{ $t->qty }}"
                                         data-unit="{{ $t->unit }}"
                                         data-km_awal="{{ $t->km_awal }}"
-                                        data-km_isi="{{ $t->km_isi }}"
+                                        data-km_isi_seb="{{ $t->km_isi_seb }}"
+                                        data-km_isi_sek="{{ $t->km_isi_sek }}"
                                         data-km_akhir="{{ $t->km_akhir }}"
                                         data-km_ltr="{{ $t->km_ltr }}"
                                         data-harga="{{ 'Rp ' . number_format($t->harga ?? 0, 0, ',', '.') }}"
@@ -467,7 +491,8 @@
                                         <td>{{ $t->qty ? $t->qty : '-' }}</td>
                                         <!-- <td>{{ $t->unit ?? '-' }}</td> -->
                                         <td>{{ $t->km_awal ? $t->km_awal : '-' }}</td>
-                                        <td>{{ $t->km_isi ? $t->km_isi : '-' }}</td>
+                                        <td>{{ $t->km_isi_seb ? $t->km_isi_seb : '-' }}</td>
+                                        <td>{{ $t->km_isi_sek ? $t->km_isi_sek : '-' }}</td>
                                         <td>{{ $t->km_akhir ? $t->km_akhir : '-' }}</td>
                                         <td>{{ $t->km_ltr ? $t->km_ltr : '-' }}</td>
                                         <!-- <td>{{ 'Rp ' . number_format($t->harga ?? 0, 0, ',', '.') }}</td> -->
@@ -522,8 +547,8 @@
     function calculateTotal() {
         let totalSum = 0;
         document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
-            if (row.querySelector('td:nth-child(14)')) {
-                const totalText = row.querySelector('td:nth-child(14)').innerText;
+            if (row.querySelector('td:nth-child(15)')) {
+                const totalText = row.querySelector('td:nth-child(15)').innerText;
                 const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
                 totalSum += totalValue;
             }
@@ -633,7 +658,8 @@
 
         let qtyElements = document.querySelectorAll("#qty, #edit-qty");
         let kmAwalElements = document.querySelectorAll("#km_awal, #edit-km_awal");
-        let kmIsiElements = document.querySelectorAll("#km_isi, #edit-km_isi");
+        let kmIsiSebElements = document.querySelectorAll("#km_isi_seb, #edit-km_isi_seb");
+        let kmIsiSekElements = document.querySelectorAll("#km_isi_sek, #edit-km_isi_sek");
         let kmAkhirElements = document.querySelectorAll("#km_akhir, #edit-km_akhir");
         let kmLiterElements = document.querySelectorAll("#km_ltr, #edit-km_ltr");
         let hargaTrip = document.querySelectorAll("#harga, #edit-harga");
@@ -643,14 +669,15 @@
         function calculateKmLiter() {
             qtyElements.forEach((qty, index) => {
                 let kmAwal = kmAwalElements[index];
-                let kmIsi = kmIsiElements[index];
+                let kmIsiSeb = kmIsiSebElements[index];
+                let kmIsiSek = kmIsiSekElements[index];
                 let kmAkhir = kmAkhirElements[index];
                 let kmLiter = kmLiterElements[index];
                 let harga = hargaTrip[index];
                 let qtyValue = parseFloat(qty.value.replace(',', '.'));
     
-                if (qtyValue && kmAwal.value && kmAkhir.value) {
-                    let valueKmLiter = (kmAkhir.value - kmAwal.value) / qtyValue;
+                if (qtyValue && kmIsiSek.value && kmIsiSeb.value) {
+                    let valueKmLiter = (kmIsiSek.value - kmIsiSeb.value) / qtyValue;
                     kmLiter.value = parseFloat(valueKmLiter.toFixed(3));
 
                 } else {
@@ -664,7 +691,7 @@
             });
         }
     
-        [...qtyElements, ...kmIsiElements, ...kmAkhirElements].forEach(element => {
+        [...qtyElements, ...kmIsiSebElements, ...kmIsiSekElements, ...kmAkhirElements].forEach(element => {
             element.addEventListener("change", calculateKmLiter);
         });
 
@@ -852,7 +879,8 @@
                     $('#edit-qty').val(row.data('qty'));
                     $('#edit-unit').val(row.data('unit'));
                     $('#edit-km_awal').val(row.data('km_awal'));
-                    $('#edit-km_isi').val(row.data('km_isi'));
+                    $('#edit-km_isi_seb').val(row.data('km_isi_seb'));
+                    $('#edit-km_isi_sek').val(row.data('km_isi_sek'));
                     $('#edit-km_akhir').val(row.data('km_akhir'));
                     $('#edit-km_ltr').val(row.data('km_ltr'));
                     $('#edit-harga').val(row.data('harga'));

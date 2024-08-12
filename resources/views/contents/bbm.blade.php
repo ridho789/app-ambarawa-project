@@ -98,44 +98,55 @@
                             </div>
 
                             <div class="form-group">
-                                <span class="h5 fw-mediumbold">Informasi Kilometer/Liter</span>
+                                <span class="h5 fw-mediumbold">Informasi Kilometer</span>
                             </div>
 
                             <div class="form-group row">
                                 <div class="col-3">
-                                    <label for="liter">Liter</label>
-                                    <input type="text" class="form-control" name="liter" id="liter" placeholder="liter.." required />
-                                </div>
-                                <div class="col-2">
-                                    <label for="km_awal">KM Awal</label>
-                                    <input type="number" class="form-control" name="km_awal" min="0" id="km_awal" placeholder="awal.." required />
-                                </div>
-                                <div class="col-2">
-                                    <label for="km_isi">KM Pengisian</label>
-                                    <input type="number" class="form-control" name="km_isi" min="0" id="km_isi" placeholder="isi.." required />
-                                </div>
-                                <div class="col-2">
-                                    <label for="km_akhir">KM Akhir</label>
-                                    <input type="number" class="form-control" name="km_akhir" min="0" id="km_akhir" placeholder="akhir.." required />
+                                    <label for="liter">Jumlah Liter</label>
+                                    <input type="text" class="form-control" name="liter" id="liter" placeholder="Jumlah liter.." required />
                                 </div>
                                 <div class="col-3">
-                                    <label for="km_ltr">KM/Liter</label>
-                                    <input type="text" class="form-control" name="km_ltr" id="km_ltr" placeholder="km per liter.." style="background-color: #fff !important;" readonly />
+                                    <label for="km_awal">KM Awal</label>
+                                    <input type="number" class="form-control" name="km_awal" min="0" id="km_awal" placeholder="KM awal.." required />
+                                </div>
+                                <div class="col-3">
+                                    <label for="km_akhir">KM Akhir</label>
+                                    <input type="number" class="form-control" name="km_akhir" min="0" id="km_akhir" placeholder="KM akhir.." required />
+                                </div>
+                                <div class="col-3">
+                                    <label for="tot_km">Total KM</label>
+                                    <input type="text" class="form-control" name="tot_km" id="tot_km" placeholder="Nilai Total KM.." style="background-color: #fff !important;" readonly />
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <div class="col-4">
+                                    <label for="km_isi_seb">KM Pengisian (Sebelumnya)</label>
+                                    <input type="number" class="form-control" name="km_isi_seb" min="0" id="km_isi_seb" placeholder="Pengisian sebelumnya.." required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="km_isi_sek">KM Pengisian (Saat ini)</label>
+                                    <input type="number" class="form-control" name="km_isi_sek" min="0" id="km_isi_sek" placeholder="Pengisian saat ini.." required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="km_ltr">KM/Liter</label>
+                                    <input type="text" class="form-control" name="km_ltr" id="km_ltr" placeholder="KM per liter.." style="background-color: #fff !important;" readonly />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Harga</span>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-6">
                                     <label for="harga">Harga</label>
                                     <input type="text" class="form-control" name="harga" id="harga" placeholder="Masukkan harga.." required />
                                 </div>
-                                <div class="col-4">
+                                <div class="col-6">
                                     <label for="tot_harga">Total Harga</label>
                                     <input type="text" class="form-control" name="tot_harga" id="tot_harga" placeholder="Masukkan total harga.." required />
-                                </div>
-                                <div class="col-4">
-                                    <label for="tot_km">Total KM</label>
-                                    <input type="text" class="form-control" name="tot_km" id="tot_km" placeholder="Nilai Total KM.." style="background-color: #fff !important;" readonly />
                                 </div>
                             </div>
 
@@ -221,7 +232,7 @@
                             </div>
 
                             <div class="form-group">
-                                <span class="h5 fw-mediumbold">Informasi Kilometer/Liter</span>
+                                <span class="h5 fw-mediumbold">Informasi Kilometer</span>
                             </div>
 
                             <div class="form-group row">
@@ -229,36 +240,48 @@
                                     <label for="liter">Liter</label>
                                     <input type="text" class="form-control" name="liter" id="edit-liter" placeholder="liter.." required />
                                 </div>
-                                <div class="col-2">
+                                <div class="col-3">
                                     <label for="km_awal">KM Awal</label>
                                     <input type="number" class="form-control" name="km_awal" min="0" id="edit-km_awal" placeholder="awal.." required />
                                 </div>
-                                <div class="col-2">
-                                    <label for="km_isi">KM Pengisian</label>
-                                    <input type="number" class="form-control" name="km_isi" min="0" id="edit-km_isi" placeholder="isi.." required />
-                                </div>
-                                <div class="col-2">
+                                
+                                <div class="col-3">
                                     <label for="km_akhir">KM Akhir</label>
                                     <input type="number" class="form-control" name="km_akhir" min="0" id="edit-km_akhir" placeholder="akhir.." required />
                                 </div>
                                 <div class="col-3">
-                                    <label for="km_ltr">KM/Liter</label>
-                                    <input type="text" class="form-control" name="km_ltr" id="edit-km_ltr" placeholder="km per liter.." style="background-color: #fff !important;" readonly />
+                                    <label for="tot_km">Total KM</label>
+                                    <input type="text" class="form-control" name="tot_km" id="edit-tot_km" placeholder="Nilai Total KM.." style="background-color: #fff !important;" readonly />
                                 </div>
                             </div>
 
                             <div class="form-group row">
                                 <div class="col-4">
+                                    <label for="km_isi_seb">KM Pengisian (Sebelumnya)</label>
+                                    <input type="number" class="form-control" name="km_isi_seb" min="0" id="edit-km_isi_seb" placeholder="Pengisian sebelumnya.." required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="km_isi_sek">KM Pengisian (Saat ini)</label>
+                                    <input type="number" class="form-control" name="km_isi_sek" min="0" id="edit-km_isi_sek" placeholder="Pengisian saat ini.." required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="km_ltr">KM/Liter</label>
+                                    <input type="text" class="form-control" name="km_ltr" id="edit-km_ltr" placeholder="km per liter.." style="background-color: #fff !important;" readonly />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Harga</span>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-6">
                                     <label for="harga">Harga</label>
                                     <input type="text" class="form-control" name="harga" id="edit-harga" placeholder="Masukkan harga.." required />
                                 </div>
-                                <div class="col-4">
+                                <div class="col-6">
                                     <label for="tot_harga">Total Harga</label>
                                     <input type="text" class="form-control" name="tot_harga" id="edit-tot_harga" placeholder="Masukkan total harga.." required />
-                                </div>
-                                <div class="col-4">
-                                    <label for="tot_km">Total KM</label>
-                                    <input type="text" class="form-control" name="tot_km" id="edit-tot_km" placeholder="Nilai Total KM.." style="background-color: #fff !important;" readonly />
                                 </div>
                             </div>
 
@@ -419,7 +442,8 @@
                                         <!-- <th class="text-xxs-bold">Jenis BBM</th> -->
                                         <th class="text-xxs-bold">Liter</th>
                                         <th class="text-xxs-bold">KM Awal</th>
-                                        <th class="text-xxs-bold">KM Pengisian</th>
+                                        <th class="text-xxs-bold">KM Pengisian <br> (Sebelumnya)</th>
+                                        <th class="text-xxs-bold">KM Pengisian <br> (Saat ini)</th>
                                         <th class="text-xxs-bold">KM Akhir</th>
                                         <th class="text-xxs-bold">KM/Liter</th>
                                         <th class="text-xxs-bold">Total KM</th>
@@ -438,7 +462,8 @@
                                         data-jns_bbm="{{ $b->jns_bbm }}"
                                         data-liter="{{ $b->liter }}"
                                         data-km_awal="{{ $b->km_awal }}"
-                                        data-km_isi="{{ $b->km_isi }}"
+                                        data-km_isi_seb="{{ $b->km_isi_seb }}"
+                                        data-km_isi_sek="{{ $b->km_isi_sek }}"
                                         data-km_akhir="{{ $b->km_akhir }}"
                                         data-km_ltr="{{ $b->km_ltr }}"
                                         data-harga="{{ 'Rp ' . number_format($b->harga ?? 0, 0, ',', '.') }}"
@@ -454,7 +479,8 @@
                                         <!-- <td>{{ $b->jns_bbm ?? '-' }}</td> -->
                                         <td>{{ $b->liter ? $b->liter : '-' }}</td>
                                         <td>{{ $b->km_awal ? $b->km_awal : '-' }}</td>
-                                        <td>{{ $b->km_isi ? $b->km_isi : '-' }}</td>
+                                        <td>{{ $b->km_isi_seb ? $b->km_isi_seb : '-' }}</td>
+                                        <td>{{ $b->km_isi_sek ? $b->km_isi_sek : '-' }}</td>
                                         <td>{{ $b->km_akhir ? $b->km_akhir : '-' }}</td>
                                         <td>{{ $b->km_ltr ? $b->km_ltr : '-' }}</td>
                                         <td>{{ $b->tot_km ? $b->tot_km : '-' }}</td>
@@ -511,8 +537,8 @@
     function calculateTotal() {
         let totalSum = 0;
         document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
-            if (row.querySelector('td:nth-child(13)')) {
-                const totalText = row.querySelector('td:nth-child(13)').innerText;
+            if (row.querySelector('td:nth-child(14)')) {
+                const totalText = row.querySelector('td:nth-child(14)').innerText;
                 const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
                 totalSum += totalValue;
             }
@@ -640,7 +666,8 @@
 
         let literElements = document.querySelectorAll("#liter, #edit-liter");
         let kmAwalElements = document.querySelectorAll("#km_awal, #edit-km_awal");
-        let kmIsiElements = document.querySelectorAll("#km_isi, #edit-km_isi");
+        let kmIsiSebElements = document.querySelectorAll("#km_isi_seb, #edit-km_isi_seb");
+        let kmIsiSekElements = document.querySelectorAll("#km_isi_sek, #edit-km_isi_sek");
         let kmAkhirElements = document.querySelectorAll("#km_akhir, #edit-km_akhir");
         let kmLiterElements = document.querySelectorAll("#km_ltr, #edit-km_ltr");
         let totKMElements = document.querySelectorAll("#tot_km, #edit-tot_km");
@@ -651,15 +678,16 @@
         function calculateKmLiter() {
             literElements.forEach((liter, index) => {
                 let kmAwal = kmAwalElements[index];
-                let kmIsi = kmIsiElements[index];
+                let kmIsiSeb = kmIsiSebElements[index];
+                let kmIsiSek = kmIsiSekElements[index];
                 let kmAkhir = kmAkhirElements[index];
                 let kmLiter = kmLiterElements[index];
                 let totKM = totKMElements[index];
                 let harga = hargaBBM[index];
                 let literValue = parseFraction(liter.value.replace(',', '.'));
     
-                if (literValue && kmAwal.value && kmAkhir.value) {
-                    let valueKmLiter = (kmAkhir.value - kmAwal.value) / literValue;
+                if (literValue && kmIsiSek.value && kmIsiSeb.value) {
+                    let valueKmLiter = (kmIsiSek.value - kmIsiSeb.value) / literValue;
                     kmLiter.value = parseFloat(valueKmLiter.toFixed(3));
 
                 } else {
@@ -678,7 +706,7 @@
             });
         }
     
-        [...literElements, ...kmIsiElements, ...kmAkhirElements, ...kmAwalElements].forEach(element => {
+        [...literElements, ...kmIsiSebElements, ...kmIsiSekElements, ...kmAkhirElements, ...kmAwalElements].forEach(element => {
             element.addEventListener("change", calculateKmLiter);
         });
 
@@ -864,7 +892,8 @@
                     $('#edit-jns_bbm').val(row.data('jns_bbm'));
                     $('#edit-liter').val(row.data('liter'));
                     $('#edit-km_awal').val(row.data('km_awal'));
-                    $('#edit-km_isi').val(row.data('km_isi'));
+                    $('#edit-km_isi_seb').val(row.data('km_isi_seb'));
+                    $('#edit-km_isi_sek').val(row.data('km_isi_sek'));
                     $('#edit-km_akhir').val(row.data('km_akhir'));
                     $('#edit-km_ltr').val(row.data('km_ltr'));
                     $('#edit-harga').val(row.data('harga'));

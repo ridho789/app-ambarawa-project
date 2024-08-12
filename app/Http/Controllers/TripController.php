@@ -37,7 +37,8 @@ class TripController extends Controller
             'qty' => $request->qty,
             'unit' => $request->unit,
             'km_awal' => $request->km_awal,
-            'km_isi' => $request->km_isi,
+            'km_isi_seb' => $request->km_isi_seb,
+            'km_isi_sek' => $request->km_isi_sek,
             'km_akhir' => $request->km_akhir,
             'km_ltr' => $request->km_ltr,
             'harga' => $numericHarga,
@@ -51,8 +52,9 @@ class TripController extends Controller
         }
 
         $exitingTrip = Trip::where('tanggal', $request->tanggal)->where('kota', $request->kota)->where('ket', $request->ket)
+            ->where('km_isi_seb', $request->km_isi_seb)->where('km_isi_sek', $request->km_isi_sek)
             ->where('uraian', $request->uraian)->where('id_kendaraan', $request->kendaraan)->where('qty', $request->qty)
-            ->where('unit', $request->unit)->where('km_awal', $request->km_awal)->where('km_isi', $request->km_isi)->where('km_akhir', $request->km_akhir)
+            ->where('unit', $request->unit)->where('km_awal', $request->km_awal)->where('km_akhir', $request->km_akhir)
             ->where('km_ltr', $request->km_ltr)->where('harga', $numericHarga)->where('total', $numericTotal)
             ->first();
 
@@ -83,7 +85,8 @@ class TripController extends Controller
             $tagihanTrip->qty = $request->qty;
             $tagihanTrip->unit = $request->unit;
             $tagihanTrip->km_awal = $request->km_awal;
-            $tagihanTrip->km_isi = $request->km_isi;
+            $tagihanTrip->km_isi_seb = $request->km_isi_seb;
+            $tagihanTrip->km_isi_sek = $request->km_isi_sek;
             $tagihanTrip->km_akhir = $request->km_akhir;
             $tagihanTrip->km_ltr = $request->km_ltr;
             $tagihanTrip->harga = $numericHarga;

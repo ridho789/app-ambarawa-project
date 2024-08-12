@@ -17,7 +17,8 @@ return new class extends Migration
             $table->date('tanggal');
             $table->string('liter');
             $table->string('km_awal');
-            $table->string('km_isi');
+            $table->string('km_isi_seb');
+            $table->string('km_isi_sek');
             $table->string('km_akhir');
             $table->string('km_ltr')->nullable();
             $table->string('harga');
