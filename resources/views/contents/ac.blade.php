@@ -54,7 +54,8 @@
 
                             <div class="form-group">
                                 <label for="lokasi">Lokasi</label>
-                                <input type="text" class="form-control" name="lokasi" id="lokasi" placeholder="Masukkan lokasi.." required />
+                                <input type="text" class="form-control" name="lokasi" id="lokasi" placeholder="Masukkan lokasi.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
                             </div>
 
                             <div class="form-group">
@@ -63,7 +64,8 @@
 
                             <div class="form-group">
                                 <label for="pemesan">Pemesan / Dipesan oleh</label>
-                                <input type="text" class="form-control" name="pemesan" id="pemesan" placeholder="Masukkan nama pemesan.." required />
+                                <input type="text" class="form-control" name="pemesan" id="pemesan" placeholder="Masukkan nama pemesan.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
                             </div>
 
                             <div class="form-group row">
@@ -85,7 +87,8 @@
                             <div class="form-group row">
                                 <div class="col-4">
                                     <label for="nama">Nama (Barang)</label>
-                                    <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." required />
+                                    <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                                 <div class="col-4">
                                     <label for="kategori">Kategori</label>
@@ -155,7 +158,8 @@
 
                             <div class="form-group">
                                 <label for="toko">Toko</label>
-                                <input type="text" class="form-control" name="toko" id="toko" placeholder="Masukkan toko.." required />
+                                <input type="text" class="form-control" name="toko" id="toko" placeholder="Masukkan toko.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -191,7 +195,8 @@
 
                             <div class="form-group">
                                 <label for="lokasi">Lokasi</label>
-                                <input type="text" class="form-control" name="lokasi" id="edit-lokasi" placeholder="Masukkan lokasi.." required />
+                                <input type="text" class="form-control" name="lokasi" id="edit-lokasi" placeholder="Masukkan lokasi.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
                             </div>
 
                             <div class="form-group">
@@ -200,7 +205,8 @@
 
                             <div class="form-group">
                                 <label for="pemesan">Pemesan / Dipesan oleh</label>
-                                <input type="text" class="form-control" name="pemesan" id="edit-pemesan" placeholder="Masukkan nama pemesan.." required />
+                                <input type="text" class="form-control" name="pemesan" id="edit-pemesan" placeholder="Masukkan nama pemesan.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
                             </div>
 
                             <div class="form-group row">
@@ -222,7 +228,8 @@
                             <div class="form-group row">
                                 <div class="col-4">
                                     <label for="nama">Nama (Barang)</label>
-                                    <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." required />
+                                    <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                                 <div class="col-4">
                                     <label for="kategori">Kategori</label>
@@ -292,7 +299,8 @@
 
                             <div class="form-group">
                                 <label for="toko">Toko</label>
-                                <input type="text" class="form-control" name="toko" id="edit-toko" placeholder="Masukkan toko.." required />
+                                <input type="text" class="form-control" name="toko" id="edit-toko" placeholder="Masukkan toko.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">

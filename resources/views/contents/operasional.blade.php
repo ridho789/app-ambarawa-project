@@ -190,7 +190,8 @@
 
                             <div class="form-group">
                                 <label for="toko">Toko</label>
-                                <input type="text" class="form-control" name="toko" id="toko" placeholder="Masukkan toko.." required />
+                                <input type="text" class="form-control" name="toko" id="toko" placeholder="Masukkan toko.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -322,7 +323,8 @@
 
                             <div class="form-group">
                                 <label for="toko">Toko</label>
-                                <input type="text" class="form-control" name="toko" id="edit-toko" placeholder="Masukkan toko.." required />
+                                <input type="text" class="form-control" name="toko" id="edit-toko" placeholder="Masukkan toko.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
