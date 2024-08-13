@@ -21,7 +21,8 @@ class BBMController extends Controller
         $kendaraan = Kendaraan::all();
         $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
         $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
-        return view('contents.bbm', compact('bbm', 'periodes', 'kendaraan', 'nopolKendaraan', 'merkKendaraan'));
+        $bbmKendaraan = Kendaraan::pluck('jns_bbm', 'id_kendaraan');
+        return view('contents.bbm', compact('bbm', 'periodes', 'kendaraan', 'nopolKendaraan', 'merkKendaraan', 'bbmKendaraan'));
     }
 
     public function store(Request $request) {

@@ -459,7 +459,7 @@
                                         data-tanggal="{{ $b->tanggal }}" 
                                         data-kendaraan="{{ $b->id_kendaraan }}"
                                         data-merk="{{ $merkKendaraan[$b->id_kendaraan] ?? '-' }}"
-                                        data-jns_bbm="{{ $b->jns_bbm }}"
+                                        data-jns_bbm="{{ $bbmKendaraan[$b->id_kendaraan] ?? '-' }}"
                                         data-liter="{{ $b->liter }}"
                                         data-km_awal="{{ $b->km_awal }}"
                                         data-km_isi_seb="{{ $b->km_isi_seb }}"
@@ -615,7 +615,7 @@
         var kendaraanEditSelect = document.getElementById('edit-kendaraan');
         var selectedEditOption = kendaraanEditSelect.options[kendaraanEditSelect.selectedIndex];
         var merk = selectedEditOption.getAttribute('data-merk');
-        var jnsBBM = selectedOption.getAttribute('data-jns_bbm');
+        var jnsBBM = selectedEditOption.getAttribute('data-jns_bbm');
         
         var merkEditInput = document.getElementById('edit-jns_mobil');
         merkEditInput.value = merk ? merk.toUpperCase() : '';
