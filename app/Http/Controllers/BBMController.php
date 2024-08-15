@@ -12,7 +12,7 @@ use Carbon\Carbon;
 class BBMController extends Controller
 {
     public function index() {
-        $bbm = BBM::orderBy('tanggal', 'asc')->orderBy('id_kendaraan', 'asc')->orderBy('nama', 'asc')->get();
+        $bbm = BBM::orderBy('tanggal', 'asc')->orderBy('id_kendaraan', 'asc')->get();
         $periodes = BBM::select(BBM::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
             ->distinct()
             ->orderBy('periode', 'desc')
@@ -151,7 +151,7 @@ class BBMController extends Controller
         }
 
         if ($mode == 'all_data') {
-            $bbm = BBM::orderBy('tanggal', 'asc')->orderBy('id_kendaraan', 'asc')->orderBy('nama', 'asc')->get();
+            $bbm = BBM::orderBy('tanggal', 'asc')->orderBy('id_kendaraan', 'asc')->get();
             return Excel::download(new BBMExport($mode, $bbm, $rangeDate), 'Report BBM.xlsx');
 
         } else {
@@ -159,7 +159,6 @@ class BBMController extends Controller
                 ->where('tanggal', '<=', $end_date)
                 ->orderBy('tanggal', 'asc')
                 ->orderBy('id_kendaraan', 'asc')
-                ->orderBy('nama', 'asc')
                 ->get();
 
             $fileName = 'Report BBM ' . $rangeDate . '.xlsx';
