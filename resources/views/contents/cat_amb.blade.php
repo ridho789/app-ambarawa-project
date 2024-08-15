@@ -736,8 +736,8 @@
     function calculateTotal() {
         let totalSum = 0;
         document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
-            if (row.querySelector('td:nth-child(10)')) {
-                const totalText = row.querySelector('td:nth-child(10)').innerText;
+            if (row.querySelector('td:nth-child(11)')) {
+                const totalText = row.querySelector('td:nth-child(11)').innerText;
                 const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
                 totalSum += totalValue;
             }
