@@ -8,6 +8,7 @@ use App\Models\Kendaraan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BBMExport;
 use Carbon\Carbon;
+use DateTime;
 
 class BBMController extends Controller
 {
@@ -29,6 +30,20 @@ class BBMController extends Controller
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotalHarga = preg_replace("/[^0-9]/", "", explode(",", $request->tot_harga)[0]);
 
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('BBM', $fileName, 'public');
+        }
+
         $dataBBM = [
             'nama' => $request->nama,
             'tanggal' => $request->tanggal,
@@ -42,7 +57,8 @@ class BBMController extends Controller
             'harga' => $numericHarga,
             'tot_harga' => $numericTotalHarga,
             'ket' => $request->ket,
-            'tot_km' => $request->tot_km
+            'tot_km' => $request->tot_km,
+            'file' => $filePath
         ];
 
         $nopol = null;
@@ -74,6 +90,20 @@ class BBMController extends Controller
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotalHarga = preg_replace("/[^0-9]/", "", explode(",", $request->tot_harga)[0]);
 
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('BBM', $fileName, 'public');
+        }
+
         $dataBBM = BBM::find($request->id_bbm);
         if ($dataBBM) {
             $dataBBM->nama = $request->nama;
@@ -89,6 +119,7 @@ class BBMController extends Controller
             $dataBBM->tot_harga = $numericTotalHarga;
             $dataBBM->ket = $request->ket;
             $dataBBM->tot_km = $request->tot_km;
+            $dataBBM->file = $filePath;
 
             $dataBBM->save();
             return redirect('bbm')->with('success', 'Data berhasil diperbaharui!');

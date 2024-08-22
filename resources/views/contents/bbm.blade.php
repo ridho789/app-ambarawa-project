@@ -154,6 +154,11 @@
                                 <label for="ket">Keterangan</label>
                                 <input type="text" class="form-control" name="ket" id="ket" placeholder="Masukkan keterangan.." required />
                             </div>
+
+                            <div class="form-group">
+                                <label for="file">Upload file</label>
+                                <input type="file" name="file" accept="application/pdf, image/png, image/jpeg">
+                            </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
                             <button type="submit" class="btn btn-primary btn-sm">Submit</button>
@@ -288,6 +293,16 @@
                             <div class="form-group">
                                 <label for="ket">Keterangan</label>
                                 <input type="text" class="form-control" name="ket" id="edit-ket" placeholder="Masukkan keterangan.." required />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="file">Upload file</label>
+                                <input type="file" name="file" accept="application/pdf, image/png, image/jpeg">
+
+                                <!-- Menampilkan file yang sudah diunggah -->
+                                <div id="current-file" style="margin-top: 10px;">
+                                    <!-- Isi file akan di-update melalui JavaScript -->
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -469,7 +484,8 @@
                                         data-harga="{{ 'Rp ' . number_format($b->harga ?? 0, 0, ',', '.') }}"
                                         data-tot_harga="{{ 'Rp ' . number_format($b->tot_harga ?? 0, 0, ',', '.') }}"
                                         data-ket="{{ $b->ket }}"
-                                        data-tot_km="{{ $b->tot_km }}">
+                                        data-tot_km="{{ $b->tot_km }}"
+                                        data-file="{{ $b->file }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $b->nama ?? '-' }}</td>
@@ -900,6 +916,17 @@
                     $('#edit-tot_harga').val(row.data('tot_harga'));
                     $('#edit-ket').val(row.data('ket'));
                     $('#edit-tot_km').val(row.data('tot_km'));
+
+                    // Menampilkan file yang diunggah
+                    var file = row.data('file');
+                    if (file) {
+                        var fileUrl = "{{ asset('storage/') }}" + "/" + file;
+                        $('#current-file').html('<a href="' + fileUrl + '" target="_blank">' + file + '</a>');
+
+                    } else {
+                        $('#current-file').html('<span>Tidak ada file yang diunggah</span>');
+                    }
+
                 }
             });
         }

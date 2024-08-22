@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('tot_harga');
             $table->string('ket');
             $table->string('tot_km');
+            $table->string('file')->nullable();
             $table->timestamps();
         });
     }
