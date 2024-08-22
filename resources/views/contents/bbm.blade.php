@@ -791,7 +791,7 @@
         var editButton = document.getElementById('editButton');
         var deleteButton = document.getElementById('deleteButton');
 
-        if (table) {
+        if (table && selectAllCheckbox) {
             // Event listener untuk checkbox "Select All"
             selectAllCheckbox.addEventListener('change', function() {
                 table.rows().nodes().to$().find('.select-checkbox').each(function() {
