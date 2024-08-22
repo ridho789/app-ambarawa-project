@@ -35,6 +35,7 @@ class BBMController extends Controller
             'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
         ]);
 
+        $filePath = null;
         if ($request->file('file')) {
             $file = $request->file('file');
             $dateTime = new DateTime();
@@ -95,6 +96,7 @@ class BBMController extends Controller
             'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
         ]);
 
+        $filePath = null;
         if ($request->file('file')) {
             $file = $request->file('file');
             $dateTime = new DateTime();
@@ -119,7 +121,10 @@ class BBMController extends Controller
             $dataBBM->tot_harga = $numericTotalHarga;
             $dataBBM->ket = $request->ket;
             $dataBBM->tot_km = $request->tot_km;
-            $dataBBM->file = $filePath;
+
+            if ($filePath) {
+                $dataBBM->file = $filePath;
+            }
 
             $dataBBM->save();
             return redirect('bbm')->with('success', 'Data berhasil diperbaharui!');
