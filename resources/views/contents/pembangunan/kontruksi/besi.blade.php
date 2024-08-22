@@ -695,23 +695,20 @@
         applyDateRangePicker();
 
         // Checkbox
-        var table = document.getElementById('basic-datatables');
-        var checkboxes;
+        var table = $('#basic-datatables').DataTable();
         var selectAllCheckbox = document.getElementById('selectAllCheckbox');
         var allSelectRowInput = document.getElementById('allSelectRow');
         var editButton = document.getElementById('editButton');
         var deleteButton = document.getElementById('deleteButton');
 
-        if (table) {
-            checkboxes = table.getElementsByClassName('select-checkbox');
-
+        if (table && selectAllCheckbox) {
             // Event listener untuk checkbox "Select All"
             selectAllCheckbox.addEventListener('change', function() {
-                for (var i = 0; i < checkboxes.length; i++) {
-                    checkboxes[i].checked = this.checked;
-                    var row = checkboxes[i].parentNode.parentNode;
+                table.rows().nodes().to$().find('.select-checkbox').each(function() {
+                    this.checked = selectAllCheckbox.checked;
+                    var row = this.closest('tr');
                     row.classList.toggle('selected', this.checked);
-                }
+                });
 
                 // Update button visibility
                 updateButtonVisibility();
@@ -721,67 +718,47 @@
             });
 
             // Event listener untuk checkbox di setiap baris
-            for (var i = 0; i < checkboxes.length; i++) {
-                checkboxes[i].addEventListener('change', function() {
-                    var row = this.parentNode.parentNode;
-                    row.classList.toggle('selected', this.checked);
+            table.on('change', '.select-checkbox', function() {
+                var row = $(this).closest('tr');
+                row.toggleClass('selected', this.checked);
 
-                    // Periksa apakah setidaknya satu checkbox terpilih
-                    var atLeastOneChecked = Array.from(checkboxes).some(function(checkbox) {
-                        return checkbox.checked;
-                    });
+                // Update button visibility
+                updateButtonVisibility();
 
-                    // Update button visibility
-                    updateButtonVisibility();
-
-                    // Periksa apakah semua checkbox terpilih
-                    var allChecked = true;
-                    for (var j = 0; j < checkboxes.length; j++) {
-                        if (!checkboxes[j].checked) {
-                            allChecked = false;
-                            break;
-                        }
-                    }
-
-                    // Atur status checkbox "Select All"
-                    selectAllCheckbox.checked = allChecked;
-
-                    // Ambil dan simpan ID semua baris yang terpilih ke dalam input hidden
-                    updateAllSelectRow();
+                // Atur status checkbox "Select All"
+                var allChecked = table.rows().nodes().to$().find('.select-checkbox').toArray().every(function(checkbox) {
+                    return checkbox.checked;
                 });
-            }
+
+                selectAllCheckbox.checked = allChecked;
+
+                // Ambil dan simpan ID semua baris yang terpilih ke dalam input hidden
+                updateAllSelectRow();
+            });
 
             // Fungsi untuk mengambil dan menyimpan ID semua baris yang terpilih
             function updateAllSelectRow() {
-                var selectedIds = Array.from(checkboxes)
-                    .filter(function(checkbox) {
-                        return checkbox.checked;
-                    })
-                    .map(function(checkbox) {
-                        return checkbox.closest('tr').getAttribute('data-id');
-                    });
+                var selectedIds = table.rows({ search: 'applied' }).nodes().to$().find('.select-checkbox:checked').map(function() {
+                    return $(this).closest('tr').data('id');
+                }).get();
 
                 allSelectRowInput.value = selectedIds.join(',');
             }
 
             // Fungsi untuk mengatur visibilitas tombol
             function updateButtonVisibility() {
-                var selectedCheckboxes = Array.from(checkboxes).filter(function(checkbox) {
-                    return checkbox.checked;
-                }).length;
+                var selectedCheckboxes = table.rows({ search: 'applied' }).nodes().to$().find('.select-checkbox:checked').length;
 
                 if (selectedCheckboxes === 1) {
                     editButton.style.display = 'inline-block';
                     deleteButton.style.display = 'inline-block';
                     deleteButton.classList.remove('ms-5');
                     deleteButton.classList.add('ms-3');
-
                 } else if (selectedCheckboxes > 1) {
                     editButton.style.display = 'none';
                     deleteButton.style.display = 'inline-block';
                     deleteButton.classList.remove('ms-3');
                     deleteButton.classList.add('ms-5');
-
                 } else {
                     editButton.style.display = 'none';
                     deleteButton.style.display = 'none';
