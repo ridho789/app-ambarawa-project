@@ -8,6 +8,7 @@ use App\Models\Kendaraan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TripExport;
 use Carbon\Carbon;
+use DateTime;
 
 class TripController extends Controller
 {
@@ -28,6 +29,21 @@ class TripController extends Controller
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
 
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Trip', $fileName, 'public');
+        }
+
         $dataTrip = [
             'tanggal' => $request->tanggal,
             'kota' => $request->kota,
@@ -42,7 +58,8 @@ class TripController extends Controller
             'km_akhir' => $request->km_akhir,
             'km_ltr' => $request->km_ltr,
             'harga' => $numericHarga,
-            'total' => $numericTotal
+            'total' => $numericTotal,
+            'file' => $filePath
         ];
 
         $nopol = null;
@@ -74,6 +91,21 @@ class TripController extends Controller
     public function update(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Trip', $fileName, 'public');
+        }
         
         $tagihanTrip = Trip::find($request->id_trip);
         if ($tagihanTrip) {
@@ -91,6 +123,10 @@ class TripController extends Controller
             $tagihanTrip->km_ltr = $request->km_ltr;
             $tagihanTrip->harga = $numericHarga;
             $tagihanTrip->total = $numericTotal;
+
+            if ($filePath) {
+                $tagihanTrip->file = $filePath;
+            }
 
             $tagihanTrip->save();
             return redirect('trip')->with('success', 'Data berhasil diperbaharui!');

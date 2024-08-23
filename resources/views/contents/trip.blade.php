@@ -160,6 +160,11 @@
                                     <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." style="background-color: #fff !important;" required />
                                 </div>
                             </div>
+
+                            <div class="form-group">
+                                <label for="file">Upload file</label>
+                                <input type="file" name="file" accept="application/pdf, image/png, image/jpeg">
+                            </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
                             <button type="submit" class="btn btn-primary btn-sm">Submit</button>
@@ -297,6 +302,16 @@
                                 <div class="col-6">
                                     <label for="total">Total Harga</label>
                                     <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." style="background-color: #fff !important;" required />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="file">Upload file</label>
+                                <input type="file" name="file" accept="application/pdf, image/png, image/jpeg">
+
+                                <!-- Menampilkan file yang sudah diunggah -->
+                                <div id="current-file" style="margin-top: 10px;">
+                                    <!-- Isi file akan di-update melalui JavaScript -->
                                 </div>
                             </div>
                         </div>
@@ -479,7 +494,8 @@
                                         data-km_akhir="{{ $t->km_akhir }}"
                                         data-km_ltr="{{ $t->km_ltr }}"
                                         data-harga="{{ 'Rp ' . number_format($t->harga ?? 0, 0, ',', '.') }}"
-                                        data-total="{{ 'Rp ' . number_format($t->total ?? 0, 0, ',', '.') }}">
+                                        data-total="{{ 'Rp ' . number_format($t->total ?? 0, 0, ',', '.') }}"
+                                        data-file="{{ $t->file }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $t->tanggal)->format('d-M-Y') ?? '-' }}</td>
@@ -862,6 +878,15 @@
                     $('#edit-km_ltr').val(row.data('km_ltr'));
                     $('#edit-harga').val(row.data('harga'));
                     $('#edit-total').val(row.data('total'));
+
+                    // Menampilkan file yang diunggah
+                    var file = row.data('file');
+                    if (file) {
+                        var fileUrl = "{{ asset('storage/') }}" + "/" + file;
+                        $('#current-file').html('<a href="' + fileUrl + '" target="_blank">' + file + '</a>');
+                    } else {
+                        $('#current-file').html('<span>Tidak ada file yang diunggah</span>');
+                    }
                 }
             });
         }
