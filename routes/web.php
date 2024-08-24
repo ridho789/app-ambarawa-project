@@ -65,6 +65,9 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('bbm-update', [BBMController::class, 'update']);
     Route::post('bbm-delete', [BBMController::class, 'delete']);
     Route::post('bbm-export', [BBMController::class, 'export']);
+    Route::post('bbm-status_pending', [BBMController::class, 'pending']);
+    Route::post('bbm-status_process', [BBMController::class, 'process']);
+    Route::post('bbm-status_paid', [BBMController::class, 'paid']);
     
     // Bubut
     Route::get('/bubut', [BubutController::class, 'index']);

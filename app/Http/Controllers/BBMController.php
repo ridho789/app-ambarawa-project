@@ -201,4 +201,50 @@ class BBMController extends Controller
             return Excel::download(new BBMExport($mode, $bbm, $rangeDate), $fileName);
         }
     }
+
+    // Update status
+    public function pending(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        BBM::whereIn('id_bbm', $validatedIds)->update([
+            'status' => 'pending'
+        ]);
+        return redirect('bbm');
+    }
+
+    public function process(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        BBM::whereIn('id_bbm', $validatedIds)->update([
+            'status' => 'processing'
+        ]);
+        return redirect('bbm');
+    }
+
+    public function paid(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        BBM::whereIn('id_bbm', $validatedIds)->update([
+            'status' => 'paid'
+        ]);
+        return redirect('bbm');
+    }
 }

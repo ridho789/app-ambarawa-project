@@ -25,6 +25,7 @@ class BBM extends Model
         'tot_harga',
         'ket',
         'tot_km',
+        'status',
         'file'
     ];
 }
