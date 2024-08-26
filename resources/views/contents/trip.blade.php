@@ -502,7 +502,13 @@
                                         <td>{{ $t->kota ?? '-' }}</td>
                                         <td>{{ $t->ket ?? '-' }}</td>
                                         <td class="uraian">{{ $t->uraian ?? '-' }}</td>
-                                        <td>{{ $nopolKendaraan[$t->id_kendaraan] ?? '-' }}</td>
+                                        @if ($t->file)
+                                            <td>
+                                                <a href="{{ asset('storage/' . $t->file) }}" target="_blank">{{ $nopolKendaraan[$t->id_kendaraan] ?? '-' }}</a>
+                                            </td>
+                                        @else
+                                            <td>{{ $nopolKendaraan[$t->id_kendaraan] ?? '-' }}</td>
+                                        @endif
                                         <td>{{ $merkKendaraan[$t->id_kendaraan] ?? '-' }}</td>
                                         <td>{{ $t->qty ? $t->qty : '-' }}</td>
                                         <!-- <td>{{ $t->unit ?? '-' }}</td> -->
@@ -631,6 +637,44 @@
         
         var merkInput = document.getElementById('merk');
         merkInput.value = merk ? merk.toUpperCase() : '';
+
+        // Cari data kendaraan pada tabel berdasarkan ID kendaraan yang dipilih
+        const kendaraanId = selectedOption.value;
+        var table = $('#basic-datatables').DataTable();
+        // const rows = document.querySelectorAll('#basic-datatables tbody tr');
+        let lastData = null;
+        let lastDataIsi = null;
+
+        if (table && table.rows()) {
+            table.rows().every(function() {
+                const row = $(this.node());
+                const rowKendaraanId = row.attr('data-kendaraan');
+                const rowKMIsiSek = row.attr('data-km_isi_sek');
+
+                if (rowKendaraanId === kendaraanId) {
+                    lastData = row;
+                }
+
+                if (rowKendaraanId === kendaraanId && rowKMIsiSek && rowKMIsiSek !== '0') {
+                    lastDataIsi = row;
+                }
+            });
+
+            // Jika data ditemukan, isi otomatis kolom-kolom lain
+            if (lastData) {
+                document.getElementById('km_awal').value = lastData.attr('data-km_akhir');
+
+            } else {
+                document.getElementById('km_awal').value = null;
+            }
+
+            if (lastDataIsi) {
+                document.getElementById('km_isi_seb').value = lastDataIsi.attr('data-km_isi_sek');
+
+            } else {
+                document.getElementById('km_isi_seb').value = null;
+            }
+        }
     }
 
     function updateEditMerk() {
