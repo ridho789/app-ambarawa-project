@@ -26,6 +26,7 @@ class Trip extends Model
         'km_ltr',
         'harga',
         'total',
+        'status',
         'file'
     ];
 }

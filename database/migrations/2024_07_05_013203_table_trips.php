@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('km_ltr')->nullable();
             $table->string('harga');
             $table->string('total');
+            $table->string('status')->default('processing');
             $table->string('file')->nullable();
             $table->timestamps();
         });

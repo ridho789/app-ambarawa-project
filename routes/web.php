@@ -124,6 +124,9 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('trip-update', [TripController::class, 'update']);
     Route::post('trip-delete', [TripController::class, 'delete']);
     Route::post('trip-export', [TripController::class, 'export']);
+    Route::post('trip-status_pending', [TripController::class, 'pending']);
+    Route::post('trip-status_process', [TripController::class, 'process']);
+    Route::post('trip-status_paid', [TripController::class, 'paid']);
 
     // Kontruksi - Batu
     // Route::get('/batu', [BatuController::class, 'index']);

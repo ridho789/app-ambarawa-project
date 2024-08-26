@@ -204,4 +204,50 @@ class TripController extends Controller
             return Excel::download(new TripExport($mode, $trip, $rangeDate), $fileName);
         }
     }
+
+    // Update status
+    public function pending(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Trip::whereIn('id_trip', $validatedIds)->update([
+            'status' => 'pending'
+        ]);
+        return redirect('trip');
+    }
+
+    public function process(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Trip::whereIn('id_trip', $validatedIds)->update([
+            'status' => 'processing'
+        ]);
+        return redirect('trip');
+    }
+
+    public function paid(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Trip::whereIn('id_trip', $validatedIds)->update([
+            'status' => 'paid'
+        ]);
+        return redirect('trip');
+    }
 }
