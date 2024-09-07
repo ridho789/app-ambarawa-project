@@ -9,6 +9,7 @@ use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PenguruganExport;
 use Carbon\Carbon;
+use DateTime;
 
 class PenguruganController extends Controller
 {
@@ -31,6 +32,21 @@ class PenguruganController extends Controller
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
 
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Urug', $fileName, 'public');
+        }
+
         $dataUrug = [
             'ket' => 'pengeluaran urug',
             'id_proyek' => $request->proyek,
@@ -43,6 +59,7 @@ class PenguruganController extends Controller
             'harga' => $numericHarga,
             'tot_harga' => $numericTotal,
             'toko' => $request->toko,
+            'file' => $filePath
         ];
 
         $dataProyek = Proyek::where('id_proyek', $request->proyek)->first();
@@ -72,6 +89,21 @@ class PenguruganController extends Controller
     public function update(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Urug', $fileName, 'public');
+        }
         
         $tagihanUrug = Pembangunan::find($request->id_pengurugan);
         if ($tagihanUrug) {
@@ -85,6 +117,10 @@ class PenguruganController extends Controller
             $tagihanUrug->harga = $numericHarga;
             $tagihanUrug->tot_harga = $numericTotal;
             $tagihanUrug->toko = $request->toko;
+
+            if ($filePath) {
+                $tagihanUrug->file = $filePath;
+            }
 
             $tagihanUrug->save();
             return redirect('pengurugan')->with('success', 'Data berhasil diperbaharui!');
@@ -161,5 +197,51 @@ class PenguruganController extends Controller
             $fileName = 'Report Pengurugan ' . $rangeDate . '.xlsx';
             return Excel::download(new PenguruganExport($mode, $pengurugan, $nama, $rangeDate), $fileName);
         }
+    }
+
+    // Update status
+    public function pending(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Pembangunan::whereIn('id_pembangunan', $validatedIds)->update([
+            'status' => 'pending'
+        ]);
+        return redirect('pengurugan');
+    }
+
+    public function process(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Pembangunan::whereIn('id_pembangunan', $validatedIds)->update([
+            'status' => 'processing'
+        ]);
+        return redirect('pengurugan');
+    }
+
+    public function paid(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Pembangunan::whereIn('id_pembangunan', $validatedIds)->update([
+            'status' => 'paid'
+        ]);
+        return redirect('pengurugan');
     }
 }

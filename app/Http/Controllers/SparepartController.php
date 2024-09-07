@@ -9,11 +9,24 @@ use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SparepartExport;
 use Carbon\Carbon;
+use DateTime;
 
 class SparepartController extends Controller
 {
     public function index() {
-        $sparepartamb = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])->orderBy('lokasi')->orderBy('id_kendaraan')->orderBy('nama')->get();
+        $sparepartamb = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
+            ->where(function ($query) {
+                $query->whereNull('noform')
+                    ->orWhereHas('permintaanBarang', function ($query) {
+                        $query->whereColumn('tbl_tagihan_amb.noform', 'tbl_permintaan_barang.noform')
+                                ->where('status', 'approved');
+                    });
+            })
+            ->orderBy('lokasi')
+            ->orderBy('id_kendaraan')
+            ->orderBy('nama')
+            ->get();
+
         $sparepartOnline = TagihanAMB::where('keterangan', 'tagihan sparepart online')->get();
         $sparepartOffline = TagihanAMB::where('keterangan', 'tagihan sparepart')->get();
         $kendaraan = Kendaraan::all();
@@ -30,6 +43,7 @@ class SparepartController extends Controller
         $sparepartambgroup = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
             ->selectRaw('toko, YEAR(tgl_order) as year, MONTHNAME(tgl_order) as month_name, SUM(total) as total_sum')
             ->groupBy('toko', 'year', 'month_name')
+            ->havingRaw('SUM(total) > 0')
             ->orderBy('toko')
             ->orderBy('year')
             ->orderByRaw('MONTH(tgl_order)')
@@ -42,6 +56,21 @@ class SparepartController extends Controller
     public function store(Request $request) {
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
         $masa_pakai = $request->masa . ' ' . $request->waktu;
+
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Sparepart', $fileName, 'public');
+        }
         
         if ($request->metode_pembelian == 'offline') {
             $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
@@ -68,7 +97,8 @@ class SparepartController extends Controller
                 'b_proteksi' => null,
                 'b_jasa_aplikasi' => null,
                 'total' => $numericTotal,
-                'toko' => $request->toko
+                'toko' => $request->toko,
+                'file' => $filePath
             ];
     
             $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart')->where('lokasi', $request->lokasi)
@@ -122,7 +152,9 @@ class SparepartController extends Controller
                 'b_proteksi' => $numericProteksi,
                 'b_jasa_aplikasi' => $numericAplikasi,
                 'total' => $numericTotal,
-                'toko' => $request->toko
+                'toko' => $request->toko,
+                'via' => 'online',
+                'file' => $filePath
             ];
     
             $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart online')->where('lokasi', $request->lokasi)
@@ -170,7 +202,8 @@ class SparepartController extends Controller
             'b_proteksi' => null,
             'b_jasa_aplikasi' => null,
             'total' => $numericTotal,
-            'toko' => $request->toko
+            'toko' => $request->toko,
+            'file' => $filePath
         ];
 
         $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart')->where('lokasi', $request->lokasi)
@@ -196,6 +229,21 @@ class SparepartController extends Controller
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
         $tagihanSparepart = TagihanAMB::find($request->id_tagihan_amb);
         $masa_pakai = $request->masa . ' ' . $request->waktu;
+
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Sparepart', $fileName, 'public');
+        }
 
         if ($request->metode_pembelian == 'offline') {
             $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
@@ -223,6 +271,10 @@ class SparepartController extends Controller
                 $tagihanSparepart->b_jasa_aplikasi = null;
                 $tagihanSparepart->total = $numericTotal;
                 $tagihanSparepart->toko = $request->toko;
+
+                if ($filePath) {
+                    $tagihanSparepart->file = $filePath;
+                }
     
                 $tagihanSparepart->save();
                 return redirect('sparepartamb')->with('success', 'Data berhasil diperbaharui!');
@@ -260,6 +312,11 @@ class SparepartController extends Controller
                 $tagihanSparepart->b_jasa_aplikasi = $numericAplikasi;
                 $tagihanSparepart->total = $numericTotal;
                 $tagihanSparepart->toko = $request->toko;
+                $tagihanSparepart->via = 'online';
+
+                if ($filePath) {
+                    $tagihanSparepart->file = $filePath;
+                }
     
                 $tagihanSparepart->save();
                 return redirect('sparepartamb')->with('success', 'Data berhasil diperbaharui!');
@@ -289,6 +346,10 @@ class SparepartController extends Controller
             $tagihanSparepart->b_jasa_aplikasi = null;
             $tagihanSparepart->total = $numericTotal;
             $tagihanSparepart->toko = $request->toko;
+
+            if ($filePath) {
+                $tagihanSparepart->file = $filePath;
+            }
 
             $tagihanSparepart->save();
             return redirect('sparepartamb')->with('success', 'Data berhasil diperbaharui!');
@@ -359,10 +420,10 @@ class SparepartController extends Controller
         $hargaColumn = $metode_pembelian == 'online' ? 'harga_online' : null;
         $query = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
         ->when($hargaColumn, function ($query, $hargaColumn) {
-            return $query->where($hargaColumn, '!=', null)
+            return $query->where('via', 'online')
                         ->where('keterangan', 'tagihan sparepart online');
         }, function ($query) {
-            return $query->whereNull('harga_online')
+            return $query->where('via', 'offline')
                         ->where('keterangan', 'tagihan sparepart');
         });
         
@@ -383,4 +444,49 @@ class SparepartController extends Controller
         return Excel::download(new SparepartExport($mode, $tagihan, $infoTagihan, $metode_pembelian,$rangeDate), $fileName);
     }
 
+    // Update status
+    public function pending(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->update([
+            'status' => 'pending'
+        ]);
+        return redirect('sparepartamb');
+    }
+
+    public function process(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->update([
+            'status' => 'processing'
+        ]);
+        return redirect('sparepartamb');
+    }
+
+    public function paid(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->update([
+            'status' => 'paid'
+        ]);
+        return redirect('sparepartamb');
+    }
 }

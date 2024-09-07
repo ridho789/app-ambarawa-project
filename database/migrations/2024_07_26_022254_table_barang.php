@@ -19,6 +19,7 @@ class TableBarang extends Migration
             $table->string('nama');
             $table->string('jumlah');
             $table->string('harga');
+            $table->string('ket')->nullable();
             $table->timestamps();
         });
     }

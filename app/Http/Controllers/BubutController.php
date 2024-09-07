@@ -8,6 +8,7 @@ use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TagihanExport;
 use Carbon\Carbon;
+use DateTime;
 
 class BubutController extends Controller
 {
@@ -29,6 +30,21 @@ class BubutController extends Controller
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
         $masa_pakai = $request->masa . ' ' . $request->waktu;
 
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Bubut', $fileName, 'public');
+        }
+
         $dataBubut = [
             'keterangan' => 'tagihan bubut',
             'lokasi' => $request->lokasi,
@@ -44,7 +60,8 @@ class BubutController extends Controller
             'id_satuan' => $request->unit,
             'harga' => $numericHarga,
             'total' => $numericTotal,
-            'toko' => $request->toko
+            'toko' => $request->toko,
+            'file' => $filePath
         ];
 
         $exitingBubut = TagihanAMB::where('keterangan', 'tagihan bubut')->where('lokasi', $request->lokasi)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
@@ -70,6 +87,21 @@ class BubutController extends Controller
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
         $masa_pakai = $request->masa . ' ' . $request->waktu;
+
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Bubut', $fileName, 'public');
+        }
         
         $tagihanBubut = TagihanAMB::find($request->id_tagihan_amb);
         if ($tagihanBubut) {
@@ -83,10 +115,14 @@ class BubutController extends Controller
             $tagihanBubut->dipakai_untuk = $request->dipakai_untuk;
             $tagihanBubut->masa_pakai = $masa_pakai;
             $tagihanBubut->jml = $request->jml;
-            $tagihanBubut->unit = $request->unit;
+            $tagihanBubut->id_satuan = $request->unit;
             $tagihanBubut->harga = $numericHarga;
             $tagihanBubut->total = $numericTotal;
             $tagihanBubut->toko = $request->toko;
+
+            if ($filePath) {
+                $tagihanBubut->file = $filePath;
+            }
 
             $tagihanBubut->save();
             return redirect('bubut')->with('success', 'Data berhasil diperbaharui!');
@@ -173,5 +209,51 @@ class BubutController extends Controller
                 : 'Report Bubut ' . $rangeDate . '.xlsx');
     
         return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
+    }
+
+    // Update status
+    public function pending(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->update([
+            'status' => 'pending'
+        ]);
+        return redirect('bubut');
+    }
+
+    public function process(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->update([
+            'status' => 'processing'
+        ]);
+        return redirect('bubut');
+    }
+
+    public function paid(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->update([
+            'status' => 'paid'
+        ]);
+        return redirect('bubut');
     }
 }

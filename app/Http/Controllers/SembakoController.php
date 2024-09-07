@@ -7,7 +7,9 @@ use App\Models\Sembako;
 use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SembakoExport;
+use App\Imports\SembakoImport;
 use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class SembakoController extends Controller
 {
@@ -86,6 +88,52 @@ class SembakoController extends Controller
         return redirect('sembako');
     }
 
+    // Update status
+    public function pending(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Sembako::whereIn('id_sembako', $validatedIds)->update([
+            'status' => 'pending'
+        ]);
+        return redirect('sembako');
+    }
+
+    public function process(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Sembako::whereIn('id_sembako', $validatedIds)->update([
+            'status' => 'processing'
+        ]);
+        return redirect('sembako');
+    }
+
+    public function paid(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Sembako::whereIn('id_sembako', $validatedIds)->update([
+            'status' => 'paid'
+        ]);
+        return redirect('sembako');
+    }
+
     public function export(Request $request) {
         $mode = $request->metode_export;
 
@@ -139,6 +187,37 @@ class SembakoController extends Controller
 
             $fileName = 'Report Sembako ' . $rangeDate . '.xlsx';
             return Excel::download(new SembakoExport($mode, $sembako, $rangeDate), $fileName);
+        }
+    }
+
+    public function import(Request $request) {
+        $request->validate([
+            'file' => 'required|mimes:xlsx|max:2048',
+        ]);
+    
+        try {
+            $file = $request->file('file');
+            $spreadsheet = IOFactory::load($file);
+            $sheetNames = $spreadsheet->getSheetNames();
+    
+            $import = new SembakoImport($sheetNames);
+            Excel::import($import, $file);
+            $logErrors = $import->getLogErrors();
+    
+            if ($logErrors) {
+                return redirect('sembako')->with('logErrors', $logErrors);
+            } else {
+                return redirect('sembako');
+            }
+    
+        } catch (\Exception $e) {
+            $sqlErrors = $e->getMessage();
+    
+            if (!empty($sqlErrors)){
+                $logErrors = $sqlErrors;
+            }
+    
+            return redirect('sembako')->with('logErrors', $logErrors);
         }
     }
 }

@@ -16,6 +16,7 @@ class Barang extends Model
         'id_satuan',
         'nama',
         'jumlah',
-        'harga'
+        'harga',
+        'ket'
     ];
 }

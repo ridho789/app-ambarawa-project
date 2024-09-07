@@ -232,7 +232,7 @@
         if (table && selectAllCheckbox) {
             // Event listener untuk checkbox "Select All"
             selectAllCheckbox.addEventListener('change', function() {
-                table.rows().nodes().to$().find('.select-checkbox').each(function() {
+                table.rows({ page: 'current' }).nodes().to$().find('.select-checkbox').each(function() {
                     this.checked = selectAllCheckbox.checked;
                     var row = this.closest('tr');
                     row.classList.toggle('selected', this.checked);
@@ -254,7 +254,7 @@
                 updateButtonVisibility();
 
                 // Atur status checkbox "Select All"
-                var allChecked = table.rows().nodes().to$().find('.select-checkbox').toArray().every(function(checkbox) {
+                var allChecked = table.rows({ page: 'current' }).nodes().to$().find('.select-checkbox').toArray().every(function(checkbox) {
                     return checkbox.checked;
                 });
 

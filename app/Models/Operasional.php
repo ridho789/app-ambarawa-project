@@ -24,6 +24,8 @@ class Operasional extends Model
         'p_member',
         'b_aplikasi',
         'total',
-        'toko'
+        'toko',
+        'status',
+        'file'
     ];
 }

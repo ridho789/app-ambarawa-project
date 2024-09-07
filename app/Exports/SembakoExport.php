@@ -56,15 +56,15 @@ class SembakoExport implements WithMultipleSheets
                         });
 
                         $data = $this->sembako->map(function ($item) {
-                            $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
-                            $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
+                            $harga = 'Rp ' . number_format((float) ($item->harga ?? 0), 0, ',', '.');
+                            $total = 'Rp ' . number_format((float) ($item->total ?? 0), 0, ',', '.');
                             $satuan = Satuan::find($item->id_satuan);
 
                             return [
                                 'tanggal' => $item->tanggal,
                                 'nama' => $item->nama,
                                 'jumlah' => $item->qty,
-                                'satuan' => $satuan->nama,
+                                'satuan' => $satuan->nama ?? '-',
                                 'harga' => $harga,
                                 'total' => $total,
                             ];
@@ -134,15 +134,15 @@ class SembakoExport implements WithMultipleSheets
                     });
 
                     $data = $this->sembako->map(function ($item) {
-                        $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
-                        $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
+                        $harga = 'Rp ' . number_format((float) ($item->harga ?? 0), 0, ',', '.');
+                        $total = 'Rp ' . number_format((float) ($item->total ?? 0), 0, ',', '.');
                         $satuan = Satuan::find($item->id_satuan);
 
                         return [
                             'tanggal' => $item->tanggal,
                             'nama' => $item->nama,
                             'jumlah' => $item->qty,
-                            'satuan' => $satuan->nama,
+                            'satuan' => $satuan->nama ?? '-',
                             'harga' => $harga,
                             'total' => $total,
                         ];

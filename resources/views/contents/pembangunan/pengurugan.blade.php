@@ -12,6 +12,42 @@
         width: 100%;
         margin: 0 auto;
     }
+
+    .status-process {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 11.5px;
+        font-weight: bold;
+        color: black;
+        background-color: #D5D5D5;
+        border-radius: 10px;
+        text-align: center;
+        width: 80px;
+    }
+
+    .status-pending {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 11.5px;
+        font-weight: bold;
+        color: black;
+        background-color: #FFCA00;
+        border-radius: 10px;
+        text-align: center;
+        width: 80px;
+    }
+
+    .status-paid {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 11.5px;
+        font-weight: bold;
+        color: green;
+        background-color: #88F9A7;
+        border-radius: 10px;
+        text-align: center;
+        width: 80px;
+    }
 </style>
 <div class="container">
     <div class="page-inner">
@@ -136,6 +172,11 @@
                                 <input type="text" class="form-control" name="toko" id="toko" placeholder="Masukkan toko.." 
                                 oninput="this.value = this.value.toUpperCase()" required />
                             </div>
+
+                            <div class="form-group">
+                                <label for="file">Upload file</label>
+                                <input type="file" name="file" accept="application/pdf, image/png, image/jpeg">
+                            </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
                             <button type="submit" class="btn btn-primary btn-sm">Submit</button>
@@ -252,6 +293,16 @@
                                 <input type="text" class="form-control" name="toko" id="edit-toko" placeholder="Masukkan toko.." 
                                 oninput="this.value = this.value.toUpperCase()" required />
                             </div>
+
+                            <div class="form-group">
+                                <label for="file">Upload file</label>
+                                <input type="file" name="file" accept="application/pdf, image/png, image/jpeg">
+
+                                <!-- Menampilkan file yang sudah diunggah -->
+                                <div id="current-file" style="margin-top: 10px;">
+                                    <!-- Isi file akan di-update melalui JavaScript -->
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
                             <button type="submit" class="btn btn-primary btn-sm">Submit</button>
@@ -362,18 +413,45 @@
                     <div class="card-header">
                         <div class="d-flex align-items-center">
                             <div class="card-title">List Pengeluaran Pengurugan</div>
+                            <input type="hidden" id="allSelectRow" name="ids" value="">
                             <button id="editButton" class="btn btn-warning btn-round ms-5 btn-sm" data-bs-toggle="modal" data-bs-target="#penguruganEditModal" style="display: none;">
                                 <i class="fa fa-edit"></i>
                                  Edit data
                             </button>
                             <form id="deleteForm" method="POST" action="{{ url('pengurugan-delete') }}" class="d-inline">
                                 @csrf
-                                <input type="hidden" id="allSelectRow" name="ids" value="">
+                                <input type="hidden" id="deleteAllSelectRow" name="ids" value="">
                                 <button id="deleteButton" type="button" class="btn btn-danger btn-round ms-2 btn-sm" style="display: none;">
                                     <i class="fa fa-trash"></i>
                                     Delete data
                                 </button>
                             </form>
+                            @if (Auth::user()->level == 0)
+                            <form id="statusPendingForm" method="POST" action="{{ url('pengurugan-status_pending') }}" class="d-inline">
+                                @csrf
+                                <input type="hidden" id="pendingAllSelectRow" name="ids" value="">
+                                <button id="statusPendingButton" type="button" class="btn btn-warning btn-round ms-5 btn-sm" style="display: none;">
+                                    <!-- <i class="fa fa-trash"></i> -->
+                                    Set to Pending
+                                </button>
+                            </form>
+                            <form id="statusProcessForm" method="POST" action="{{ url('pengurugan-status_process') }}" class="d-inline">
+                                @csrf
+                                <input type="hidden" id="processAllSelectRow" name="ids" value="">
+                                <button id="statusProcessButton" type="button" class="btn btn-black btn-round ms-3 btn-sm" style="display: none;">
+                                    <!-- <i class="fa fa-trash"></i> -->
+                                    Set to Processing
+                                </button>
+                            </form>
+                            <form id="statusPaidForm" method="POST" action="{{ url('pengurugan-status_paid') }}" class="d-inline">
+                                @csrf
+                                <input type="hidden" id="paidAllSelectRow" name="ids" value="">
+                                <button id="statusPaidButton" type="button" class="btn btn-success btn-round ms-3 btn-sm" style="display: none;">
+                                    <!-- <i class="fa fa-trash"></i> -->
+                                    Set to Paid
+                                </button>
+                            </form>
+                            @endif
                             <div class="ms-auto d-flex align-items-center">
                                 @if (count($pengurugan) > 0)
                                     <button class="btn btn-success btn-round ms-2 btn-sm" data-bs-toggle="modal" data-bs-target="#penguruganExportModal">
@@ -408,6 +486,7 @@
                                         <!-- <th class="text-xxs-bold">Harga</th> -->
                                         <th class="text-xxs-bold">Total</th>
                                         <th class="text-xxs-bold">Toko</th>
+                                        <th class="text-xxs-bold">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -422,12 +501,19 @@
                                         data-satuan="{{ $p->id_satuan }}"
                                         data-harga="{{ 'Rp ' . number_format($p->harga ?? 0, 0, ',', '.') }}"
                                         data-total="{{ 'Rp ' . number_format($p->tot_harga ?? 0, 0, ',', '.') }}"
-                                        data-toko="{{ $p->toko }}">
+                                        data-toko="{{ $p->toko }}"
+                                        data-file="{{ $p->file }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $namaProyek[$p->id_proyek] ?? '-' }}</td>
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $p->tanggal)->format('d-M-Y') ?? '-' }}</td>
-                                        <td>{{ $p->nama ?? '-' }}</td>
+                                        @if ($p->file)
+                                            <td>
+                                                <a href="{{ asset('storage/' . $p->file) }}" target="_blank">{{ $p->nama ?? '-' }}</a>
+                                            </td>
+                                        @else
+                                            <td>{{ $p->nama ?? '-' }}</td>
+                                        @endif
                                         <td class="deskripsi">{{ $p->deskripsi ?? '-' }}</td>
                                         <td>{{ $p->ukuran ?? '-' }}</td>
                                         <td>{{ $p->jumlah ?? '-' }}</td>
@@ -435,6 +521,16 @@
                                         <!-- <td>{{ 'Rp ' . number_format($p->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($p->tot_harga ?? 0, 0, ',', '.') }}</td>
                                         <td>{{ $p->toko ?? '-' }}</td>
+                                        <td>
+                                            @php
+                                                $statusClass = match($p->status) {
+                                                    'pending' => 'status-pending',
+                                                    'processing' => 'status-process',
+                                                    default => 'status-paid',
+                                                };
+                                            @endphp
+                                            <span class="{{ $statusClass }}">{{ ucfirst($p->status) }}</span>
+                                        </td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -673,13 +769,20 @@
         var table = $('#basic-datatables').DataTable();
         var selectAllCheckbox = document.getElementById('selectAllCheckbox');
         var allSelectRowInput = document.getElementById('allSelectRow');
+        var deleteAllSelectRowInput = document.getElementById('deleteAllSelectRow');
+        var pendingAllSelectRowInput = document.getElementById('pendingAllSelectRow');
+        var processAllSelectRowInput = document.getElementById('processAllSelectRow');
+        var paidAllSelectRowInput = document.getElementById('paidAllSelectRow');
         var editButton = document.getElementById('editButton');
         var deleteButton = document.getElementById('deleteButton');
+        var pendingButton = document.getElementById('statusPendingButton');
+        var processButton = document.getElementById('statusProcessButton');
+        var paidButton = document.getElementById('statusPaidButton');
 
         if (table && selectAllCheckbox) {
             // Event listener untuk checkbox "Select All"
             selectAllCheckbox.addEventListener('change', function() {
-                table.rows().nodes().to$().find('.select-checkbox').each(function() {
+                table.rows({ page: 'current' }).nodes().to$().find('.select-checkbox').each(function() {
                     this.checked = selectAllCheckbox.checked;
                     var row = this.closest('tr');
                     row.classList.toggle('selected', this.checked);
@@ -701,7 +804,7 @@
                 updateButtonVisibility();
 
                 // Atur status checkbox "Select All"
-                var allChecked = table.rows().nodes().to$().find('.select-checkbox').toArray().every(function(checkbox) {
+                var allChecked = table.rows({ page: 'current' }).nodes().to$().find('.select-checkbox').toArray().every(function(checkbox) {
                     return checkbox.checked;
                 });
 
@@ -717,7 +820,17 @@
                     return $(this).closest('tr').data('id');
                 }).get();
 
-                allSelectRowInput.value = selectedIds.join(',');
+                var idsString = selectedIds.join(',');
+
+                // Update each hidden input with the selected IDs
+                allSelectRowInput.value = idsString;
+                deleteAllSelectRowInput.value = idsString;
+
+                if (pendingAllSelectRowInput) {
+                    pendingAllSelectRowInput.value = idsString;
+                    processAllSelectRowInput.value = idsString;
+                    paidAllSelectRowInput.value = idsString;
+                }
             }
 
             // Fungsi untuk mengatur visibilitas tombol
@@ -727,16 +840,31 @@
                 if (selectedCheckboxes === 1) {
                     editButton.style.display = 'inline-block';
                     deleteButton.style.display = 'inline-block';
+                    if (pendingButton) {
+                        pendingButton.style.display = 'inline-block';
+                        processButton.style.display = 'inline-block';
+                        paidButton.style.display = 'inline-block';
+                    }
                     deleteButton.classList.remove('ms-5');
                     deleteButton.classList.add('ms-3');
                 } else if (selectedCheckboxes > 1) {
                     editButton.style.display = 'none';
                     deleteButton.style.display = 'inline-block';
+                    if (pendingButton) {
+                        pendingButton.style.display = 'inline-block';
+                        processButton.style.display = 'inline-block';
+                        paidButton.style.display = 'inline-block';
+                    }
                     deleteButton.classList.remove('ms-3');
                     deleteButton.classList.add('ms-5');
                 } else {
                     editButton.style.display = 'none';
                     deleteButton.style.display = 'none';
+                    if (pendingButton) {
+                        pendingButton.style.display = 'none';
+                        processButton.style.display = 'none';
+                        paidButton.style.display = 'none';
+                    }
                 }
             }
 
@@ -757,6 +885,61 @@
                 });
             });
 
+            // Event listener untuk tombol update status
+            if (pendingButton) {
+                pendingButton.addEventListener('click', function() {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You'll update the status to pending!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, update it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            statusPendingForm.submit();
+                        }
+                    });
+                });
+            }
+
+            if (processButton) {
+                processButton.addEventListener('click', function() {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You'll update the status to processing!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, update it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            statusProcessForm.submit();
+                        }
+                    });
+                });
+            }
+
+            if (paidButton) {
+                paidButton.addEventListener('click', function() {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You'll update the status to paid!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, update it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            statusPaidForm.submit();
+                        }
+                    });
+                });
+            }
+
             editButton.addEventListener('click', function () {
                 var selectedId = allSelectRowInput.value.split(',')[0];
                 if (selectedId) {
@@ -773,6 +956,15 @@
                     $('#edit-harga').val(row.data('harga'));
                     $('#edit-total').val(row.data('total'));
                     $('#edit-toko').val(row.data('toko'));
+
+                    // Menampilkan file yang diunggah
+                    var file = row.data('file');
+                    if (file) {
+                        var fileUrl = "{{ asset('storage/') }}" + "/" + file;
+                        $('#current-file').html('<a href="' + fileUrl + '" target="_blank">' + file + '</a>');
+                    } else {
+                        $('#current-file').html('<span>Tidak ada file yang diunggah</span>');
+                    }
                 }
             });
         }

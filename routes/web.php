@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PermintaanBarangController;
 use App\Http\Controllers\ACController;
 use App\Http\Controllers\BubutController;
 use App\Http\Controllers\BBMController;
@@ -28,6 +29,9 @@ use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\ProyekController;
 use App\Http\Controllers\SatuanController;
 
+// History
+use App\Http\Controllers\ActivityController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -47,10 +51,24 @@ Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login-auth', [AuthController::class, 'login']);
 Route::get('logout', [AuthController::class, 'logout']);
 
+Route::group(['middleware' => ['auth', 'check.role.user:0']], function () {
+    // History
+    Route::get('activity', [ActivityController::class, 'index']);
+});
+
 Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index']);
+
+    // Permintaan barang
+    Route::get('/permintaan_barang', [PermintaanBarangController::class, 'index']);
+    Route::post('permintaan_barang-store', [PermintaanBarangController::class, 'store']);
+    Route::post('permintaan_barang-update', [PermintaanBarangController::class, 'update']);
+    Route::post('permintaan_barang-delete', [PermintaanBarangController::class, 'delete']);
+    Route::post('permintaan_barang-status_pending', [PermintaanBarangController::class, 'pending']);
+    Route::post('permintaan_barang-status_waiting', [PermintaanBarangController::class, 'waiting']);
+    Route::post('permintaan_barang-status_approved', [PermintaanBarangController::class, 'approved']);
 
     // AC
     Route::get('/ac', [ACController::class, 'index']);
@@ -58,6 +76,9 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('ac-update', [ACController::class, 'update']);
     Route::post('ac-delete', [ACController::class, 'delete']);
     Route::post('ac-export', [ACController::class, 'export']);
+    Route::post('ac-status_pending', [ACController::class, 'pending']);
+    Route::post('ac-status_process', [ACController::class, 'process']);
+    Route::post('ac-status_paid', [ACController::class, 'paid']);
     
     // BBM
     Route::get('/bbm', [BBMController::class, 'index']);
@@ -75,6 +96,9 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('bubut-update', [BubutController::class, 'update']);
     Route::post('bubut-delete', [BubutController::class, 'delete']);
     Route::post('bubut-export', [BubutController::class, 'export']);
+    Route::post('bubut-status_pending', [BubutController::class, 'pending']);
+    Route::post('bubut-status_process', [BubutController::class, 'process']);
+    Route::post('bubut-status_paid', [BubutController::class, 'paid']);
     
     // Cat
     Route::get('/cat', [CatController::class, 'index']);
@@ -82,6 +106,9 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('cat-update', [CatController::class, 'update']);
     Route::post('cat-delete', [CatController::class, 'delete']);
     Route::post('cat-export', [CatController::class, 'export']);
+    Route::post('cat-status_pending', [CatController::class, 'pending']);
+    Route::post('cat-status_process', [CatController::class, 'process']);
+    Route::post('cat-status_paid', [CatController::class, 'paid']);
 
     // Pengurugan
     Route::get('/pengurugan', [PenguruganController::class, 'index']);
@@ -89,6 +116,9 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('pengurugan-update', [PenguruganController::class, 'update']);
     Route::post('pengurugan-delete', [PenguruganController::class, 'delete']);
     Route::post('pengurugan-export', [PenguruganController::class, 'export']);
+    Route::post('pengurugan-status_pending', [PenguruganController::class, 'pending']);
+    Route::post('pengurugan-status_process', [PenguruganController::class, 'process']);
+    Route::post('pengurugan-status_paid', [PenguruganController::class, 'paid']);
     
     // Operasional
     Route::get('/operasional', [OperasionalController::class, 'index']);
@@ -96,6 +126,9 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('operasional-update', [OperasionalController::class, 'update']);
     Route::post('operasional-delete', [OperasionalController::class, 'delete']);
     Route::post('operasional-export', [OperasionalController::class, 'export']);
+    Route::post('operasional-status_pending', [OperasionalController::class, 'pending']);
+    Route::post('operasional-status_process', [OperasionalController::class, 'process']);
+    Route::post('operasional-status_paid', [OperasionalController::class, 'paid']);
     
     // Poles Kaca Mobil
     Route::get('/poles', [PolesKacaMobilController::class, 'index']);
@@ -103,6 +136,9 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('poles-update', [PolesKacaMobilController::class, 'update']);
     Route::post('poles-delete', [PolesKacaMobilController::class, 'delete']);
     Route::post('poles-export', [PolesKacaMobilController::class, 'export']);
+    Route::post('poles-status_pending', [PolesKacaMobilController::class, 'pending']);
+    Route::post('poles-status_process', [PolesKacaMobilController::class, 'process']);
+    Route::post('poles-status_paid', [PolesKacaMobilController::class, 'paid']);
     
     // Sembako
     Route::get('/sembako', [SembakoController::class, 'index']);
@@ -110,6 +146,10 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('sembako-update', [SembakoController::class, 'update']);
     Route::post('sembako-delete', [SembakoController::class, 'delete']);
     Route::post('sembako-export', [SembakoController::class, 'export']);
+    Route::post('sembako-import', [SembakoController::class, 'import']);
+    Route::post('sembako-status_pending', [SembakoController::class, 'pending']);
+    Route::post('sembako-status_process', [SembakoController::class, 'process']);
+    Route::post('sembako-status_paid', [SembakoController::class, 'paid']);
     
     // Sparepart AMB
     Route::get('/sparepartamb', [SparepartController::class, 'index']);
@@ -117,6 +157,9 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('sparepartamb-update', [SparepartController::class, 'update']);
     Route::post('sparepartamb-delete', [SparepartController::class, 'delete']);
     Route::post('sparepartamb-export', [SparepartController::class, 'export']);
+    Route::post('sparepartamb-status_pending', [SparepartController::class, 'pending']);
+    Route::post('sparepartamb-status_process', [SparepartController::class, 'process']);
+    Route::post('sparepartamb-status_paid', [SparepartController::class, 'paid']);
     
     // Trip
     Route::get('/trip', [TripController::class, 'index']);
@@ -141,6 +184,9 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('besi-update', [BesiController::class, 'update']);
     Route::post('besi-delete', [BesiController::class, 'delete']);
     Route::post('besi-export', [BesiController::class, 'export']);
+    Route::post('besi-status_pending', [BesiController::class, 'pending']);
+    Route::post('besi-status_process', [BesiController::class, 'process']);
+    Route::post('besi-status_paid', [BesiController::class, 'paid']);
 
     // Kontruksi - Material
     Route::get('/material', [MaterialController::class, 'index']);
@@ -148,6 +194,9 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('material-update', [MaterialController::class, 'update']);
     Route::post('material-delete', [MaterialController::class, 'delete']);
     Route::post('material-export', [MaterialController::class, 'export']);
+    Route::post('material-status_pending', [MaterialController::class, 'pending']);
+    Route::post('material-status_process', [MaterialController::class, 'process']);
+    Route::post('material-status_paid', [MaterialController::class, 'paid']);
 
     // Kontruksi - Pasir
     // Route::get('/pasir', [PasirController::class, 'index']);

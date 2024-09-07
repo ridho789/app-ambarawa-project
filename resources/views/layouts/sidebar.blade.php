@@ -63,6 +63,18 @@
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
                     </span>
+                    <h4 class="text-section">Submission</h4>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/permintaan_barang') }}">
+                        <i class="fas fa-receipt"></i>
+                        <p>Permintaan Barang</p>
+                    </a>
+                </li>
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
                     <h4 class="text-section">Components</h4>
                 </li>
                 <li class="nav-item">
@@ -165,6 +177,20 @@
                         <p>Perjalanan</p>
                     </a>
                 </li>
+                @if (Auth::user()->level == 0)
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+                    <h4 class="text-section">History</h4>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/activity') }}">
+                        <i class="fas fa-book"></i>
+                        <p>Catatan Aktivitas</p>
+                    </a>
+                </li>
+                @endif
             </ul>
         </div>
     </div>

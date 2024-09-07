@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id('id_sembako');
             $table->date('tanggal');
             $table->string('nama');
-            $table->string('qty');
-            $table->string('harga');
+            $table->string('qty')->nullable();
+            $table->string('harga')->nullable();
             $table->string('total');
+            $table->string('status')->default('processing');
             $table->timestamps();
         });
     }

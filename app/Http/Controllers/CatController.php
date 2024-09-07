@@ -8,11 +8,24 @@ use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TagihanExport;
 use Carbon\Carbon;
+use DateTime;
 
 class CatController extends Controller
 {
     public function index() {
-        $cat = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])->orderBy('lokasi')->orderBy('tgl_order')->orderBy('nama')->get();
+        $cat = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])
+            ->where(function ($query) {
+                $query->whereNull('noform')
+                    ->orWhereHas('permintaanBarang', function ($query) {
+                        $query->whereColumn('tbl_tagihan_amb.noform', 'tbl_permintaan_barang.noform')
+                                ->where('status', 'approved');
+                    });
+            })
+            ->orderBy('lokasi')
+            ->orderBy('tgl_order')
+            ->orderBy('nama')
+            ->get();
+
         $catOnline = TagihanAMB::where('keterangan', 'tagihan cat online')->get();
         $catOffline = TagihanAMB::where('keterangan', 'tagihan cat')->get();
         $periodes = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])
@@ -30,6 +43,21 @@ class CatController extends Controller
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
         $masa_pakai = $request->masa . ' ' . $request->waktu;
+
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Cat', $fileName, 'public');
+        }
 
         if ($request->metode_pembelian == 'offline') {
             $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
@@ -55,7 +83,8 @@ class CatController extends Controller
                 'b_proteksi' => null,
                 'b_jasa_aplikasi' => null,
                 'total' => $numericTotal,
-                'toko' => $request->toko
+                'toko' => $request->toko,
+                'file' => $filePath
             ];
     
             $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')->where('lokasi', $request->lokasi)->where('pemesan', $request->pemesan)
@@ -108,7 +137,9 @@ class CatController extends Controller
                 'b_proteksi' => $numericProteksi,
                 'b_jasa_aplikasi' => $numericAplikasi,
                 'total' => $numericTotal,
-                'toko' => $request->toko
+                'toko' => $request->toko,
+                'via' => 'online',
+                'file' => $filePath
             ];
     
             $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat online')->where('lokasi', $request->lokasi)
@@ -155,7 +186,8 @@ class CatController extends Controller
             'b_proteksi' => null,
             'b_jasa_aplikasi' => null,
             'total' => $numericTotal,
-            'toko' => $request->toko
+            'toko' => $request->toko,
+            'file' => $filePath
         ];
 
         $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')->where('lokasi', $request->lokasi)
@@ -182,6 +214,21 @@ class CatController extends Controller
         $tagihanCat = TagihanAMB::find($request->id_tagihan_amb);
         $masa_pakai = $request->masa . ' ' . $request->waktu;
 
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Cat', $fileName, 'public');
+        }
+
         if ($request->metode_pembelian == 'offline') {
             $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
 
@@ -207,6 +254,10 @@ class CatController extends Controller
                 $tagihanCat->b_jasa_aplikasi = null;
                 $tagihanCat->total = $numericTotal;
                 $tagihanCat->toko = $request->toko;
+
+                if ($filePath) {
+                    $tagihanCat->file = $filePath;
+                }
     
                 $tagihanCat->save();
                 return redirect('cat')->with('success', 'Data berhasil diperbaharui!');
@@ -243,6 +294,11 @@ class CatController extends Controller
                 $tagihanCat->b_jasa_aplikasi = $numericAplikasi;
                 $tagihanCat->total = $numericTotal;
                 $tagihanCat->toko = $request->toko;
+                $tagihanCat->via = 'online';
+
+                if ($filePath) {
+                    $tagihanCat->file = $filePath;
+                }
     
                 $tagihanCat->save();
                 return redirect('cat')->with('success', 'Data berhasil diperbaharui!');
@@ -271,6 +327,10 @@ class CatController extends Controller
             $tagihanCat->b_jasa_aplikasi = null;
             $tagihanCat->total = $numericTotal;
             $tagihanCat->toko = $request->toko;
+
+            if ($filePath) {
+                $tagihanCat->file = $filePath;
+            }
 
             $tagihanCat->save();
             return redirect('cat')->with('success', 'Data berhasil diperbaharui!');
@@ -341,10 +401,10 @@ class CatController extends Controller
         $hargaColumn = $metode_pembelian == 'online' ? 'harga_online' : null;
         $query = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])
         ->when($hargaColumn, function ($query, $hargaColumn) {
-            return $query->where($hargaColumn, '!=', null)
+            return $query->where('via', 'online')
                         ->where('keterangan', 'tagihan cat online');
         }, function ($query) {
-            return $query->whereNull('harga_online')
+            return $query->where('via', 'offline')
                         ->where('keterangan', 'tagihan cat');
         });
         
@@ -363,5 +423,51 @@ class CatController extends Controller
                 : 'Report Cat ' . $rangeDate . '.xlsx');
     
         return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
+    }
+
+    // Update status
+    public function pending(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->update([
+            'status' => 'pending'
+        ]);
+        return redirect('cat');
+    }
+
+    public function process(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->update([
+            'status' => 'processing'
+        ]);
+        return redirect('cat');
+    }
+
+    public function paid(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        TagihanAMB::whereIn('id_tagihan_amb', $validatedIds)->update([
+            'status' => 'paid'
+        ]);
+        return redirect('cat');
     }
 }

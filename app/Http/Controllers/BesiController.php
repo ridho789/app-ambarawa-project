@@ -9,27 +9,49 @@ use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PembangunanExport;
 use Carbon\Carbon;
+use DateTime;
 
 class BesiController extends Controller
 {
     public function index() {
-        $besi = Pembangunan::where('ket', 'pengeluaran besi')->orderBy('tanggal')->orderBy('nama')->get();
-        $periodes = Pembangunan::where('ket', 'pengeluaran besi')
-            ->select(Pembangunan::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
-            ->distinct()
-            ->orderBy('periode', 'desc')
-            ->get()
-            ->pluck('periode');
+        $besi = Pembangunan::where('ket', 'pengeluaran besi')
+            ->where(function ($query) {
+                $query->whereNull('noform')
+                    ->orWhereHas('permintaanBarang', function ($query) {
+                        $query->whereColumn('tbl_pembangunan.noform', 'tbl_permintaan_barang.noform')
+                                ->where('status', 'approved');
+                    });
+            })
+            ->orderByRaw('tanggal IS NULL')
+            ->orderBy('tanggal')
+            ->orderBy('nama')
+            ->get();
+
         $proyek = Proyek::all();
         $namaProyek = Proyek::pluck('nama', 'id_proyek');
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        return view('contents.pembangunan.kontruksi.besi', compact('besi', 'proyek', 'namaProyek', 'satuan', 'namaSatuan', 'periodes'));
+        return view('contents.pembangunan.kontruksi.besi', compact('besi', 'proyek', 'namaProyek', 'satuan', 'namaSatuan'));
     }
 
     public function store(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Besi', $fileName, 'public');
+        }
 
         $dataBesi = [
             'ket' => 'pengeluaran besi',
@@ -42,7 +64,8 @@ class BesiController extends Controller
             'id_satuan' => $request->satuan,
             'harga' => $numericHarga,
             'tot_harga' => $numericTotal,
-            'toko' => $request->toko
+            'toko' => $request->toko,
+            'file' => $filePath
         ];
 
         $dataProyek = Proyek::where('id_proyek', $request->proyek)->first();
@@ -71,6 +94,21 @@ class BesiController extends Controller
     public function update(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Besi', $fileName, 'public');
+        }
         
         $tagihanBesi = Pembangunan::find($request->id_besi);
         if ($tagihanBesi) {
@@ -84,6 +122,10 @@ class BesiController extends Controller
             $tagihanBesi->harga = $numericHarga;
             $tagihanBesi->tot_harga = $numericTotal;
             $tagihanBesi->toko = $request->toko;
+
+            if ($filePath) {
+                $tagihanBesi->file = $filePath;
+            }
 
             $tagihanBesi->save();
             return redirect('besi')->with('success', 'Data berhasil diperbaharui!');
@@ -147,18 +189,74 @@ class BesiController extends Controller
         }
 
         if ($mode == 'all_data') {
-            $besi = Pembangunan::where('ket', 'pengeluaran besi')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
-            return Excel::download(new PembangunanExport($mode, $besi, $nama, $rangeDate), 'Report Besi.xlsx');
+            $besi = Pembangunan::where('ket', 'pengeluaran besi')->whereNotNull('tanggal')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
+            if (count($besi) > 0) {
+                return Excel::download(new PembangunanExport($mode, $besi, $nama, $rangeDate), 'Report Besi.xlsx');
+            }
+
+            $logErrors = 'Data tidak bisa diekspor karena masih ada yang belum lengkap!';
+            return redirect('besi')->with('logErrors', $logErrors);
 
         } else {
-            $besi = Pembangunan::where('ket', 'pengeluaran besi')->where('tanggal', '>=', $start_date)
+            $besi = Pembangunan::where('ket', 'pengeluaran besi')->whereNotNull('tanggal')->where('tanggal', '>=', $start_date)
                 ->where('tanggal', '<=', $end_date)
                 ->orderBy('tanggal', 'asc')
                 ->orderBy('nama', 'asc')
                 ->get();
 
             $fileName = 'Report Besi ' . $rangeDate . '.xlsx';
-            return Excel::download(new PembangunanExport($mode, $besi, $nama, $rangeDate), $fileName);
+            if (count($besi) > 0) {
+                return Excel::download(new PembangunanExport($mode, $besi, $nama, $rangeDate), $fileName);
+            }
+
+            $logErrors = 'Data tidak bisa diekspor karena masih ada yang belum lengkap!';
+            return redirect('besi')->with('logErrors', $logErrors);
         }
+    }
+
+    // Update status
+    public function pending(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Pembangunan::whereIn('id_pembangunan', $validatedIds)->update([
+            'status' => 'pending'
+        ]);
+        return redirect('besi');
+    }
+
+    public function process(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Pembangunan::whereIn('id_pembangunan', $validatedIds)->update([
+            'status' => 'processing'
+        ]);
+        return redirect('besi');
+    }
+
+    public function paid(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Pembangunan::whereIn('id_pembangunan', $validatedIds)->update([
+            'status' => 'paid'
+        ]);
+        return redirect('besi');
     }
 }

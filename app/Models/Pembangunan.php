@@ -15,6 +15,7 @@ class Pembangunan extends Model
         'id_proyek',
         'id_satuan',
         'id_kategori',
+        'noform',
         'ket',
         'tanggal',
         'nama',
@@ -23,6 +24,12 @@ class Pembangunan extends Model
         'jumlah',
         'harga',
         'tot_harga',
-        'toko'
+        'toko',
+        'status',
+        'file'
     ];
+
+    public function permintaanBarang() {
+        return $this->hasMany(PermintaanBarang::class, 'noform', 'noform');
+    }
 }

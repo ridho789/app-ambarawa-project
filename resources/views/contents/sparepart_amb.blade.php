@@ -12,6 +12,42 @@
         width: 100%;
         margin: 0 auto;
     }
+
+    .status-process {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 11.5px;
+        font-weight: bold;
+        color: black;
+        background-color: #D5D5D5;
+        border-radius: 10px;
+        text-align: center;
+        width: 80px;
+    }
+
+    .status-pending {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 11.5px;
+        font-weight: bold;
+        color: black;
+        background-color: #FFCA00;
+        border-radius: 10px;
+        text-align: center;
+        width: 80px;
+    }
+
+    .status-paid {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 11.5px;
+        font-weight: bold;
+        color: green;
+        background-color: #88F9A7;
+        border-radius: 10px;
+        text-align: center;
+        width: 80px;
+    }
 </style>
 <div class="container">
     <div class="page-inner">
@@ -268,6 +304,11 @@
                                 <input type="text" class="form-control" name="toko" id="toko" placeholder="Masukkan toko.." 
                                 oninput="this.value = this.value.toUpperCase()" required />
                             </div>
+
+                            <div class="form-group">
+                                <label for="file">Upload file</label>
+                                <input type="file" name="file" accept="application/pdf, image/png, image/jpeg">
+                            </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
                             <button type="submit" class="btn btn-primary btn-sm">Submit</button>
@@ -516,6 +557,16 @@
                                 <input type="text" class="form-control" name="toko" id="edit-toko" placeholder="Masukkan toko.." 
                                 oninput="this.value = this.value.toUpperCase()" required />
                             </div>
+
+                            <div class="form-group">
+                                <label for="file">Upload file</label>
+                                <input type="file" name="file" accept="application/pdf, image/png, image/jpeg">
+
+                                <!-- Menampilkan file yang sudah diunggah -->
+                                <div id="current-file" style="margin-top: 10px;">
+                                    <!-- Isi file akan di-update melalui JavaScript -->
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
                             <button type="submit" class="btn btn-primary btn-sm">Submit</button>
@@ -678,18 +729,45 @@
                     <div class="card-header">
                         <div class="d-flex align-items-center">
                             <div class="card-title">List Pengeluaran Spareparts</div>
+                            <input type="hidden" id="allSelectRow" name="ids" value="">
                             <button id="editButton" class="btn btn-warning btn-round ms-5 btn-sm" data-bs-toggle="modal" data-bs-target="#sparepartEditModal" style="display: none;">
                                 <i class="fa fa-edit"></i>
                                  Edit data
                             </button>
                             <form id="deleteForm" method="POST" action="{{ url('sparepartamb-delete') }}" class="d-inline">
                                 @csrf
-                                <input type="hidden" id="allSelectRow" name="ids" value="">
+                                <input type="hidden" id="deleteAllSelectRow" name="ids" value="">
                                 <button id="deleteButton" type="button" class="btn btn-danger btn-round ms-2 btn-sm" style="display: none;">
                                     <i class="fa fa-trash"></i>
                                     Delete data
                                 </button>
                             </form>
+                            @if (Auth::user()->level == 0)
+                            <form id="statusPendingForm" method="POST" action="{{ url('sparepartamb-status_pending') }}" class="d-inline">
+                                @csrf
+                                <input type="hidden" id="pendingAllSelectRow" name="ids" value="">
+                                <button id="statusPendingButton" type="button" class="btn btn-warning btn-round ms-5 btn-sm" style="display: none;">
+                                    <!-- <i class="fa fa-trash"></i> -->
+                                    Set to Pending
+                                </button>
+                            </form>
+                            <form id="statusProcessForm" method="POST" action="{{ url('sparepartamb-status_process') }}" class="d-inline">
+                                @csrf
+                                <input type="hidden" id="processAllSelectRow" name="ids" value="">
+                                <button id="statusProcessButton" type="button" class="btn btn-black btn-round ms-3 btn-sm" style="display: none;">
+                                    <!-- <i class="fa fa-trash"></i> -->
+                                    Set to Processing
+                                </button>
+                            </form>
+                            <form id="statusPaidForm" method="POST" action="{{ url('sparepartamb-status_paid') }}" class="d-inline">
+                                @csrf
+                                <input type="hidden" id="paidAllSelectRow" name="ids" value="">
+                                <button id="statusPaidButton" type="button" class="btn btn-success btn-round ms-3 btn-sm" style="display: none;">
+                                    <!-- <i class="fa fa-trash"></i> -->
+                                    Set to Paid
+                                </button>
+                            </form>
+                            @endif
                             <div class="ms-auto d-flex align-items-center">
                                 @if (count($sparepartamb) > 0)
                                     <button class="btn btn-success btn-round ms-2 btn-sm" data-bs-toggle="modal" data-bs-target="#sparepartExportModal">
@@ -714,28 +792,31 @@
                                             <input type="checkbox" id="selectAllCheckbox">
                                         </th>
                                         <th class="text-xxs-bold">No.</th>
+                                        <th class="text-xxs-bold">No. Form</th>
                                         <th class="text-xxs-bold">Lokasi</th>
-                                        <th class="text-xxs-bold">Nopol / Kode Unit</th>
-                                        <th class="text-xxs-bold">Merk</th>
+                                        <th class="text-xxs-bold">Nopol <br> / Kode Unit</th>
+                                        <!-- <th class="text-xxs-bold">Merk</th> -->
                                         <th class="text-xxs-bold">Pemesan</th>
                                         <th class="text-xxs-bold">Tgl. Order</th>
                                         <th class="text-xxs-bold">Tgl. Invoice</th>
-                                        <th class="text-xxs-bold">No. Inventaris</th>
-                                        <th class="text-xxs-bold">Nama (Barang)</th>
+                                        <th class="text-xxs-bold">No. <br> Inventaris</th>
+                                        <th class="text-xxs-bold">Nama <br> (Barang)</th>
                                         <th class="text-xxs-bold">Kategori</th>
                                         <!-- <th class="text-xxs-bold">Keperluan</th> -->
-                                        <th class="text-xxs-bold">Masa Pakai</th>
+                                        <th class="text-xxs-bold">Masa <br> Pakai</th>
                                         <!-- <th class="text-xxs-bold">Qty</th> -->
                                         <!-- <th class="text-xxs-bold">Unit</th> -->
                                         <!-- <th class="text-xxs-bold">Harga</th> -->
                                         <th class="text-xxs-bold">Total</th>
                                         <th class="text-xxs-bold">Toko</th>
                                         <th class="text-xxs-bold">Via</th>
+                                        <th class="text-xxs-bold">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($sparepartamb as $s)
                                     <tr data-id="{{ $s->id_tagihan_amb }}" 
+                                        data-noform="{{ $s->noform }}"
                                         data-lokasi="{{ $s->lokasi }}" 
                                         data-kendaraan="{{ $s->id_kendaraan }}"
                                         data-merk="{{ $merkKendaraan[$s->id_kendaraan] ?? '-' }}"
@@ -757,15 +838,24 @@
                                         data-b_proteksi="{{ 'Rp ' . number_format($s->b_proteksi ?? 0, 0, ',', '.') }}"
                                         data-b_jasa_aplikasi="{{ 'Rp ' . number_format($s->b_jasa_aplikasi ?? 0, 0, ',', '.') }}"
                                         data-total="{{ 'Rp ' . number_format($s->total ?? 0, 0, ',', '.') }}"
-                                        data-toko="{{ $s->toko }}">
+                                        data-toko="{{ $s->toko }}"
+                                        data-via="{{ $s->via }}"
+                                        data-file="{{ $s->file }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
+                                        <td>{{ $s->noform ?? '-' }}</td>
                                         <td>{{ $s->lokasi ?? '-' }}</td>
                                         <td>{{ $nopolKendaraan[$s->id_kendaraan] ?? '-' }}</td>
-                                        <td>{{ $merkKendaraan[$s->id_kendaraan] ?? '-' }}</td>
-                                        <td>{{ $s->pemesan ?? '-' }}</td>
+                                        <!-- <td>{{ $merkKendaraan[$s->id_kendaraan] ?? '-' }}</td> -->
+                                        @if ($s->file)
+                                            <td>
+                                                <a href="{{ asset('storage/' . $s->file) }}" target="_blank">{{ $s->pemesan ?? '-' }}</a>
+                                            </td>
+                                        @else
+                                            <td>{{ $s->pemesan ?? '-' }}</td>
+                                        @endif
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $s->tgl_order)->format('d-M-Y') ?? '-' }}</td>
-                                        <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $s->tgl_invoice)->format('d-M-Y') ?? '-' }}</td>
+                                        <td>{{ $s->tgl_invoice ? \Carbon\Carbon::createFromFormat('Y-m-d', $s->tgl_invoice)->format('d-M-Y') : '-' }}</td>
                                         <td>{{ $s->no_inventaris ?? '-' }}</td>
                                         <td>{{ $s->nama ?? '-' }}</td>
                                         <td>{{ $s->kategori ?? '-' }}</td>
@@ -776,12 +866,16 @@
                                         <!-- <td>{{ 'Rp ' . number_format($s->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($s->total ?? 0, 0, ',', '.') }}</td>
                                         <td>{{ $s->toko }}</td>
+                                        <td>{{ ucfirst($s->via) }}</td>
                                         <td>
-                                            @if ($s->harga_online)
-                                                Online
-                                            @else
-                                                Offline
-                                            @endif
+                                            @php
+                                                $statusClass = match($s->status) {
+                                                    'pending' => 'status-pending',
+                                                    'processing' => 'status-process',
+                                                    default => 'status-paid',
+                                                };
+                                            @endphp
+                                            <span class="{{ $statusClass }}">{{ ucfirst($s->status) }}</span>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -1153,13 +1247,20 @@
         var table = $('#basic-datatables').DataTable();
         var selectAllCheckbox = document.getElementById('selectAllCheckbox');
         var allSelectRowInput = document.getElementById('allSelectRow');
+        var deleteAllSelectRowInput = document.getElementById('deleteAllSelectRow');
+        var pendingAllSelectRowInput = document.getElementById('pendingAllSelectRow');
+        var processAllSelectRowInput = document.getElementById('processAllSelectRow');
+        var paidAllSelectRowInput = document.getElementById('paidAllSelectRow');
         var editButton = document.getElementById('editButton');
         var deleteButton = document.getElementById('deleteButton');
+        var pendingButton = document.getElementById('statusPendingButton');
+        var processButton = document.getElementById('statusProcessButton');
+        var paidButton = document.getElementById('statusPaidButton');
 
         if (table && selectAllCheckbox) {
             // Event listener untuk checkbox "Select All"
             selectAllCheckbox.addEventListener('change', function() {
-                table.rows().nodes().to$().find('.select-checkbox').each(function() {
+                table.rows({ page: 'current' }).nodes().to$().find('.select-checkbox').each(function() {
                     this.checked = selectAllCheckbox.checked;
                     var row = this.closest('tr');
                     row.classList.toggle('selected', this.checked);
@@ -1181,7 +1282,7 @@
                 updateButtonVisibility();
 
                 // Atur status checkbox "Select All"
-                var allChecked = table.rows().nodes().to$().find('.select-checkbox').toArray().every(function(checkbox) {
+                var allChecked = table.rows({ page: 'current' }).nodes().to$().find('.select-checkbox').toArray().every(function(checkbox) {
                     return checkbox.checked;
                 });
 
@@ -1197,7 +1298,17 @@
                     return $(this).closest('tr').data('id');
                 }).get();
 
-                allSelectRowInput.value = selectedIds.join(',');
+                var idsString = selectedIds.join(',');
+
+                // Update each hidden input with the selected IDs
+                allSelectRowInput.value = idsString;
+                deleteAllSelectRowInput.value = idsString;
+
+                if (pendingAllSelectRowInput) {
+                    pendingAllSelectRowInput.value = idsString;
+                    processAllSelectRowInput.value = idsString;
+                    paidAllSelectRowInput.value = idsString;
+                }
             }
 
             // Fungsi untuk mengatur visibilitas tombol
@@ -1207,16 +1318,31 @@
                 if (selectedCheckboxes === 1) {
                     editButton.style.display = 'inline-block';
                     deleteButton.style.display = 'inline-block';
+                    if (pendingButton) {
+                        pendingButton.style.display = 'inline-block';
+                        processButton.style.display = 'inline-block';
+                        paidButton.style.display = 'inline-block';
+                    }
                     deleteButton.classList.remove('ms-5');
                     deleteButton.classList.add('ms-3');
                 } else if (selectedCheckboxes > 1) {
                     editButton.style.display = 'none';
                     deleteButton.style.display = 'inline-block';
+                    if (pendingButton) {
+                        pendingButton.style.display = 'inline-block';
+                        processButton.style.display = 'inline-block';
+                        paidButton.style.display = 'inline-block';
+                    }
                     deleteButton.classList.remove('ms-3');
                     deleteButton.classList.add('ms-5');
                 } else {
                     editButton.style.display = 'none';
                     deleteButton.style.display = 'none';
+                    if (pendingButton) {
+                        pendingButton.style.display = 'none';
+                        processButton.style.display = 'none';
+                        paidButton.style.display = 'none';
+                    }
                 }
             }
 
@@ -1236,6 +1362,61 @@
                     }
                 });
             });
+
+            // Event listener untuk tombol update status
+            if (pendingButton) {
+                pendingButton.addEventListener('click', function() {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You'll update the status to pending!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, update it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            statusPendingForm.submit();
+                        }
+                    });
+                });
+            }
+
+            if (processButton) {
+                processButton.addEventListener('click', function() {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You'll update the status to processing!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, update it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            statusProcessForm.submit();
+                        }
+                    });
+                });
+            }
+
+            if (paidButton) {
+                paidButton.addEventListener('click', function() {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You'll update the status to paid!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, update it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            statusPaidForm.submit();
+                        }
+                    });
+                });
+            }
 
             editButton.addEventListener('click', function () {
                 var selectedId = allSelectRowInput.value.split(',')[0];
@@ -1264,7 +1445,7 @@
                     $('#edit-total').val(row.data('total'));
                     $('#edit-toko').val(row.data('toko'));
 
-                    if (row.data('harga_online') && row.data('harga_online') != 'Rp 0') {
+                    if (row.data('via') == 'online') {
                         $('#edit-is_online').prop('checked', true);
                         toggleFieldsEdit();
 
@@ -1278,7 +1459,7 @@
                         $('#edit-b_jasa_aplikasi').val(row.data('b_jasa_aplikasi'));
                     }
 
-                    if (row.data('harga') && row.data('harga') != 'Rp 0') {
+                    if (row.data('via') == 'offline') {
                         $('#edit-is_offline').prop('checked', true);
                         toggleFieldsEdit();
 
@@ -1287,6 +1468,14 @@
                         $('#edit-harga').val(row.data('harga'));
                     }
                     
+                    // Menampilkan file yang diunggah
+                    var file = row.data('file');
+                    if (file) {
+                        var fileUrl = "{{ asset('storage/') }}" + "/" + file;
+                        $('#current-file').html('<a href="' + fileUrl + '" target="_blank">' + file + '</a>');
+                    } else {
+                        $('#current-file').html('<span>Tidak ada file yang diunggah</span>');
+                    }
                 }
             });
         }

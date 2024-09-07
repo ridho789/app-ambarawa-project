@@ -10,11 +10,24 @@ use App\Models\KategoriMaterial;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PembangunanExport;
 use Carbon\Carbon;
+use DateTime;
 
 class MaterialController extends Controller
 {
     public function index() {
-        $material = Pembangunan::whereNotNull('id_kategori')->orderBy('id_kategori')->orderBy('tanggal')->orderBy('nama')->get();
+        $material = Pembangunan::whereNotNull('id_kategori')
+            ->where(function ($query) {
+                $query->whereNull('noform')
+                    ->orWhereHas('permintaanBarang', function ($query) {
+                        $query->whereColumn('tbl_pembangunan.noform', 'tbl_permintaan_barang.noform')
+                                ->where('status', 'approved');
+                    });
+            })
+            ->orderBy('id_kategori')
+            ->orderBy('tanggal')
+            ->orderBy('nama')
+            ->get();
+
         $periodes = Pembangunan::whereNotNull('id_kategori')
             ->select(Pembangunan::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
             ->distinct()
@@ -32,6 +45,21 @@ class MaterialController extends Controller
     public function store(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Material', $fileName, 'public');
+        }
 
         $dataKategori = KategoriMaterial::where('id_kategori', $request->kategori)->first();
         $namaKategori = 'null';
@@ -52,6 +80,7 @@ class MaterialController extends Controller
             'harga' => $numericHarga,
             'tot_harga' => $numericTotal,
             'toko' => $request->toko,
+            'file' => $filePath
         ];
 
         $dataProyek = Proyek::where('id_proyek', $request->proyek)->first();
@@ -80,6 +109,21 @@ class MaterialController extends Controller
     public function update(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Material', $fileName, 'public');
+        }
         
         $tagihanMaterial = Pembangunan::find($request->id_material);
         if ($tagihanMaterial) {
@@ -94,6 +138,10 @@ class MaterialController extends Controller
             $tagihanMaterial->harga = $numericHarga;
             $tagihanMaterial->tot_harga = $numericTotal;
             $tagihanMaterial->toko = $request->toko;
+
+            if ($filePath) {
+                $tagihanMaterial->file = $filePath;
+            }
 
             $tagihanMaterial->save();
             return redirect('material')->with('success', 'Data berhasil diperbaharui!');
@@ -171,5 +219,51 @@ class MaterialController extends Controller
             $fileName = 'Report Material ' . $rangeDate . '.xlsx';
             return Excel::download(new PembangunanExport($mode, $material, $nama, $rangeDate), $fileName);
         }
+    }
+
+    // Update status
+    public function pending(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Pembangunan::whereIn('id_pembangunan', $validatedIds)->update([
+            'status' => 'pending'
+        ]);
+        return redirect('material');
+    }
+
+    public function process(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Pembangunan::whereIn('id_pembangunan', $validatedIds)->update([
+            'status' => 'processing'
+        ]);
+        return redirect('material');
+    }
+
+    public function paid(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Pembangunan::whereIn('id_pembangunan', $validatedIds)->update([
+            'status' => 'paid'
+        ]);
+        return redirect('material');
     }
 }

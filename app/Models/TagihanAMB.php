@@ -15,6 +15,7 @@ class TagihanAMB extends Model
         'id_kendaraan',
         'id_satuan',
         'keterangan',
+        'noform',
         'lokasi',
         'pemesan',
         'tgl_order',
@@ -33,6 +34,13 @@ class TagihanAMB extends Model
         'b_jasa_aplikasi',
         'diskon_ongkir',
         'total',
-        'toko'
+        'toko',
+        'via',
+        'status',
+        'file'
     ];
+
+    public function permintaanBarang() {
+        return $this->hasMany(PermintaanBarang::class, 'noform', 'noform');
+    }
 }

@@ -9,6 +9,7 @@ use App\Models\Satuan;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\OperasionalExport;
 use Carbon\Carbon;
+use DateTime;
 
 class OperasionalController extends Controller
 {
@@ -30,6 +31,21 @@ class OperasionalController extends Controller
     public function store(Request $request) {
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
 
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Ops', $fileName, 'public');
+        }
+
         if ($request->metode_pembelian == 'offline') {
             $dataOperasional = [
                 'tanggal' => $request->tanggal,
@@ -38,7 +54,8 @@ class OperasionalController extends Controller
                 'nama' => $request->nama,
                 'total' => $numericTotal,
                 'toko' => $request->toko,
-                'metode_pembelian' => $request->metode_pembelian
+                'metode_pembelian' => $request->metode_pembelian,
+                'file' => $filePath
             ];
 
             $exitingOperasional = Operasional::where('tanggal', $request->tanggal)->where('uraian', $request->uraian)
@@ -97,7 +114,8 @@ class OperasionalController extends Controller
                 'b_aplikasi' => $numericAplikasi,
                 'total' => $numericTotal,
                 'toko' => $request->toko,
-                'metode_pembelian' => $request->metode_pembelian
+                'metode_pembelian' => $request->metode_pembelian,
+                'file' => $filePath
             ];
             
             $exitingOperasional = Operasional::where('tanggal', $request->tanggal)->where('uraian', $request->uraian)
@@ -142,7 +160,8 @@ class OperasionalController extends Controller
             'nama' => $request->nama,
             'total' => $numericTotal,
             'toko' => $request->toko,
-            'metode_pembelian' => 'offline'
+            'metode_pembelian' => 'offline',
+            'file' => $filePath
         ];
 
         $exitingOperasional = Operasional::where('tanggal', $request->tanggal)->where('uraian', $request->uraian)->where('deskripsi', $request->deskripsi)
@@ -165,6 +184,21 @@ class OperasionalController extends Controller
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
         $tagihanOperasional = Operasional::find($request->id_operasional);
 
+        // File
+        $request->validate([
+            'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
+        ]);
+
+        $filePath = null;
+        if ($request->file('file')) {
+            $file = $request->file('file');
+            $dateTime = new DateTime();
+            $dateTime->modify('+7 hours');
+            $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
+            $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('Ops', $fileName, 'public');
+        }
+
         if ($request->metode_pembelian == 'offline') {
             if ($tagihanOperasional) {
                 $tagihanOperasional->tanggal = $request->tanggal;
@@ -180,6 +214,10 @@ class OperasionalController extends Controller
                 $tagihanOperasional->total = $numericTotal;
                 $tagihanOperasional->toko = $request->toko;
                 $tagihanOperasional->metode_pembelian = $request->metode_pembelian;
+
+                if ($filePath) {
+                    $tagihanOperasional->file = $filePath;
+                }
     
                 $tagihanOperasional->save();
 
@@ -225,6 +263,10 @@ class OperasionalController extends Controller
                 $tagihanOperasional->total = $numericTotal;
                 $tagihanOperasional->toko = $request->toko;
                 $tagihanOperasional->metode_pembelian = $request->metode_pembelian;
+
+                if ($filePath) {
+                    $tagihanOperasional->file = $filePath;
+                }
     
                 $tagihanOperasional->save();
 
@@ -262,6 +304,10 @@ class OperasionalController extends Controller
             $tagihanOperasional->total = $numericTotal;
             $tagihanOperasional->toko = $request->toko;
             $tagihanOperasional->metode_pembelian = 'offline';
+
+            if ($filePath) {
+                $tagihanOperasional->file = $filePath;
+            }
 
             $tagihanOperasional->save();
             return redirect('operasional')->with('success', 'Data berhasil diperbaharui!');
@@ -368,4 +414,49 @@ class OperasionalController extends Controller
         return Excel::download(new OperasionalExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
     }
     
+    // Update status
+    public function pending(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Operasional::whereIn('id_operasional', $validatedIds)->update([
+            'status' => 'pending'
+        ]);
+        return redirect('operasional');
+    }
+
+    public function process(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Operasional::whereIn('id_operasional', $validatedIds)->update([
+            'status' => 'processing'
+        ]);
+        return redirect('operasional');
+    }
+
+    public function paid(Request $request) {
+        // Convert comma-separated string to array
+        $ids = explode(',', $request->ids);
+
+        // Validate that each element in the array is an integer
+        $validatedIds = array_filter($ids, function($id) {
+            return is_numeric($id);
+        });
+
+        Operasional::whereIn('id_operasional', $validatedIds)->update([
+            'status' => 'paid'
+        ]);
+        return redirect('operasional');
+    }
 }

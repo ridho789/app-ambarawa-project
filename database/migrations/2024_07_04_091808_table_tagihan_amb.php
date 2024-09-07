@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('tbl_tagihan_amb', function (Blueprint $table) {
             $table->id('id_tagihan_amb');
+            $table->string('noform')->nullable();
             $table->string('keterangan');
             $table->string('lokasi');
             $table->string('pemesan');
             $table->date('tgl_order');
-            $table->date('tgl_invoice');
+            $table->date('tgl_invoice')->nullable();
             $table->string('no_inventaris');
             $table->string('nama');
             $table->string('kategori');
@@ -33,6 +34,9 @@ return new class extends Migration
             $table->string('diskon_ongkir')->nullable();
             $table->string('total');
             $table->string('toko');
+            $table->string('via')->nullable();
+            $table->string('status')->default('processing');
+            $table->string('file')->nullable();
             $table->timestamps();
         });
     }

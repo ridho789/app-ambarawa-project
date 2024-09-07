@@ -15,8 +15,9 @@ class TablePembangunan extends Migration
     {
         Schema::create('tbl_pembangunan', function (Blueprint $table) {
             $table->id('id_pembangunan');
+            $table->string('noform')->nullable();
             $table->string('ket');
-            $table->date('tanggal');
+            $table->date('tanggal')->nullable();
             $table->string('nama');
             $table->string('ukuran')->nullable();
             $table->string('deskripsi');
@@ -24,6 +25,8 @@ class TablePembangunan extends Migration
             $table->string('harga');
             $table->string('tot_harga');
             $table->string('toko');
+            $table->string('status')->default('processing');
+            $table->string('file')->nullable();
             $table->timestamps();
         });
     }

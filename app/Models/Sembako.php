@@ -17,6 +17,7 @@ class Sembako extends Model
         'nama',
         'qty',
         'harga',
-        'total'
+        'total',
+        'status'
     ];
 }
