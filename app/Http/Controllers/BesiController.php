@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Pembangunan;
 use App\Models\Proyek;
 use App\Models\Satuan;
+use App\Models\Toko;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PembangunanExport;
 use Carbon\Carbon;
@@ -31,7 +32,9 @@ class BesiController extends Controller
         $namaProyek = Proyek::pluck('nama', 'id_proyek');
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        return view('contents.pembangunan.kontruksi.besi', compact('besi', 'proyek', 'namaProyek', 'satuan', 'namaSatuan'));
+        $toko = Toko::all();
+        $namaToko = Toko::pluck('nama', 'id_toko');
+        return view('contents.pembangunan.kontruksi.besi', compact('besi', 'proyek', 'namaProyek', 'satuan', 'toko', 'namaToko', 'namaSatuan'));
     }
 
     public function store(Request $request) {
@@ -64,7 +67,7 @@ class BesiController extends Controller
             'id_satuan' => $request->satuan,
             'harga' => $numericHarga,
             'tot_harga' => $numericTotal,
-            'toko' => $request->toko,
+            'id_toko' => $request->toko,
             'file' => $filePath
         ];
 
@@ -74,14 +77,20 @@ class BesiController extends Controller
             $namaProyek = $dataProyek->nama;
         } 
 
+        $dataToko = Toko::where('id_toko', $request->toko)->first();
+        $namaToko = 'null';
+        if ($dataToko) {
+            $namaToko = $dataToko->nama;
+        }
+
         $exitingBesi = Pembangunan::where('tanggal', $request->tanggal)->where('nama', $request->nama)->where('ukuran', $request->ukuran)->where('deskripsi', $request->deskripsi)
             ->where('jumlah', $request->jumlah)->where('id_satuan', $request->satuan)->where('harga', $numericHarga)->where('tot_harga', $numericTotal)->where('id_proyek', $request->proyek)
-            ->where('toko', $request->toko)->first();
+            ->where('id_toko', $request->toko)->first();
 
         if ($exitingBesi) {
             $logErrors = 'Proyek: ' . $namaProyek . ' - ' . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Nama (Barang): ' . $request->nama . ' - ' . 
             'Jumlah: ' . $request->jumlah . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
-            ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+            ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
 
             return redirect('besi')->with('logErrors', $logErrors);
 
@@ -121,7 +130,7 @@ class BesiController extends Controller
             $tagihanBesi->id_satuan = $request->satuan;
             $tagihanBesi->harga = $numericHarga;
             $tagihanBesi->tot_harga = $numericTotal;
-            $tagihanBesi->toko = $request->toko;
+            $tagihanBesi->id_toko = $request->toko;
 
             if ($filePath) {
                 $tagihanBesi->file = $filePath;
@@ -189,7 +198,16 @@ class BesiController extends Controller
         }
 
         if ($mode == 'all_data') {
-            $besi = Pembangunan::where('ket', 'pengeluaran besi')->whereNotNull('tanggal')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
+            $besi = Pembangunan::where('ket', 'pengeluaran besi')
+            ->where(function ($query) {
+                $query->whereNull('noform')
+                    ->orWhereHas('permintaanBarang', function ($query) {
+                        $query->whereColumn('tbl_pembangunan.noform', 'tbl_permintaan_barang.noform')
+                                ->where('status', 'approved');
+                    });
+            })
+            ->whereNotNull('tanggal')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
+
             if (count($besi) > 0) {
                 return Excel::download(new PembangunanExport($mode, $besi, $nama, $rangeDate), 'Report Besi.xlsx');
             }
@@ -198,7 +216,15 @@ class BesiController extends Controller
             return redirect('besi')->with('logErrors', $logErrors);
 
         } else {
-            $besi = Pembangunan::where('ket', 'pengeluaran besi')->whereNotNull('tanggal')->where('tanggal', '>=', $start_date)
+            $besi = Pembangunan::where('ket', 'pengeluaran besi')
+            ->where(function ($query) {
+                $query->whereNull('noform')
+                    ->orWhereHas('permintaanBarang', function ($query) {
+                        $query->whereColumn('tbl_pembangunan.noform', 'tbl_permintaan_barang.noform')
+                                ->where('status', 'approved');
+                    });
+            })
+            ->whereNotNull('tanggal')->where('tanggal', '>=', $start_date)
                 ->where('tanggal', '<=', $end_date)
                 ->orderBy('tanggal', 'asc')
                 ->orderBy('nama', 'asc')

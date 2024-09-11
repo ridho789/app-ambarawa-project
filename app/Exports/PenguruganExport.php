@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Carbon\Carbon;
 use App\Models\Proyek;
 use App\Models\Satuan;
+use App\Models\Toko;
 
 class PenguruganExport implements WithMultipleSheets
 {
@@ -89,6 +90,7 @@ class PenguruganExport implements WithMultipleSheets
                                 $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
                                 $tot_harga = 'Rp ' . number_format($item->tot_harga ?? 0, 0, ',', '.');
                                 $satuan = Satuan::find($item->id_satuan);
+                                $toko = Toko::find($item->id_toko);
 
                                 $data->push([
                                     'ket' => '-',
@@ -99,7 +101,7 @@ class PenguruganExport implements WithMultipleSheets
                                     'jumlah' => $item->jumlah,
                                     'id_satuan' => $satuan->nama,
                                     'harga' => $harga,
-                                    'toko' => $item->toko,
+                                    'toko' => $toko->nama ?? '-',
                                     'tot_harga' => $tot_harga,
                                 ]);
                             }
@@ -236,6 +238,7 @@ class PenguruganExport implements WithMultipleSheets
                             $harga = 'Rp ' . number_format($item->harga ?? 0, 0, ',', '.');
                             $tot_harga = 'Rp ' . number_format($item->tot_harga ?? 0, 0, ',', '.');
                             $satuan = Satuan::find($item->id_satuan);
+                            $toko = Toko::find($item->id_toko);
 
                             $data->push([
                                 'ket' => '-',
@@ -246,7 +249,7 @@ class PenguruganExport implements WithMultipleSheets
                                 'jumlah' => $item->jumlah,
                                 'id_satuan' => $satuan->nama,
                                 'harga' => $harga,
-                                'toko' => $item->toko,
+                                'toko' => $toko->nama ?? '-',
                                 'tot_harga' => $tot_harga,
                             ]);
                         }

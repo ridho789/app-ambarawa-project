@@ -15,6 +15,7 @@ class Pembangunan extends Model
         'id_proyek',
         'id_satuan',
         'id_kategori',
+        'id_toko',
         'noform',
         'ket',
         'tanggal',
@@ -24,7 +25,6 @@ class Pembangunan extends Model
         'jumlah',
         'harga',
         'tot_harga',
-        'toko',
         'status',
         'file'
     ];

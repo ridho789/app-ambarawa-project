@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\KategoriMaterial;
+use App\Models\Activity;
+use Carbon\Carbon;
 
 class KategoriMaterialController extends Controller
 {
@@ -20,7 +22,21 @@ class KategoriMaterialController extends Controller
             return redirect('kategori_material')->with('logErrors', $logErrors);
 
         } else {
-            KategoriMaterial::insert(['nama'=> $request->nama]);
+            $dataKategoriMaterial = KategoriMaterial::create(['nama'=> $request->nama]);
+            $idKategoriMaterial = $dataKategoriMaterial->id_kategori;
+
+            // create activity
+            $dataActivity = [
+                'id_relation' => $idKategoriMaterial,
+                'description' => 'Menambahkan kategori material baru: ' . $request->nama,
+                'scope' => 'Kategori Material',
+                'action' => 'Buat Data Baru',
+                'user' => $request->user,
+                'action_time' => Carbon::now()->addHours(7),
+            ];
+
+            Activity::create($dataActivity);
+
             return redirect('kategori_material');
         }
     }
@@ -36,8 +52,21 @@ class KategoriMaterialController extends Controller
                 }
             }
 
+            // create activity
+            $dataActivity = [
+                'id_relation' => $dataKategori->id_kategori,
+                'description' => 'Update data kategori material: ' . $dataKategori->nama . ' => ' . $request->nama,
+                'scope' => 'Kategori Material',
+                'action' => 'Update Data',
+                'user' => $request->user,
+                'action_time' => Carbon::now()->addHours(7),
+            ];
+
+            Activity::create($dataActivity);
+
             $dataKategori->nama = $request->nama;
             $dataKategori->save();
+
             return redirect('kategori_material')->with('success', 'Data berhasil diperbaharui!');
         }
 

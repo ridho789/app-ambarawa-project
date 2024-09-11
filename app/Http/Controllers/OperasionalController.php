@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Operasional;
 use App\Models\Barang;
 use App\Models\Satuan;
+use App\Models\Toko;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\OperasionalExport;
 use Carbon\Carbon;
@@ -20,12 +21,9 @@ class OperasionalController extends Controller
         $barang = Barang::all();
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        $periodes = Operasional::select(Operasional::raw('DATE_FORMAT(tanggal, "%Y-%m") as periode'))
-            ->distinct()
-            ->orderBy('periode', 'desc')
-            ->get()
-            ->pluck('periode');
-        return view('contents.operasional', compact('operasional', 'opsOnline', 'opsOffline', 'barang', 'satuan', 'namaSatuan', 'periodes'));
+        $toko = Toko::all();
+        $namaToko = Toko::pluck('nama', 'id_toko');
+        return view('contents.operasional', compact('operasional', 'opsOnline', 'opsOffline', 'barang', 'satuan', 'toko', 'namaToko', 'namaSatuan'));
     }
 
     public function store(Request $request) {
@@ -46,6 +44,12 @@ class OperasionalController extends Controller
             $filePath = $file->storeAs('Ops', $fileName, 'public');
         }
 
+        $dataToko = Toko::where('id_toko', $request->toko)->first();
+        $namaToko = 'null';
+        if ($dataToko) {
+            $namaToko = $dataToko->nama;
+        }
+
         if ($request->metode_pembelian == 'offline') {
             $dataOperasional = [
                 'tanggal' => $request->tanggal,
@@ -53,19 +57,19 @@ class OperasionalController extends Controller
                 'deskripsi' => $request->deskripsi,
                 'nama' => $request->nama,
                 'total' => $numericTotal,
-                'toko' => $request->toko,
+                'id_toko' => $request->toko,
                 'metode_pembelian' => $request->metode_pembelian,
                 'file' => $filePath
             ];
 
             $exitingOperasional = Operasional::where('tanggal', $request->tanggal)->where('uraian', $request->uraian)
                 ->where('deskripsi', $request->deskripsi)->where('nama', $request->nama)
-                ->where('total', $numericTotal)->where('toko', $request->toko)->where('metode_pembelian', $request->metode_pembelian)->first();
+                ->where('total', $numericTotal)->where('id_toko', $request->toko)->where('metode_pembelian', $request->metode_pembelian)->first();
     
             if ($exitingOperasional) {
                 $logErrors = 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Uraian: ' . $request->uraian . ' - ' . 
                 ' - ' . 'Deskripsi: ' . $request->deskripsi . ' - ' . 'Nama: ' . $request->nama . 
-                ' - ' . 'Total: ' . $request->total . ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+                ' - ' . 'Total: ' . $request->total . ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
     
                 return redirect('operasional')->with('logErrors', $logErrors);
     
@@ -113,7 +117,7 @@ class OperasionalController extends Controller
                 'p_member' => $numericMember,
                 'b_aplikasi' => $numericAplikasi,
                 'total' => $numericTotal,
-                'toko' => $request->toko,
+                'id_toko' => $request->toko,
                 'metode_pembelian' => $request->metode_pembelian,
                 'file' => $filePath
             ];
@@ -122,12 +126,12 @@ class OperasionalController extends Controller
                 ->where('deskripsi', $request->deskripsi)->where('nama', $request->nama)
                 ->where('diskon', $numericDiskon)->where('ongkir', $numericOngkir)
                 ->where('asuransi', $numericAsuransi)->where('b_proteksi', $numericProteksi)->where('p_member', $numericMember)->where('b_aplikasi', $numericAplikasi)
-                ->where('total', $numericTotal)->where('toko', $request->toko)->where('metode_pembelian', $request->metode_pembelian)->first();
+                ->where('total', $numericTotal)->where('id_toko', $request->toko)->where('metode_pembelian', $request->metode_pembelian)->first();
     
             if ($exitingOperasional) {
                 $logErrors = 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Uraian: ' . $request->uraian . ' - ' . 
                 ' - ' . 'Deskripsi: ' . $request->deskripsi . ' - ' . 'Nama: ' . $request->nama . 
-                ' - ' . 'Total: ' . $request->total . ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+                ' - ' . 'Total: ' . $request->total . ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
     
                 return redirect('operasional')->with('logErrors', $logErrors);
     
@@ -159,17 +163,17 @@ class OperasionalController extends Controller
             'deskripsi' => $request->deskripsi,
             'nama' => $request->nama,
             'total' => $numericTotal,
-            'toko' => $request->toko,
+            'id_toko' => $request->toko,
             'metode_pembelian' => 'offline',
             'file' => $filePath
         ];
 
         $exitingOperasional = Operasional::where('tanggal', $request->tanggal)->where('uraian', $request->uraian)->where('deskripsi', $request->deskripsi)
-        ->where('nama', $request->nama)->where('total', $numericTotal)->where('toko', $request->toko)->where('metode_pembelian', $request->metode_pembelian)->first();
+        ->where('nama', $request->nama)->where('total', $numericTotal)->where('id_toko', $request->toko)->where('metode_pembelian', $request->metode_pembelian)->first();
 
         if ($exitingOperasional) {
             $logErrors = 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Uraian: ' . $request->uraian . ' - ' . 
-            'Deskripsi: ' . $request->deskripsi . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Total: ' . $request->total . ' - ' . 'Toko: ' . $request->toko . 
+            'Deskripsi: ' . $request->deskripsi . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Total: ' . $request->total . ' - ' . 'Toko: ' . $namaToko . 
             ', data tersebut sudah ada di sistem';
 
             return redirect('operasional')->with('logErrors', $logErrors);
@@ -212,7 +216,7 @@ class OperasionalController extends Controller
                 $tagihanOperasional->p_member = null;
                 $tagihanOperasional->b_aplikasi = null;
                 $tagihanOperasional->total = $numericTotal;
-                $tagihanOperasional->toko = $request->toko;
+                $tagihanOperasional->id_toko = $request->toko;
                 $tagihanOperasional->metode_pembelian = $request->metode_pembelian;
 
                 if ($filePath) {
@@ -261,7 +265,7 @@ class OperasionalController extends Controller
                 $tagihanOperasional->p_member = $numericMember;
                 $tagihanOperasional->b_aplikasi = $numericAplikasi;
                 $tagihanOperasional->total = $numericTotal;
-                $tagihanOperasional->toko = $request->toko;
+                $tagihanOperasional->id_toko = $request->toko;
                 $tagihanOperasional->metode_pembelian = $request->metode_pembelian;
 
                 if ($filePath) {
@@ -302,7 +306,7 @@ class OperasionalController extends Controller
             $tagihanOperasional->p_member = null;
             $tagihanOperasional->b_aplikasi = null;
             $tagihanOperasional->total = $numericTotal;
-            $tagihanOperasional->toko = $request->toko;
+            $tagihanOperasional->id_toko = $request->toko;
             $tagihanOperasional->metode_pembelian = 'offline';
 
             if ($filePath) {

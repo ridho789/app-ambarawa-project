@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Carbon\Carbon;
 use App\Models\Barang;
 use App\Models\Satuan;
+use App\Models\Toko;
 
 class OperasionalExport implements WithMultipleSheets
 {
@@ -75,10 +76,13 @@ class OperasionalExport implements WithMultipleSheets
                         
                             // Ambil barang
                             $barang = Barang::where('id_relasi', $item->id_operasional)->get();
-                        
+
+                            // Data toko
+                            $toko = Toko::find($item->id_toko);
+
                             if ($barang->isNotEmpty()) {
                                 // Jika ada barang, map untuk setiap item
-                                return $barang->map(function ($data) use ($item, $diskon, $ongkir, $asuransi, $p_member, $b_proteksi, $b_aplikasi, $total) {
+                                return $barang->map(function ($data) use ($item, $toko, $diskon, $ongkir, $asuransi, $p_member, $b_proteksi, $b_aplikasi, $total) {
                                     $harga = 'Rp ' . number_format($data->harga ?? 0, 0, ',', '.');
                                     $satuan = Satuan::find($data->id_satuan);
                         
@@ -98,7 +102,7 @@ class OperasionalExport implements WithMultipleSheets
                                             'b_proteksi' => $b_proteksi,
                                             'p_member' => $p_member,
                                             'b_aplikasi' => $b_aplikasi,
-                                            'toko' => $item->toko,
+                                            'toko' => $toko->nama ?? '-',
                                             'total' => $total
                                         ];
                                     }
@@ -113,7 +117,7 @@ class OperasionalExport implements WithMultipleSheets
                                             'qty' => $data->jumlah,
                                             'unit' => $satuan->nama,
                                             'harga' => $harga,
-                                            'toko' => $item->toko,
+                                            'toko' => $toko->nama ?? '-',
                                             'total' => $total
                                         ];
                                     }
@@ -134,7 +138,7 @@ class OperasionalExport implements WithMultipleSheets
                                             'b_proteksi' => $b_proteksi,
                                             'p_member' => $p_member,
                                             'b_aplikasi' => $b_aplikasi,
-                                            'toko' => $item->toko,
+                                            'toko' => $toko->nama ?? '-',
                                             'total' => $total
                                         ];
                                     }
@@ -159,7 +163,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'b_proteksi' => $b_proteksi,
                                         'p_member' => $p_member,
                                         'b_aplikasi' => $b_aplikasi,
-                                        'toko' => $item->toko,
+                                        'toko' => $toko->nama ?? '-',
                                         'total' => $total
                                     ]
                                 ];
@@ -176,7 +180,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'qty' => '-',
                                         'unit' => '-',
                                         'harga' => '-',
-                                        'toko' => $item->toko,
+                                        'toko' => $toko->nama ?? '-',
                                         'total' => $total
                                     ]
                                 ];
@@ -199,7 +203,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'b_proteksi' => $b_proteksi,
                                         'p_member' => $p_member,
                                         'b_aplikasi' => $b_aplikasi,
-                                        'toko' => $item->toko,
+                                        'toko' => $toko->nama ?? '-',
                                         'total' => $total
                                     ]
                                 ];
@@ -530,10 +534,13 @@ class OperasionalExport implements WithMultipleSheets
                     
                         // Ambil barang
                         $barang = Barang::where('id_relasi', $item->id_operasional)->get();
+
+                        // Data toko
+                        $toko = Toko::find($item->id_toko);
                     
                         if ($barang->isNotEmpty()) {
                             // Jika ada barang, map untuk setiap item
-                            return $barang->map(function ($data) use ($item, $diskon, $ongkir, $asuransi, $p_member, $b_proteksi, $b_aplikasi, $total) {
+                            return $barang->map(function ($data) use ($item, $toko, $diskon, $ongkir, $asuransi, $p_member, $b_proteksi, $b_aplikasi, $total) {
                                 $harga = 'Rp ' . number_format($data->harga ?? 0, 0, ',', '.');
                                 $satuan = Satuan::find($data->id_satuan);
                     
@@ -553,7 +560,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'b_proteksi' => $b_proteksi,
                                         'p_member' => $p_member,
                                         'b_aplikasi' => $b_aplikasi,
-                                        'toko' => $item->toko,
+                                        'toko' => $toko->nama ?? '-',
                                         'total' => $total
                                     ];
                                 }
@@ -568,7 +575,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'qty' => $data->jumlah,
                                         'unit' => $satuan->nama,
                                         'harga' => $harga,
-                                        'toko' => $item->toko,
+                                        'toko' => $toko->nama ?? '-',
                                         'total' => $total
                                     ];
                                 }
@@ -589,7 +596,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'b_proteksi' => $b_proteksi,
                                         'p_member' => $p_member,
                                         'b_aplikasi' => $b_aplikasi,
-                                        'toko' => $item->toko,
+                                        'toko' => $toko->nama ?? '-',
                                         'total' => $total
                                     ];
                                 }
@@ -614,7 +621,7 @@ class OperasionalExport implements WithMultipleSheets
                                     'b_proteksi' => $b_proteksi,
                                     'p_member' => $p_member,
                                     'b_aplikasi' => $b_aplikasi,
-                                    'toko' => $item->toko,
+                                    'toko' => $toko->nama ?? '-',
                                     'total' => $total
                                 ]
                             ];
@@ -631,7 +638,7 @@ class OperasionalExport implements WithMultipleSheets
                                     'qty' => '-',
                                     'unit' => '-',
                                     'harga' => '-',
-                                    'toko' => $item->toko,
+                                    'toko' => $toko->nama ?? '-',
                                     'total' => $total
                                 ]
                             ];
@@ -654,7 +661,7 @@ class OperasionalExport implements WithMultipleSheets
                                     'b_proteksi' => $b_proteksi,
                                     'p_member' => $p_member,
                                     'b_aplikasi' => $b_aplikasi,
-                                    'toko' => $item->toko,
+                                    'toko' => $toko->nama ?? '-',
                                     'total' => $total
                                 ]
                             ];

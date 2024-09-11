@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Kendaraan;
+use App\Models\Activity;
+use Carbon\Carbon;
 
 class KendaraanController extends Controller
 {
@@ -20,7 +22,21 @@ class KendaraanController extends Controller
             return redirect('kendaraan')->with('logErrors', $logErrors);
 
         } else {
-            Kendaraan::insert(['nopol'=> $request->nopol, 'merk'=> $request->merk, 'jns_bbm'=> $request->jns_bbm]);
+            $dataKendaraan = Kendaraan::create(['nopol'=> $request->nopol, 'merk'=> $request->merk, 'jns_bbm'=> $request->jns_bbm]);
+            $idKendaraan = $dataKendaraan->id_kendaraan;
+
+            // create activity
+            $dataActivity = [
+                'id_relation' => $idKendaraan,
+                'description' => 'Menambahkan kendaraan baru: ' . $request->nopol,
+                'scope' => 'Kendaraan',
+                'action' => 'Buat Data Baru',
+                'user' => $request->user,
+                'action_time' => Carbon::now()->addHours(7),
+            ];
+
+            Activity::create($dataActivity);
+
             return redirect('kendaraan');
         }
     }
@@ -35,6 +51,18 @@ class KendaraanController extends Controller
                     return redirect('kendaraan')->with('logErrors', $logErrors);
                 }
             }
+
+            // create activity
+            $dataActivity = [
+                'id_relation' => $dataKendaraan->id_kendaraan,
+                'description' => 'Update data kendaraan: ' . $dataKendaraan->nopol . ' => ' . $request->nopol,
+                'scope' => 'Kendaraan',
+                'action' => 'Update Data',
+                'user' => $request->user,
+                'action_time' => Carbon::now()->addHours(7),
+            ];
+
+            Activity::create($dataActivity);
 
             $dataKendaraan->nopol = $request->nopol;
             $dataKendaraan->merk = $request->merk;

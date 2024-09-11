@@ -300,9 +300,20 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="toko">Toko</label>
-                                <input type="text" class="form-control" name="toko" id="toko" placeholder="Masukkan toko.." 
-                                oninput="this.value = this.value.toUpperCase()" required />
+                                @if (count($toko) > 0)
+                                    <label for="toko">Toko</label>
+                                    <select class="form-select form-control" name="toko" id="toko" required>
+                                        <option value="">...</option>
+                                        @foreach ($toko as $s)
+                                            <option value="{{ $s->id_toko }}">{{ $s->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <label>Toko</label>
+                                    <select class="form-control" disabled>
+                                        <option value="">Tidak ada data</option>
+                                    </select>
+                                @endif
                             </div>
 
                             <div class="form-group">
@@ -553,9 +564,20 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="toko">Toko</label>
-                                <input type="text" class="form-control" name="toko" id="edit-toko" placeholder="Masukkan toko.." 
-                                oninput="this.value = this.value.toUpperCase()" required />
+                                @if (count($toko) > 0)
+                                    <label for="toko">Toko</label>
+                                    <select class="form-select form-control" name="toko" id="edit-toko" required>
+                                        <option value="">...</option>
+                                        @foreach ($toko as $s)
+                                            <option value="{{ $s->id_toko }}">{{ $s->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <label>Toko</label>
+                                    <select class="form-control" disabled>
+                                        <option value="">Tidak ada data</option>
+                                    </select>
+                                @endif
                             </div>
 
                             <div class="form-group">
@@ -710,7 +732,7 @@
                                     <tr>
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $s->month_name }} {{ $s->year }}</td>
-                                        <td>{{ $s->toko }}</td>
+                                        <td>{{ $namaToko[$s->id_toko] }}</td>
                                         <td>{{ 'Rp ' . number_format($s->total_sum  ?? 0, 0, ',', '.') }}</td>
                                     </tr>
                                     @endforeach
@@ -838,7 +860,7 @@
                                         data-b_proteksi="{{ 'Rp ' . number_format($s->b_proteksi ?? 0, 0, ',', '.') }}"
                                         data-b_jasa_aplikasi="{{ 'Rp ' . number_format($s->b_jasa_aplikasi ?? 0, 0, ',', '.') }}"
                                         data-total="{{ 'Rp ' . number_format($s->total ?? 0, 0, ',', '.') }}"
-                                        data-toko="{{ $s->toko }}"
+                                        data-toko="{{ $s->id_toko }}"
                                         data-via="{{ $s->via }}"
                                         data-file="{{ $s->file }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
@@ -865,7 +887,7 @@
                                         <!-- <td>{{ $s->id_satuan ?? '-' }}</td> -->
                                         <!-- <td>{{ 'Rp ' . number_format($s->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($s->total ?? 0, 0, ',', '.') }}</td>
-                                        <td>{{ $s->toko }}</td>
+                                        <td>{{ $namaToko[$s->id_toko] ?? '-' }}</td>
                                         <td>{{ ucfirst($s->via) }}</td>
                                         <td>
                                             @php

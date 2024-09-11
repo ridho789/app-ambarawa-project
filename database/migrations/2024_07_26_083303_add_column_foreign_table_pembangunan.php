@@ -22,6 +22,9 @@ class AddColumnForeignTablePembangunan extends Migration
 
             $table->unsignedBigInteger('id_kategori')->nullable()->after('id_satuan');
             $table->foreign('id_kategori')->references('id_kategori')->on('tbl_kategori_material');
+
+            $table->unsignedBigInteger('id_toko')->nullable()->after('id_kategori');
+            $table->foreign('id_toko')->references('id_toko')->on('tbl_toko');
         });
     }
 
@@ -41,6 +44,9 @@ class AddColumnForeignTablePembangunan extends Migration
 
             $table->dropForeign(['id_kategori']);
             $table->dropColumn('id_kategori');
+
+            $table->dropForeign(['id_toko']);
+            $table->dropColumn('id_toko');
         });
     }
 }

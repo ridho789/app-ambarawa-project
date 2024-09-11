@@ -28,6 +28,7 @@ use App\Http\Controllers\KategoriMaterialController;
 use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\ProyekController;
 use App\Http\Controllers\SatuanController;
+use App\Http\Controllers\TokoController;
 
 // History
 use App\Http\Controllers\ActivityController;
@@ -228,4 +229,10 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('satuan-store', [SatuanController::class, 'store']);
     Route::post('satuan-update', [SatuanController::class, 'update']);
     Route::post('satuan-delete', [SatuanController::class, 'delete']);
+
+    // Master data - Toko
+    Route::get('/toko', [TokoController::class, 'index']);
+    Route::post('toko-store', [TokoController::class, 'store']);
+    Route::post('toko-update', [TokoController::class, 'update']);
+    Route::post('toko-delete', [TokoController::class, 'delete']);
 });

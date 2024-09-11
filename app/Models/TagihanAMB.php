@@ -14,6 +14,7 @@ class TagihanAMB extends Model
     protected $fillable = [
         'id_kendaraan',
         'id_satuan',
+        'id_toko',
         'keterangan',
         'noform',
         'lokasi',
@@ -34,7 +35,6 @@ class TagihanAMB extends Model
         'b_jasa_aplikasi',
         'diskon_ongkir',
         'total',
-        'toko',
         'via',
         'status',
         'file'

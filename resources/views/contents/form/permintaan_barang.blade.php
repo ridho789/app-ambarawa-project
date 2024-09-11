@@ -471,7 +471,8 @@
                             @endif
                             <div class="ms-auto d-flex align-items-center">
                                 @if (count($permintaan_barang) > 0)
-                                    <button class="btn btn-success btn-round ms-2 btn-sm" data-bs-toggle="modal" data-bs-target="#permintaanBarangExportModal">
+                                    <button class="btn btn-success btn-round ms-2 btn-sm" data-bs-toggle="modal" data-bs-target="#permintaanBarangExportModal" 
+                                    style="display: none;">
                                         <i class="fa fa-file-excel"></i>
                                         Export data
                                     </button>

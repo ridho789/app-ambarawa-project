@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
 use App\Models\Kendaraan;
 use App\Models\Satuan;
+use App\Models\Toko;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SparepartExport;
 use Carbon\Carbon;
@@ -27,13 +28,29 @@ class SparepartController extends Controller
             ->orderBy('nama')
             ->get();
 
-        $sparepartOnline = TagihanAMB::where('keterangan', 'tagihan sparepart online')->get();
-        $sparepartOffline = TagihanAMB::where('keterangan', 'tagihan sparepart')->get();
+        $sparepartOnline = TagihanAMB::where('keterangan', 'tagihan sparepart online')
+        ->where(function ($query) {
+            $query->whereNull('noform')
+                ->orWhereHas('permintaanBarang', function ($query) {
+                    $query->whereColumn('tbl_tagihan_amb.noform', 'tbl_permintaan_barang.noform')
+                            ->where('status', 'approved');
+                });
+        })->get();
+        $sparepartOffline = TagihanAMB::where('keterangan', 'tagihan sparepart')
+        ->where(function ($query) {
+            $query->whereNull('noform')
+                ->orWhereHas('permintaanBarang', function ($query) {
+                    $query->whereColumn('tbl_tagihan_amb.noform', 'tbl_permintaan_barang.noform')
+                            ->where('status', 'approved');
+                });
+        })->get();
         $kendaraan = Kendaraan::all();
         $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
         $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
+        $toko = Toko::all();
+        $namaToko = Toko::pluck('nama', 'id_toko');
         $periodes = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
             ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))
             ->distinct()
@@ -41,16 +58,16 @@ class SparepartController extends Controller
             ->get()
             ->pluck('periode');
         $sparepartambgroup = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
-            ->selectRaw('toko, YEAR(tgl_order) as year, MONTHNAME(tgl_order) as month_name, SUM(total) as total_sum')
-            ->groupBy('toko', 'year', 'month_name')
+            ->selectRaw('id_toko, YEAR(tgl_order) as year, MONTHNAME(tgl_order) as month_name, SUM(total) as total_sum')
+            ->groupBy('id_toko', 'year', 'month_name')
             ->havingRaw('SUM(total) > 0')
-            ->orderBy('toko')
+            ->orderBy('id_toko')
             ->orderBy('year')
             ->orderByRaw('MONTH(tgl_order)')
             ->get();
 
         return view('contents.sparepart_amb', compact('sparepartamb', 'sparepartOnline', 'sparepartOffline', 'kendaraan', 'nopolKendaraan', 
-        'merkKendaraan', 'periodes', 'sparepartambgroup', 'satuan', 'namaSatuan'));
+        'merkKendaraan', 'periodes', 'sparepartambgroup', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
     }
 
     public function store(Request $request) {
@@ -70,6 +87,12 @@ class SparepartController extends Controller
             $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
             $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('Sparepart', $fileName, 'public');
+        }
+
+        $dataToko = Toko::where('id_toko', $request->toko)->first();
+        $namaToko = 'null';
+        if ($dataToko) {
+            $namaToko = $dataToko->nama;
         }
         
         if ($request->metode_pembelian == 'offline') {
@@ -97,7 +120,7 @@ class SparepartController extends Controller
                 'b_proteksi' => null,
                 'b_jasa_aplikasi' => null,
                 'total' => $numericTotal,
-                'toko' => $request->toko,
+                'id_toko' => $request->toko,
                 'file' => $filePath
             ];
     
@@ -105,13 +128,13 @@ class SparepartController extends Controller
                 ->where('id_kendaraan', $request->kendaraan)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
                 ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
                 ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
-                ->where('harga', $numericHarga)->where('total', $numericTotal)->where('toko', $request->toko)
+                ->where('harga', $numericHarga)->where('total', $numericTotal)->where('id_toko', $request->toko)
                 ->first();
     
             if ($exitingSparepart) {
                 $logErrors = 'Keterangan: ' . 'Tagihan Sparepart (Offline)' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
                 'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-                'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+                'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
     
                 return redirect('sparepartamb')->with('logErrors', $logErrors);
     
@@ -152,7 +175,7 @@ class SparepartController extends Controller
                 'b_proteksi' => $numericProteksi,
                 'b_jasa_aplikasi' => $numericAplikasi,
                 'total' => $numericTotal,
-                'toko' => $request->toko,
+                'id_toko' => $request->toko,
                 'via' => 'online',
                 'file' => $filePath
             ];
@@ -163,13 +186,13 @@ class SparepartController extends Controller
                 ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml_onl)->where('id_satuan', $request->unit_onl)
                 ->where('harga_online', $numericHargaOnline)->where('ongkir', $numericOngkir)->where('diskon_ongkir', $numericDiskonOngkir)
                 ->where('asuransi', $numericAsuransi)->where('b_proteksi', $numericProteksi)->where('b_jasa_aplikasi', $numericAplikasi)
-                ->where('total', $numericTotal)->where('toko', $request->toko)
+                ->where('total', $numericTotal)->where('id_toko', $request->toko)
                 ->first();
     
             if ($exitingSparepart) {
                 $logErrors = 'Keterangan: ' . 'Tagihan Sparepart (Online)' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
                 'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-                'Harga : ' . $request->harga_online . ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+                'Harga : ' . $request->harga_online . ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
     
                 return redirect('sparepartamb')->with('logErrors', $logErrors);
     
@@ -202,20 +225,20 @@ class SparepartController extends Controller
             'b_proteksi' => null,
             'b_jasa_aplikasi' => null,
             'total' => $numericTotal,
-            'toko' => $request->toko,
+            'id_toko' => $request->toko,
             'file' => $filePath
         ];
 
         $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan sparepart')->where('lokasi', $request->lokasi)
             ->where('id_kendaraan', $request->kendaraan)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
             ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
-            ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('total', $numericTotal)->where('toko', $request->toko)
+            ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('total', $numericTotal)->where('id_toko', $request->toko)
             ->first();
 
         if ($exitingSparepart) {
             $logErrors = 'Keterangan: ' . 'Tagihan Sparepart' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
             'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-            'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+            'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
 
             return redirect('sparepartamb')->with('logErrors', $logErrors);
 
@@ -270,7 +293,7 @@ class SparepartController extends Controller
                 $tagihanSparepart->b_proteksi = null;
                 $tagihanSparepart->b_jasa_aplikasi = null;
                 $tagihanSparepart->total = $numericTotal;
-                $tagihanSparepart->toko = $request->toko;
+                $tagihanSparepart->id_toko = $request->toko;
 
                 if ($filePath) {
                     $tagihanSparepart->file = $filePath;
@@ -311,7 +334,7 @@ class SparepartController extends Controller
                 $tagihanSparepart->b_proteksi = $numericProteksi;
                 $tagihanSparepart->b_jasa_aplikasi = $numericAplikasi;
                 $tagihanSparepart->total = $numericTotal;
-                $tagihanSparepart->toko = $request->toko;
+                $tagihanSparepart->id_toko = $request->toko;
                 $tagihanSparepart->via = 'online';
 
                 if ($filePath) {
@@ -345,7 +368,7 @@ class SparepartController extends Controller
             $tagihanSparepart->b_proteksi = null;
             $tagihanSparepart->b_jasa_aplikasi = null;
             $tagihanSparepart->total = $numericTotal;
-            $tagihanSparepart->toko = $request->toko;
+            $tagihanSparepart->id_toko = $request->toko;
 
             if ($filePath) {
                 $tagihanSparepart->file = $filePath;
@@ -419,6 +442,13 @@ class SparepartController extends Controller
     
         $hargaColumn = $metode_pembelian == 'online' ? 'harga_online' : null;
         $query = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
+        ->where(function ($query) {
+            $query->whereNull('noform')
+                ->orWhereHas('permintaanBarang', function ($query) {
+                    $query->whereColumn('tbl_tagihan_amb.noform', 'tbl_permintaan_barang.noform')
+                            ->where('status', 'approved');
+                });
+        })
         ->when($hargaColumn, function ($query, $hargaColumn) {
             return $query->where('via', 'online')
                         ->where('keterangan', 'tagihan sparepart online');

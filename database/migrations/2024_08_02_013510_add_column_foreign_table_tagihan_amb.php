@@ -19,6 +19,9 @@ class AddColumnForeignTableTagihanAmb extends Migration
 
             $table->unsignedBigInteger('id_satuan')->nullable()->after('id_kendaraan');
             $table->foreign('id_satuan')->references('id_satuan')->on('tbl_satuan');
+
+            $table->unsignedBigInteger('id_toko')->nullable()->after('id_satuan');
+            $table->foreign('id_toko')->references('id_toko')->on('tbl_toko');
         });
     }
 
@@ -35,6 +38,9 @@ class AddColumnForeignTableTagihanAmb extends Migration
 
             $table->dropForeign(['id_satuan']);
             $table->dropColumn('id_satuan');
+
+            $table->dropForeign(['id_toko']);
+            $table->dropColumn('id_toko');
         });
     }
 }

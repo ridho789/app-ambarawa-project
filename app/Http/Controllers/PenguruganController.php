@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Pembangunan;
 use App\Models\Proyek;
 use App\Models\Satuan;
+use App\Models\Toko;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PenguruganExport;
 use Carbon\Carbon;
@@ -25,7 +26,9 @@ class PenguruganController extends Controller
         $namaProyek = Proyek::pluck('nama', 'id_proyek');
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        return view('contents.pembangunan.pengurugan', compact('pengurugan', 'proyek', 'namaProyek', 'satuan', 'namaSatuan', 'periodes'));
+        $toko = Toko::all();
+        $namaToko = Toko::pluck('nama', 'id_toko');
+        return view('contents.pembangunan.pengurugan', compact('pengurugan', 'proyek', 'namaProyek', 'satuan', 'namaSatuan', 'toko', 'namaToko', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -58,7 +61,7 @@ class PenguruganController extends Controller
             'id_satuan' => $request->satuan,
             'harga' => $numericHarga,
             'tot_harga' => $numericTotal,
-            'toko' => $request->toko,
+            'id_toko' => $request->toko,
             'file' => $filePath
         ];
 
@@ -68,15 +71,21 @@ class PenguruganController extends Controller
             $namaProyek = $dataProyek->nama;
         } 
 
+        $dataToko = Toko::where('id_toko', $request->toko)->first();
+        $namaToko = 'null';
+        if ($dataToko) {
+            $namaToko = $dataToko->nama;
+        }
+
         $exitingUrug = Pembangunan::where('tanggal', $request->tanggal)->where('nama', $request->nama)->where('deskripsi', $request->deskripsi)->where('ukuran', $request->ukuran)
             ->where('jumlah', $request->jumlah)->where('id_satuan', $request->satuan)->where('harga', $numericHarga)->where('tot_harga', $numericTotal)->where('id_proyek', $request->proyek)
-            ->where('toko', $request->toko)
+            ->where('id_toko', $request->toko)
             ->first();
 
         if ($exitingUrug) {
             $logErrors = 'Proyek: ' . $namaProyek . ' - ' . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 
             'Jumlah: ' . $request->jumlah . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
-            ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+            ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
 
             return redirect('pengurugan')->with('logErrors', $logErrors);
 
@@ -116,7 +125,7 @@ class PenguruganController extends Controller
             $tagihanUrug->id_satuan = $request->satuan;
             $tagihanUrug->harga = $numericHarga;
             $tagihanUrug->tot_harga = $numericTotal;
-            $tagihanUrug->toko = $request->toko;
+            $tagihanUrug->id_toko = $request->toko;
 
             if ($filePath) {
                 $tagihanUrug->file = $filePath;

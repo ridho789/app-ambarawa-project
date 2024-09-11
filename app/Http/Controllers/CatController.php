@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
 use App\Models\Satuan;
+use App\Models\Toko;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TagihanExport;
 use Carbon\Carbon;
@@ -26,17 +27,27 @@ class CatController extends Controller
             ->orderBy('nama')
             ->get();
 
-        $catOnline = TagihanAMB::where('keterangan', 'tagihan cat online')->get();
-        $catOffline = TagihanAMB::where('keterangan', 'tagihan cat')->get();
-        $periodes = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])
-            ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))
-            ->distinct()
-            ->orderBy('periode', 'desc')
-            ->get()
-            ->pluck('periode');
+        $catOnline = TagihanAMB::where('keterangan', 'tagihan cat online')
+        ->where(function ($query) {
+            $query->whereNull('noform')
+                ->orWhereHas('permintaanBarang', function ($query) {
+                    $query->whereColumn('tbl_tagihan_amb.noform', 'tbl_permintaan_barang.noform')
+                            ->where('status', 'approved');
+                });
+        })->get();
+        $catOffline = TagihanAMB::where('keterangan', 'tagihan cat')
+        ->where(function ($query) {
+            $query->whereNull('noform')
+                ->orWhereHas('permintaanBarang', function ($query) {
+                    $query->whereColumn('tbl_tagihan_amb.noform', 'tbl_permintaan_barang.noform')
+                            ->where('status', 'approved');
+                });
+        })->get();
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        return view('contents.cat_amb', compact('cat', 'catOnline', 'catOffline', 'periodes', 'satuan', 'namaSatuan'));
+        $toko = Toko::all();
+        $namaToko = Toko::pluck('nama', 'id_toko');
+        return view('contents.cat_amb', compact('cat', 'catOnline', 'catOffline', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
     }
 
     public function store(Request $request) {
@@ -57,6 +68,12 @@ class CatController extends Controller
             $currentDateTime = $dateTime->format('d_m_Y_H_i_s');
             $fileName = $currentDateTime . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('Cat', $fileName, 'public');
+        }
+
+        $dataToko = Toko::where('id_toko', $request->toko)->first();
+        $namaToko = 'null';
+        if ($dataToko) {
+            $namaToko = $dataToko->nama;
         }
 
         if ($request->metode_pembelian == 'offline') {
@@ -83,7 +100,7 @@ class CatController extends Controller
                 'b_proteksi' => null,
                 'b_jasa_aplikasi' => null,
                 'total' => $numericTotal,
-                'toko' => $request->toko,
+                'id_toko' => $request->toko,
                 'file' => $filePath
             ];
     
@@ -91,13 +108,13 @@ class CatController extends Controller
                 ->where('tgl_order', $request->tgl_order)->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)
                 ->where('nama', $request->nama)->where('kategori', $request->kategori)->where('dipakai_untuk', $request->dipakai_untuk)
                 ->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
-                ->where('harga', $numericHarga)->where('total', $numericTotal)->where('toko', $request->toko)
+                ->where('harga', $numericHarga)->where('total', $numericTotal)->where('id_toko', $request->toko)
                 ->first();
     
             if ($exitingCat) {
                 $logErrors = 'Keterangan: ' . 'Tagihan Cat (Offline)' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
                 'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-                'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+                'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
     
                 return redirect('cat')->with('logErrors', $logErrors);
     
@@ -137,7 +154,7 @@ class CatController extends Controller
                 'b_proteksi' => $numericProteksi,
                 'b_jasa_aplikasi' => $numericAplikasi,
                 'total' => $numericTotal,
-                'toko' => $request->toko,
+                'id_toko' => $request->toko,
                 'via' => 'online',
                 'file' => $filePath
             ];
@@ -148,13 +165,13 @@ class CatController extends Controller
                 ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml_onl)->where('id_satuan', $request->unit_onl)
                 ->where('harga_online', $numericHargaOnline)->where('ongkir', $numericOngkir)->where('diskon_ongkir', $numericDiskonOngkir)
                 ->where('asuransi', $numericAsuransi)->where('b_proteksi', $numericProteksi)->where('b_jasa_aplikasi', $numericAplikasi)
-                ->where('total', $numericTotal)->where('toko', $request->toko)
+                ->where('total', $numericTotal)->where('id_toko', $request->toko)
                 ->first();
     
             if ($exitingCat) {
                 $logErrors = 'Keterangan: ' . 'Tagihan Cat (Online)' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
                 'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-                'Harga : ' . $request->harga_online . ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+                'Harga : ' . $request->harga_online . ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
     
                 return redirect('cat')->with('logErrors', $logErrors);
     
@@ -186,20 +203,20 @@ class CatController extends Controller
             'b_proteksi' => null,
             'b_jasa_aplikasi' => null,
             'total' => $numericTotal,
-            'toko' => $request->toko,
+            'id_toko' => $request->toko,
             'file' => $filePath
         ];
 
         $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')->where('lokasi', $request->lokasi)
             ->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
             ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
-            ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('total', $numericTotal)->where('toko', $request->toko)
+            ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('total', $numericTotal)->where('id_toko', $request->toko)
             ->first();
 
         if ($exitingCat) {
             $logErrors = 'Keterangan: ' . 'Tagihan Cat (Offline)' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
             'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-            'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+            'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
 
             return redirect('cat')->with('logErrors', $logErrors);
 
@@ -253,7 +270,7 @@ class CatController extends Controller
                 $tagihanCat->b_proteksi = null;
                 $tagihanCat->b_jasa_aplikasi = null;
                 $tagihanCat->total = $numericTotal;
-                $tagihanCat->toko = $request->toko;
+                $tagihanCat->id_toko = $request->toko;
 
                 if ($filePath) {
                     $tagihanCat->file = $filePath;
@@ -293,7 +310,7 @@ class CatController extends Controller
                 $tagihanCat->b_proteksi = $numericProteksi;
                 $tagihanCat->b_jasa_aplikasi = $numericAplikasi;
                 $tagihanCat->total = $numericTotal;
-                $tagihanCat->toko = $request->toko;
+                $tagihanCat->id_toko = $request->toko;
                 $tagihanCat->via = 'online';
 
                 if ($filePath) {
@@ -326,7 +343,7 @@ class CatController extends Controller
             $tagihanCat->b_proteksi = null;
             $tagihanCat->b_jasa_aplikasi = null;
             $tagihanCat->total = $numericTotal;
-            $tagihanCat->toko = $request->toko;
+            $tagihanCat->id_toko = $request->toko;
 
             if ($filePath) {
                 $tagihanCat->file = $filePath;
@@ -400,6 +417,13 @@ class CatController extends Controller
     
         $hargaColumn = $metode_pembelian == 'online' ? 'harga_online' : null;
         $query = TagihanAMB::whereIn('keterangan', ['tagihan cat', 'tagihan cat online'])
+        ->where(function ($query) {
+            $query->whereNull('noform')
+                ->orWhereHas('permintaanBarang', function ($query) {
+                    $query->whereColumn('tbl_tagihan_amb.noform', 'tbl_permintaan_barang.noform')
+                            ->where('status', 'approved');
+                });
+        })
         ->when($hargaColumn, function ($query, $hargaColumn) {
             return $query->where('via', 'online')
                         ->where('keterangan', 'tagihan cat online');

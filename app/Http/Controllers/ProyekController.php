@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Proyek;
 use App\Models\Pembangunan;
+use App\Models\Activity;
+use Carbon\Carbon;
 
 class ProyekController extends Controller
 {
@@ -24,7 +26,21 @@ class ProyekController extends Controller
             return redirect('proyek')->with('logErrors', $logErrors);
 
         } else {
-            Proyek::insert(['nama' => $request->nama, 'subproyek' => $request->subproyek]);
+            $dataProyek = Proyek::create(['nama' => $request->nama, 'subproyek' => $request->subproyek]);
+            $idProyek = $dataProyek->id_proyek;
+
+            // create activity
+            $dataActivity = [
+                'id_relation' => $idProyek,
+                'description' => 'Menambahkan proyek baru: ' . $request->nama,
+                'scope' => 'Kendaraan',
+                'action' => 'Buat Data Baru',
+                'user' => $request->user,
+                'action_time' => Carbon::now()->addHours(7),
+            ];
+
+            Activity::create($dataActivity);
+
             return redirect('proyek');
         }
     }
@@ -39,6 +55,18 @@ class ProyekController extends Controller
                     return redirect('proyek')->with('logErrors', $logErrors);
                 }
             }
+
+            // create activity
+            $dataActivity = [
+                'id_relation' => $dataProyek->id_proyek,
+                'description' => 'Update data proyek: ' . $dataProyek->nama . ' => ' . $request->nama,
+                'scope' => 'Proyek',
+                'action' => 'Update Data',
+                'user' => $request->user,
+                'action_time' => Carbon::now()->addHours(7),
+            ];
+
+            Activity::create($dataActivity);
 
             $dataProyek->nama = $request->nama;
             $dataProyek->subproyek = $request->subproyek;

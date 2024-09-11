@@ -1,5 +1,5 @@
 @extends('layouts.base')
-<!-- @section('title', 'Kendaraan') -->
+<!-- @section('title', 'Toko') -->
 @section('content')
 <!-- style custom -->
 <style>
@@ -16,7 +16,7 @@
 <div class="container">
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">Data Kendaraan</h3>
+            <h3 class="fw-bold mb-3">Data Toko</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="{{ url('dashboard') }}">
@@ -27,25 +27,25 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="#">Kendaraan</a>
+                    <a href="#">Toko</a>
                 </li>
             </ul>
         </div>
 
         <!-- Modal Tambah data -->
-        <div class="modal fade" id="kendaraanModal" tabindex="-1" role="dialog" aria-labelledby="kendaraanModalLabel" aria-hidden="true">
+        <div class="modal fade" id="tokoModal" tabindex="-1" role="dialog" aria-labelledby="tokoModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header border-0 mx-2" style="margin-bottom: -25px;">
-                        <h5 class="modal-title" id="kendaraanModal">
+                        <h5 class="modal-title" id="tokoModal">
                             <span class="fw-light"> Data</span>
-                            <span class="fw-mediumbold"> Kendaraan Baru </span>
+                            <span class="fw-mediumbold"> Toko Baru </span>
                         </h5>
                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{{ url('kendaraan-store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url('toko-store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body">
                             <p class="small mx-2">
@@ -54,22 +54,10 @@
 
                             <input type="hidden" id="user" name="user" value="{{ auth()->user()->name }}">
 
-                            <div class="form-group row">
-                                <div class="col-4">
-                                    <label for="nopol">Nopol / Kode Unit</label>
-                                    <input type="text" class="form-control" name="nopol" id="nopol" placeholder="Masukkan nopol.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
-                                </div>
-                                <div class="col-4">
-                                    <label for="merk">Merk</label>
-                                    <input type="text" class="form-control" name="merk" id="merk" placeholder="Masukkan merk.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
-                                </div>
-                                <div class="col-4">
-                                    <label for="jns_bbm">Jenis BBM</label>
-                                    <input type="text" class="form-control" name="jns_bbm" id="jns_bbm" placeholder="Masukkan jenis BBM.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
-                                </div>
+                            <div class="form-group">
+                                <label for="nama">Nama (Toko)</label>
+                                <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama toko.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -82,44 +70,32 @@
         </div>
 
         <!-- Modal Edit data -->
-        <div class="modal fade" id="kendaraanEditModal" tabindex="-1" role="dialog" aria-labelledby="kendaraanEditModalLabel" aria-hidden="true">
+        <div class="modal fade" id="tokoEditModal" tabindex="-1" role="dialog" aria-labelledby="tokoEditModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header border-0 mx-2" style="margin-bottom: -25px;">
-                        <h5 class="modal-title" id="kendaraanEditModal">
+                        <h5 class="modal-title" id="tokoEditModal">
                             <span class="fw-light"> Data</span>
-                            <span class="fw-mediumbold"> Kendaraan </span>
+                            <span class="fw-mediumbold"> Toko </span>
                         </h5>
                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{{ url('kendaraan-update') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ url('toko-update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body">
                             <p class="small mx-2">
                                 Perbaharui data dengan formulir ini, pastikan Anda mengisi semuanya
                             </p>
 
-                            <input type="hidden" id="edit-id" name="id_kendaraan">
+                            <input type="hidden" id="edit-id" name="id_toko">
                             <input type="hidden" id="edit-user" name="user" value="{{ auth()->user()->name }}">
 
-                            <div class="form-group row">
-                                <div class="col-4">
-                                    <label for="nopol">Nopol / Kode Unit</label>
-                                    <input type="text" class="form-control" name="nopol" id="edit-nopol" placeholder="Masukkan nopol.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
-                                </div>
-                                <div class="col-4">
-                                    <label for="merk">Merk</label>
-                                    <input type="text" class="form-control" name="merk" id="edit-merk" placeholder="Masukkan merk.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
-                                </div>
-                                <div class="col-4">
-                                    <label for="jns_bbm">Jenis BBM</label>
-                                    <input type="text" class="form-control" name="jns_bbm" id="edit-jns_bbm" placeholder="Masukkan jenis BBM.." 
-                                    oninput="this.value = this.value.toUpperCase()" required />
-                                </div>
+                            <div class="form-group">
+                                <label for="nama">Nama (Toko)</label>
+                                <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama toko.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -166,12 +142,12 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex align-items-center">
-                            <div class="card-title">List Kendaraan</div>
-                            <button id="editButton" class="btn btn-warning btn-round ms-5 btn-sm" data-bs-toggle="modal" data-bs-target="#kendaraanEditModal" style="display: none;">
+                            <div class="card-title">List toko</div>
+                            <button id="editButton" class="btn btn-warning btn-round ms-5 btn-sm" data-bs-toggle="modal" data-bs-target="#tokoEditModal" style="display: none;">
                                 <i class="fa fa-edit"></i>
                                  Edit data
                             </button>
-                            <form id="deleteForm" method="POST" action="{{ url('kendaraan-delete') }}" class="d-inline">
+                            <form id="deleteForm" method="POST" action="{{ url('toko-delete') }}" class="d-inline">
                                 @csrf
                                 <input type="hidden" id="allSelectRow" name="ids" value="">
                                 <button id="deleteButton" type="button" class="btn btn-danger btn-round ms-2 btn-sm" style="display: none;">
@@ -179,13 +155,13 @@
                                     Delete data
                                 </button>
                             </form>
-                            <button class="btn btn-primary btn-round ms-auto btn-sm" data-bs-toggle="modal" data-bs-target="#kendaraanModal">
+                            <button class="btn btn-primary btn-round ms-auto btn-sm" data-bs-toggle="modal" data-bs-target="#tokoModal">
                                 <i class="fa fa-plus"></i>
                                 Tambah data
                             </button>
                         </div>
                     </div>
-                    @if (count($kendaraan) > 0)
+                    @if (count($toko) > 0)
                     <div class="card-body">
                         <div class="table-responsive">
                             <table id="basic-datatables" class="display table table-hover">
@@ -195,22 +171,16 @@
                                             <input type="checkbox" id="selectAllCheckbox">
                                         </th>
                                         <th class="text-xxs-bold">No.</th>
-                                        <th class="text-xxs-bold">Nopol / Kode Unit</th>
-                                        <th class="text-xxs-bold">Merk</th>
-                                        <th class="text-xxs-bold">Jenis BBM</th>
+                                        <th class="text-xxs-bold">Nama (Toko)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($kendaraan as $k)
-                                    <tr data-id="{{ $k->id_kendaraan }}" 
-                                        data-nopol="{{ $k->nopol }}" 
-                                        data-merk="{{ $k->merk }}" 
-                                        data-jns_bbm="{{ $k->jns_bbm }}">
+                                    @foreach($toko as $s)
+                                    <tr data-id="{{ $s->id_toko }}" 
+                                        data-nama="{{ $s->nama }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
-                                        <td>{{ $k->nopol ?? '-' }}</td>
-                                        <td>{{ $k->merk ?? '-' }}</td>
-                                        <td>{{ $k->jns_bbm ?? '-' }}</td>
+                                        <td>{{ $s->nama ?? '-' }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -326,9 +296,7 @@
                     var row = $('tr[data-id="' + selectedId + '"]');
                     
                     $('#edit-id').val(selectedId);
-                    $('#edit-nopol').val(row.data('nopol'));
-                    $('#edit-merk').val(row.data('merk'));
-                    $('#edit-jns_bbm').val(row.data('jns_bbm'));
+                    $('#edit-nama').val(row.data('nama'));
                 }
             });
         }

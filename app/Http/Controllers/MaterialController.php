@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Pembangunan;
 use App\Models\Proyek;
 use App\Models\Satuan;
+use App\Models\Toko;
 use App\Models\KategoriMaterial;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PembangunanExport;
@@ -39,7 +40,9 @@ class MaterialController extends Controller
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
         $kategori = KategoriMaterial::all();
-        return view('contents.pembangunan.kontruksi.material', compact('material', 'proyek', 'namaProyek', 'satuan', 'namaSatuan', 'kategori', 'periodes'));
+        $toko = Toko::all();
+        $namaToko = Toko::pluck('nama', 'id_toko');
+        return view('contents.pembangunan.kontruksi.material', compact('material', 'proyek', 'namaProyek', 'satuan', 'namaSatuan', 'toko', 'namaToko', 'kategori', 'periodes'));
     }
 
     public function store(Request $request) {
@@ -79,7 +82,7 @@ class MaterialController extends Controller
             'id_kategori' => $request->kategori,
             'harga' => $numericHarga,
             'tot_harga' => $numericTotal,
-            'toko' => $request->toko,
+            'id_toko' => $request->toko,
             'file' => $filePath
         ];
 
@@ -89,14 +92,20 @@ class MaterialController extends Controller
             $namaProyek = $dataProyek->nama;
         }
 
+        $dataToko = Toko::where('id_toko', $request->toko)->first();
+        $namaToko = 'null';
+        if ($dataToko) {
+            $namaToko = $dataToko->nama;
+        }
+
         $exitingMaterial = Pembangunan::where('tanggal', $request->tanggal)->where('nama', $request->nama)->where('ukuran', $request->ukuran)->where('deskripsi', $request->deskripsi)
             ->where('jumlah', $request->jumlah)->where('id_satuan', $request->satuan)->where('harga', $numericHarga)->where('tot_harga', $numericTotal)->where('id_proyek', $request->proyek)
-            ->where('id_kategori', $request->kategori)->where('toko', $request->toko)->first();
+            ->where('id_kategori', $request->kategori)->where('id_toko', $request->toko)->first();
 
         if ($exitingMaterial) {
             $logErrors = 'Proyek: ' . $namaProyek . ' - ' . 'Pengeluaran ' . $namaKategori . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 
             'Nama (Barang): ' . $request->nama . ' - ' . 'Jumlah: ' . $request->jumlah . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
-            ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+            ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
 
             return redirect('material')->with('logErrors', $logErrors);
 
@@ -137,7 +146,7 @@ class MaterialController extends Controller
             $tagihanMaterial->id_kategori = $request->kategori;
             $tagihanMaterial->harga = $numericHarga;
             $tagihanMaterial->tot_harga = $numericTotal;
-            $tagihanMaterial->toko = $request->toko;
+            $tagihanMaterial->id_toko = $request->toko;
 
             if ($filePath) {
                 $tagihanMaterial->file = $filePath;
@@ -205,16 +214,32 @@ class MaterialController extends Controller
         }
 
         if ($mode == 'all_data') {
-            $material = Pembangunan::whereNotNull('id_kategori')->orderBy('id_kategori', 'asc')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
+            $material = Pembangunan::whereNotNull('id_kategori')
+            ->where(function ($query) {
+                $query->whereNull('noform')
+                    ->orWhereHas('permintaanBarang', function ($query) {
+                        $query->whereColumn('tbl_pembangunan.noform', 'tbl_permintaan_barang.noform')
+                                ->where('status', 'approved');
+                    });
+            })
+            ->orderBy('id_kategori', 'asc')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
             return Excel::download(new PembangunanExport($mode, $material, $nama, $rangeDate), 'Report Material.xlsx');
 
         } else {
-            $material = Pembangunan::whereNotNull('id_kategori')->where('tanggal', '>=', $start_date)
-                ->where('tanggal', '<=', $end_date)
-                ->orderBy('id_kategori', 'asc')
-                ->orderBy('tanggal', 'asc')
-                ->orderBy('nama', 'asc')
-                ->get();
+            $material = Pembangunan::whereNotNull('id_kategori')
+            ->where(function ($query) {
+                $query->whereNull('noform')
+                    ->orWhereHas('permintaanBarang', function ($query) {
+                        $query->whereColumn('tbl_pembangunan.noform', 'tbl_permintaan_barang.noform')
+                                ->where('status', 'approved');
+                    });
+            })
+            ->where('tanggal', '>=', $start_date)
+            ->where('tanggal', '<=', $end_date)
+            ->orderBy('id_kategori', 'asc')
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('nama', 'asc')
+            ->get();
 
             $fileName = 'Report Material ' . $rangeDate . '.xlsx';
             return Excel::download(new PembangunanExport($mode, $material, $nama, $rangeDate), $fileName);

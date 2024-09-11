@@ -24,7 +24,6 @@ class TablePembangunan extends Migration
             $table->string('jumlah');
             $table->string('harga');
             $table->string('tot_harga');
-            $table->string('toko');
             $table->string('status')->default('processing');
             $table->string('file')->nullable();
             $table->timestamps();

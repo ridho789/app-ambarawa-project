@@ -25,7 +25,6 @@ return new class extends Migration
             $table->string('p_member')->nullable();
             $table->string('b_aplikasi')->nullable();
             $table->string('total');
-            $table->string('toko');
             $table->string('status')->default('processing');
             $table->string('file')->nullable();
             $table->timestamps();

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
 use App\Models\Satuan;
+use App\Models\Toko;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TagihanExport;
 use Carbon\Carbon;
@@ -22,7 +23,9 @@ class BubutController extends Controller
             ->pluck('periode');
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        return view('contents.bubut', compact('bubut', 'periodes', 'satuan', 'namaSatuan'));
+        $toko = Toko::all();
+        $namaToko = Toko::pluck('nama', 'id_toko');
+        return view('contents.bubut', compact('bubut', 'periodes', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
     }
 
     public function store(Request $request) {
@@ -60,20 +63,26 @@ class BubutController extends Controller
             'id_satuan' => $request->unit,
             'harga' => $numericHarga,
             'total' => $numericTotal,
-            'toko' => $request->toko,
+            'id_toko' => $request->toko,
             'file' => $filePath
         ];
+
+        $dataToko = Toko::where('id_toko', $request->toko)->first();
+        $namaToko = 'null';
+        if ($dataToko) {
+            $namaToko = $dataToko->nama;
+        }
 
         $exitingBubut = TagihanAMB::where('keterangan', 'tagihan bubut')->where('lokasi', $request->lokasi)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
             ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
             ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
-            ->where('harga', $numericHarga)->where('total', $numericTotal)->where('toko', $request->toko)
+            ->where('harga', $numericHarga)->where('total', $numericTotal)->where('id_toko', $request->toko)
             ->first();
 
         if ($exitingBubut) {
             $logErrors = 'Keterangan: ' . 'Tagihan Bubut' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
             'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-            'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+            'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
 
             return redirect('bubut')->with('logErrors', $logErrors);
 
@@ -118,7 +127,7 @@ class BubutController extends Controller
             $tagihanBubut->id_satuan = $request->unit;
             $tagihanBubut->harga = $numericHarga;
             $tagihanBubut->total = $numericTotal;
-            $tagihanBubut->toko = $request->toko;
+            $tagihanBubut->id_toko = $request->toko;
 
             if ($filePath) {
                 $tagihanBubut->file = $filePath;

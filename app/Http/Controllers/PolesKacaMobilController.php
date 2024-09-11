@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
 use App\Models\Satuan;
+use App\Models\Toko;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TagihanExport;
 use Carbon\Carbon;
@@ -22,7 +23,9 @@ class PolesKacaMobilController extends Controller
             ->pluck('periode');
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        return view('contents.poles_kaca_mobil', compact('poles', 'periodes', 'satuan', 'namaSatuan'));
+        $toko = Toko::all();
+        $namaToko = Toko::pluck('nama', 'id_toko');
+        return view('contents.poles_kaca_mobil', compact('poles', 'periodes', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
     }
 
     public function store(Request $request) {
@@ -60,20 +63,26 @@ class PolesKacaMobilController extends Controller
             'id_satuan' => $request->unit,
             'harga' => $numericHarga,
             'total' => $numericTotal,
-            'toko' => $request->toko,
+            'id_toko' => $request->toko,
             'file' => $filePath
         ];
+
+        $dataToko = Toko::where('id_toko', $request->toko)->first();
+        $namaToko = 'null';
+        if ($dataToko) {
+            $namaToko = $dataToko->nama;
+        }
 
         $exitingPoles = TagihanAMB::where('keterangan', 'tagihan poles kaca mobil')->where('lokasi', $request->lokasi)->where('pemesan', $request->pemesan)
             ->where('tgl_order', $request->tgl_order)->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)
             ->where('nama', $request->nama)->where('kategori', $request->kategori)->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)
-            ->where('jml', $request->jml)->where('id_satuan', $request->unit)->where('harga', $numericHarga)->where('total', $numericTotal)->where('toko', $request->toko)
+            ->where('jml', $request->jml)->where('id_satuan', $request->unit)->where('harga', $numericHarga)->where('total', $numericTotal)->where('id_toko', $request->toko)
             ->first();
 
         if ($exitingPoles) {
             $logErrors = 'Keterangan: ' . 'Tagihan Poles Kaca Mobil' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
             'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-            'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $request->toko . ', data tersebut sudah ada di sistem';
+            'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
 
             return redirect('poles')->with('logErrors', $logErrors);
 
@@ -118,7 +127,7 @@ class PolesKacaMobilController extends Controller
             $tagihanPoles->id_satuan = $request->unit;
             $tagihanPoles->harga = $numericHarga;
             $tagihanPoles->total = $numericTotal;
-            $tagihanPoles->toko = $request->toko;
+            $tagihanPoles->id_toko = $request->toko;
 
             if ($filePath) {
                 $tagihanPoles->file = $filePath;

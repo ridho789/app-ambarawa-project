@@ -59,6 +59,12 @@
                         <p>Satuan</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ url('/toko') }}">
+                        <i class="fas fa-box"></i>
+                        <p>Toko</p>
+                    </a>
+                </li>
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>

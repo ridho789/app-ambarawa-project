@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Carbon\Carbon;
 use App\Models\Kendaraan;
 use App\Models\Satuan;
+use App\Models\Toko;
 
 class SparepartExport implements WithMultipleSheets
 {
@@ -66,6 +67,7 @@ class SparepartExport implements WithMultipleSheets
                         $data = $this->tagihan->map(function ($item) {
                             $kendaraan = Kendaraan::find($item->id_kendaraan);
                             $satuan = Satuan::find($item->id_satuan);
+                            $toko = Toko::find($item->id_toko);
                             $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
 
                             if ($this->metode_pembelian == 'online') {
@@ -96,7 +98,7 @@ class SparepartExport implements WithMultipleSheets
                                     'asuransi' => $asuransi ? $asuransi : '-',
                                     'b_proteksi' => $b_proteksi ? $b_proteksi : '-',
                                     'b_jasa_aplikasi' => $b_jasa_aplikasi ? $b_jasa_aplikasi : '-',
-                                    'toko' => $item->toko,
+                                    'toko' => $toko->nama,
                                     'total' => $total
                                 ];
 
@@ -118,7 +120,7 @@ class SparepartExport implements WithMultipleSheets
                                     'jml' => $item->jml ? $item->jml : '-',
                                     'unit' => $satuan->nama ?? '-',
                                     'harga' => $harga ? $harga : '-',
-                                    'toko' => $item->toko,
+                                    'toko' => $toko->nama,
                                     'total' => $total
                                 ];
                             }
@@ -292,6 +294,7 @@ class SparepartExport implements WithMultipleSheets
                     $data = $this->tagihan->map(function ($item) {
                         $kendaraan = Kendaraan::find($item->id_kendaraan);
                         $satuan = Satuan::find($item->id_satuan);
+                        $toko = Toko::find($item->id_toko);
                         $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
 
                         if ($this->metode_pembelian == 'online') {
@@ -322,7 +325,7 @@ class SparepartExport implements WithMultipleSheets
                                 'asuransi' => $asuransi ? $asuransi : '-',
                                 'b_proteksi' => $b_proteksi ? $b_proteksi : '-',
                                 'b_jasa_aplikasi' => $b_jasa_aplikasi ? $b_jasa_aplikasi : '-',
-                                'toko' => $item->toko,
+                                'toko' => $toko->nama ?? '-',
                                 'total' => $total
                             ];
 
@@ -344,7 +347,7 @@ class SparepartExport implements WithMultipleSheets
                                 'jml' => $item->jml ? $item->jml : '-',
                                 'unit' => $satuan->nama ?? '-',
                                 'harga' => $harga ? $harga : '-',
-                                'toko' => $item->toko,
+                                'toko' => $toko->nama ?? '-',
                                 'total' => $total
                             ];
                         }

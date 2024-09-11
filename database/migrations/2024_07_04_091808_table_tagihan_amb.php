@@ -33,7 +33,6 @@ return new class extends Migration
             $table->string('b_jasa_aplikasi')->nullable();
             $table->string('diskon_ongkir')->nullable();
             $table->string('total');
-            $table->string('toko');
             $table->string('via')->nullable();
             $table->string('status')->default('processing');
             $table->string('file')->nullable();

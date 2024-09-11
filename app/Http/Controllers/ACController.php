@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
 use App\Models\Satuan;
+use App\Models\Toko;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TagihanExport;
 use Carbon\Carbon;
@@ -14,15 +15,11 @@ class ACController extends Controller
 {
     public function index() {
         $ac = TagihanAMB::where('keterangan', 'tagihan ac')->orderBy('lokasi')->orderBy('tgl_order', 'asc')->get();
-        $periodes = TagihanAMB::where('keterangan', 'tagihan ac')
-            ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))
-            ->distinct()
-            ->orderBy('periode', 'desc')
-            ->get()
-            ->pluck('periode');
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        return view('contents.ac', compact('ac', 'periodes', 'satuan', 'namaSatuan'));
+        $toko = Toko::all();
+        $namaToko = Toko::pluck('nama', 'id_toko');
+        return view('contents.ac', compact('ac', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
     }
 
     public function store(Request $request) {
@@ -60,20 +57,26 @@ class ACController extends Controller
             'id_satuan' => $request->unit,
             'harga' => $numericHarga,
             'total' => $numericTotal,
-            'toko' => $request->toko,
+            'id_toko' => $request->toko,
             'file' => $filePath
         ];
+
+        $dataToko = Toko::where('id_toko', $request->toko)->first();
+        $namaToko = 'null';
+        if ($dataToko) {
+            $namaToko = $dataToko->nama;
+        }
 
         $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan ac')->where('lokasi', $request->lokasi)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
             ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
             ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
-            ->where('harga', $numericHarga)->where('total', $numericTotal)->where('toko', $request->toko)
+            ->where('harga', $numericHarga)->where('total', $numericTotal)->where('id_toko', $request->toko)
             ->first();
 
         if ($exitingSparepart) {
             $logErrors = 'Keterangan: ' . 'Tagihan AC' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
             'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-            'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $request->toko . ', data yang di input sudah ada di sistem';
+            'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $namaToko . ', data yang di input sudah ada di sistem';
 
             return redirect('ac')->with('logErrors', $logErrors);
 
@@ -118,7 +121,7 @@ class ACController extends Controller
             $tagihanAC->id_satuan = $request->unit;
             $tagihanAC->harga = $numericHarga;
             $tagihanAC->total = $numericTotal;
-            $tagihanAC->toko = $request->toko;
+            $tagihanAC->id_toko = $request->toko;
 
             if ($filePath) {
                 $tagihanAC->file = $filePath;

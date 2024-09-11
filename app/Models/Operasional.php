@@ -12,6 +12,7 @@ class Operasional extends Model
     protected $primaryKey = 'id_operasional';
 
     protected $fillable = [
+        'id_toko',
         'tanggal',
         'uraian',
         'deskripsi',
@@ -24,7 +25,6 @@ class Operasional extends Model
         'p_member',
         'b_aplikasi',
         'total',
-        'toko',
         'status',
         'file'
     ];

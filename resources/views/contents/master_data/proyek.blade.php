@@ -52,6 +52,8 @@
                                 Buat data baru dengan formulir ini
                             </p>
 
+                            <input type="hidden" id="user" name="user" value="{{ auth()->user()->name }}">
+
                             <div class="form-group">
                                 <label for="nama">Proyek</label>
                                 <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama proyek.." 
@@ -94,6 +96,7 @@
                             </p>
 
                             <input type="hidden" id="edit-id" name="id_proyek">
+                            <input type="hidden" id="edit-user" name="user" value="{{ auth()->user()->name }}">
 
                             <div class="form-group">
                                 <label for="nama">Proyek</label>

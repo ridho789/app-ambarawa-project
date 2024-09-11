@@ -11,6 +11,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Carbon\Carbon;
 use App\Models\Satuan;
+use App\Models\Toko;
 
 class TagihanExport implements WithMultipleSheets
 {
@@ -65,6 +66,7 @@ class TagihanExport implements WithMultipleSheets
                         $data = $this->tagihan->map(function ($item) {
                             $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
                             $satuan = Satuan::find($item->id_satuan);
+                            $toko = Toko::find($item->id_toko);
 
                             if ($this->metode_pembelian == 'online') {
                                 $harga_online = 'Rp ' . number_format($item->harga_online ?? 0, 0, ',', '.');
@@ -92,7 +94,7 @@ class TagihanExport implements WithMultipleSheets
                                     'asuransi' => $asuransi ? $asuransi : '-',
                                     'b_proteksi' => $b_proteksi ? $b_proteksi : '-',
                                     'b_jasa_aplikasi' => $b_jasa_aplikasi ? $b_jasa_aplikasi : '-',
-                                    'toko' => $item->toko,
+                                    'toko' => $toko->nama ?? '-',
                                     'total' => $total
                                 ];
 
@@ -112,7 +114,7 @@ class TagihanExport implements WithMultipleSheets
                                     'jml' => $item->jml ? $item->jml : '-',
                                     'unit' => $satuan->nama ?? '-',
                                     'harga' => $harga ? $harga : '-',
-                                    'toko' => $item->toko,
+                                    'toko' => $toko->nama ?? '-',
                                     'total' => $total
                                 ];
                             }
@@ -278,6 +280,7 @@ class TagihanExport implements WithMultipleSheets
                     $data = $this->tagihan->map(function ($item) {
                         $total = 'Rp ' . number_format($item->total ?? 0, 0, ',', '.');
                         $satuan = Satuan::find($item->id_satuan);
+                        $toko = Toko::find($item->id_toko);
 
                         if ($this->metode_pembelian == 'online') {
                             $harga_online = 'Rp ' . number_format($item->harga_online ?? 0, 0, ',', '.');
@@ -305,7 +308,7 @@ class TagihanExport implements WithMultipleSheets
                                 'asuransi' => $asuransi ? $asuransi : '-',
                                 'b_proteksi' => $b_proteksi ? $b_proteksi : '-',
                                 'b_jasa_aplikasi' => $b_jasa_aplikasi ? $b_jasa_aplikasi : '-',
-                                'toko' => $item->toko,
+                                'toko' => $toko->nama ?? '-',
                                 'total' => $total
                             ];
 
@@ -325,7 +328,7 @@ class TagihanExport implements WithMultipleSheets
                                 'jml' => $item->jml ? $item->jml : '-',
                                 'unit' => $satuan->nama ?? '-',
                                 'harga' => $harga ? $harga : '-',
-                                'toko' => $item->toko,
+                                'toko' => $toko->nama ?? '-',
                                 'total' => $total
                             ];
                         }

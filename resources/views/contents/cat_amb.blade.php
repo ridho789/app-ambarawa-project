@@ -271,9 +271,20 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="toko">Toko</label>
-                                <input type="text" class="form-control" name="toko" id="toko" placeholder="Masukkan toko.." 
-                                oninput="this.value = this.value.toUpperCase()" required />
+                                @if (count($toko) > 0)
+                                    <label for="toko">Toko</label>
+                                    <select class="form-select form-control" name="toko" id="toko" required>
+                                        <option value="">...</option>
+                                        @foreach ($toko as $s)
+                                            <option value="{{ $s->id_toko }}">{{ $s->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <label>Toko</label>
+                                    <select class="form-control" disabled>
+                                        <option value="">Tidak ada data</option>
+                                    </select>
+                                @endif
                             </div>
 
                             <div class="form-group">
@@ -495,9 +506,20 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="toko">Toko</label>
-                                <input type="text" class="form-control" name="toko" id="edit-toko" placeholder="Masukkan toko.." 
-                                oninput="this.value = this.value.toUpperCase()" required />
+                                @if (count($toko) > 0)
+                                    <label for="toko">Toko</label>
+                                    <select class="form-select form-control" name="toko" id="edit-toko" required>
+                                        <option value="">...</option>
+                                        @foreach ($toko as $s)
+                                            <option value="{{ $s->id_toko }}">{{ $s->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <label>Toko</label>
+                                    <select class="form-control" disabled>
+                                        <option value="">Tidak ada data</option>
+                                    </select>
+                                @endif
                             </div>
 
                             <div class="form-group">
@@ -740,7 +762,7 @@
                                         data-b_proteksi="{{ 'Rp ' . number_format($c->b_proteksi ?? 0, 0, ',', '.') }}"
                                         data-b_jasa_aplikasi="{{ 'Rp ' . number_format($c->b_jasa_aplikasi ?? 0, 0, ',', '.') }}"
                                         data-total="{{ 'Rp ' . number_format($c->total ?? 0, 0, ',', '.') }}"
-                                        data-toko="{{ $c->toko }}"
+                                        data-toko="{{ $c->id_toko }}"
                                         data-via="{{ $c->via }}"
                                         data-file="{{ $c->file }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
@@ -768,7 +790,7 @@
                                         <!-- <td>{{ $c->id_satuan ?? '-' }}</td> -->
                                         <!-- <td>{{ 'Rp ' . number_format($c->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($c->total ?? 0, 0, ',', '.') }}</td>
-                                        <td>{{ $c->toko }}</td>
+                                        <td>{{ $namaToko[$c->id_toko] ?? '-' }}</td>
                                         <td>{{ ucfirst($c->via) }}</td>
                                         <td>
                                             @php

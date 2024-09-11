@@ -193,9 +193,20 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="toko">Toko</label>
-                                <input type="text" class="form-control" name="toko" id="toko" placeholder="Masukkan toko.." 
-                                oninput="this.value = this.value.toUpperCase()" required />
+                                @if (count($toko) > 0)
+                                    <label for="toko">Toko</label>
+                                    <select class="form-select form-control" name="toko" id="toko" required>
+                                        <option value="">...</option>
+                                        @foreach ($toko as $s)
+                                            <option value="{{ $s->id_toko }}">{{ $s->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <label>Toko</label>
+                                    <select class="form-control" disabled>
+                                        <option value="">Tidak ada data</option>
+                                    </select>
+                                @endif
                             </div>
 
                             <div class="form-group">
@@ -339,9 +350,20 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="toko">Toko</label>
-                                <input type="text" class="form-control" name="toko" id="edit-toko" placeholder="Masukkan toko.." 
-                                oninput="this.value = this.value.toUpperCase()" required />
+                                @if (count($toko) > 0)
+                                    <label for="toko">Toko</label>
+                                    <select class="form-select form-control" name="toko" id="edit-toko" required>
+                                        <option value="">...</option>
+                                        @foreach ($toko as $s)
+                                            <option value="{{ $s->id_toko }}">{{ $s->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <label>Toko</label>
+                                    <select class="form-control" disabled>
+                                        <option value="">Tidak ada data</option>
+                                    </select>
+                                @endif
                             </div>
 
                             <div class="form-group">
@@ -562,7 +584,7 @@
                                         data-unit="{{ $b->id_satuan }}"
                                         data-harga="{{ 'Rp ' . number_format($b->harga ?? 0, 0, ',', '.') }}"
                                         data-total="{{ 'Rp ' . number_format($b->total ?? 0, 0, ',', '.') }}"
-                                        data-toko="{{ $b->toko }}"
+                                        data-toko="{{ $b->id_toko }}"
                                         data-file="{{ $b->file }}">
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
@@ -588,7 +610,7 @@
                                         <!-- <td>{{ $b->id_satuan ?? '-' }}</td> -->
                                         <td>{{ 'Rp ' . number_format($b->harga ?? 0, 0, ',', '.') }}</td>
                                         <td>{{ 'Rp ' . number_format($b->total ?? 0, 0, ',', '.') }}</td>
-                                        <td>{{ $b->toko }}</td>
+                                        <td>{{ $namaToko[$b->id_toko] ?? '-' }}</td>
                                         <td>
                                             @php
                                                 $statusClass = match($b->status) {

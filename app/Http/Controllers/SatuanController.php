@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Satuan;
+use App\Models\Activity;
+use Carbon\Carbon;
 
 class SatuanController extends Controller
 {
@@ -20,7 +22,21 @@ class SatuanController extends Controller
             return redirect('satuan')->with('logErrors', $logErrors);
 
         } else {
-            Satuan::insert(['nama'=> $request->nama]);
+            $dataSatuan = Satuan::create(['nama'=> $request->nama]);
+            $idSatuan = $dataSatuan->id_satuan;
+
+            // create activity
+            $dataActivity = [
+                'id_relation' => $idSatuan,
+                'description' => 'Menambahkan satuan baru: ' . $request->nama,
+                'scope' => 'Satuan',
+                'action' => 'Buat Data Baru',
+                'user' => $request->user,
+                'action_time' => Carbon::now()->addHours(7),
+            ];
+
+            Activity::create($dataActivity);
+
             return redirect('satuan');
         }
     }
@@ -35,6 +51,18 @@ class SatuanController extends Controller
                     return redirect('satuan')->with('logErrors', $logErrors);
                 }
             }
+
+            // create activity
+            $dataActivity = [
+                'id_relation' => $dataSatuan->id_satuan,
+                'description' => 'Update data satuan: ' . $dataSatuan->nama . ' => ' . $request->nama,
+                'scope' => 'Satuan',
+                'action' => 'Update Data',
+                'user' => $request->user,
+                'action_time' => Carbon::now()->addHours(7),
+            ];
+
+            Activity::create($dataActivity);
 
             $dataSatuan->nama = $request->nama;
             $dataSatuan->save();

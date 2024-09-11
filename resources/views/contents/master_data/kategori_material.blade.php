@@ -52,6 +52,8 @@
                                 Buat data baru dengan formulir ini, pastikan Anda mengisi semuanya
                             </p>
 
+                            <input type="hidden" id="user" name="user" value="{{ auth()->user()->name }}">
+
                             <div class="form-group">
                                 <label for="nama">Nama (Kategori Material)</label>
                                 <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama kategori material.." 
@@ -88,6 +90,7 @@
                             </p>
 
                             <input type="hidden" id="edit-id" name="id_kategori">
+                            <input type="hidden" id="edit-user" name="user" value="{{ auth()->user()->name }}">
 
                             <div class="form-group">
                                 <label for="nama">Nama (Kategori Material)</label>
