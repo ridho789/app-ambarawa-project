@@ -828,7 +828,16 @@
                     <option class="text-center" value="">...</option>
                     @foreach ($stok as $s)
                         <option class="text-center" value="{{ $s->id_stok_barang }}" data-jumlah="{{ $s->jumlah }}" data-satuan="{{ $s->id_satuan }}">
-                        {{ $s->nama }} {{ $s->merk }}
+                        {{ $s->nama }}
+                        @if (!empty($s->merk) && $s->merk !== '-') {{ $s->merk }} @endif
+                        @if (!empty($s->type) && $s->type !== '-') {{ $s->type }} @endif
+                        @if (!empty($s->keterangan) && $s->keterangan !== '-') 
+                            @if (empty($s->merk) || $s->merk === '-') 
+                                @if (empty($s->type) || $s->type === '-') 
+                                    {{ $s->keterangan }} 
+                                @endif
+                            @endif
+                        @endif
                         </option>
                     @endforeach
                 </select>
