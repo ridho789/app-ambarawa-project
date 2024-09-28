@@ -200,10 +200,10 @@
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $p->nama ?? '-' }}</td>
                                         <td>{{ $p->subproyek ?? '-' }}</td>
-                                        <td>{{ 'Rp ' . number_format($totalBesi ?? 0, 0, ',', '.') }}</td>
-                                        <td>{{ 'Rp ' . number_format($totalMaterial ?? 0, 0, ',', '.') }}</td>
-                                        <td>{{ 'Rp ' . number_format($totalUrug ?? 0, 0, ',', '.') }}</td>
-                                        <td>{{ 'Rp ' . number_format(($totalUrug + $totalBesi + $totalMaterial) ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($p->totalBesi ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($p->totalMaterial ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format($p->totalUrug ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ 'Rp ' . number_format(($p->totalUrug + $p->totalBesi + $p->totalMaterial) ?? 0, 0, ',', '.') }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>

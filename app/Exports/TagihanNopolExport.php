@@ -14,7 +14,7 @@ use App\Models\Kendaraan;
 use App\Models\Satuan;
 use App\Models\Toko;
 
-class SparepartExport implements WithMultipleSheets
+class TagihanNopolExport implements WithMultipleSheets
 {
     use Exportable;
 

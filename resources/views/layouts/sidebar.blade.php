@@ -23,6 +23,7 @@
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
+                @if (in_array(Auth::user()->level, [0, 1]))
                 <li class="nav-item">
                     <a href="{{ url('dashboard') }}">
                         <i class="fas fa-home"></i>
@@ -36,34 +37,40 @@
                     <h4 class="text-section">Master Data</h4>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/kategori_material') }}">
-                        <i class="fas fa-box-open"></i>
-                        <p>Kategori Material</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('/kendaraan') }}">
-                        <i class="fas fa-car-side"></i>
-                        <p>Kendaraan</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('/proyek') }}">
-                        <i class="fas fa-warehouse"></i>
-                        <p>Proyek</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('/satuan') }}">
+                    <a data-bs-toggle="collapse" href="#data_utama">
                         <i class="fas fa-cube"></i>
-                        <p>Satuan</p>
+                        <p>Data Utama</p>
+                        <span class="caret"></span>
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ url('/toko') }}">
-                        <i class="fas fa-box"></i>
-                        <p>Toko</p>
-                    </a>
+                    <div class="collapse" id="data_utama">
+                        <ul class="nav nav-collapse">
+                            <li class="nav-item">
+                                <a href="{{ url('/kategori_material') }}">
+                                    <span class="sub-item">Kategori Material</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url('/kendaraan') }}">
+                                    <span class="sub-item">Kendaraan</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url('/proyek') }}">
+                                    <span class="sub-item">Proyek</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url('/satuan') }}">
+                                    <span class="sub-item">Satuan</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url('/toko') }}">
+                                    <span class="sub-item">Toko</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
@@ -71,6 +78,31 @@
                     </span>
                     <h4 class="text-section">Submission</h4>
                 </li>
+                @endif
+                @if (in_array(Auth::user()->level, [0, 2]))
+                <li class="nav-item">
+                    <a data-bs-toggle="collapse" href="#inventaris">
+                        <i class="fas fa-dolly-flatbed"></i>
+                        <p>Inventaris</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="inventaris">
+                        <ul class="nav nav-collapse">
+                            <li class="nav-item">
+                                <a href="{{ url('/barang_keluar') }}">
+                                    <span class="sub-item">Barang Keluar</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url('/stok') }}">
+                                    <span class="sub-item">Stok Barang</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                @endif
+                @if (in_array(Auth::user()->level, [0, 1]))
                 <li class="nav-item">
                     <a href="{{ url('/permintaan_barang') }}">
                         <i class="fas fa-receipt"></i>
@@ -183,6 +215,7 @@
                         <p>Perjalanan</p>
                     </a>
                 </li>
+                @endif
                 @if (Auth::user()->level == 0)
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">

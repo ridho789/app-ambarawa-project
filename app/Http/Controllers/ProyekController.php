@@ -12,10 +12,21 @@ class ProyekController extends Controller
 {
     public function index() {
         $proyek = Proyek::orderBy('nama')->get();
-        $totalUrug = Pembangunan::where('ket', 'pengeluaran urug')->sum('tot_harga');
-        $totalBesi = Pembangunan::where('ket', 'pengeluaran besi')->sum('tot_harga');
-        $totalMaterial = Pembangunan::whereNotNull('id_kategori')->sum('tot_harga');
-        return view('contents.master_data.proyek', compact('proyek', 'totalUrug', 'totalBesi', 'totalMaterial'));
+        foreach ($proyek as $p) {
+            $p->totalUrug = Pembangunan::where('ket', 'pengeluaran urug')
+                ->where('id_proyek', $p->id_proyek)
+                ->sum('tot_harga');
+
+            $p->totalBesi = Pembangunan::where('ket', 'pengeluaran besi')
+                ->where('id_proyek', $p->id_proyek)
+                ->sum('tot_harga');
+
+            $p->totalMaterial = Pembangunan::whereNotNull('id_kategori')
+                ->where('id_proyek', $p->id_proyek)
+                ->sum('tot_harga');
+        }
+        
+        return view('contents.master_data.proyek', compact('proyek'));
     }
 
     public function store(Request $request) {

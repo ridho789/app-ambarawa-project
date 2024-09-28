@@ -17,15 +17,21 @@ class UsersTableSeeder extends Seeder
         $users = [
             [
                 'name' => 'Super User',
-                'email' => 'superambarawa@gmail.com',
+                'email' => 'superamb@gmail.com',
                 'level' => '0',
-                'password' => bcrypt('k155my455'),
+                'password' => bcrypt('superk155my455'),
             ],
             [
                 'name' => 'System User',
-                'email' => 'userambarawa@gmail.com',
+                'email' => 'systemamb@gmail.com',
                 'level' => '1',
-                'password' => bcrypt('ambarawak11my455'),
+                'password' => bcrypt('sy5temAcc355'),
+            ],
+            [
+                'name' => 'Inventory User',
+                'email' => 'inventoryamb@gmail.com',
+                'level' => '2',
+                'password' => bcrypt('1nvent0ryAcc355'),
             ],
         ];
 

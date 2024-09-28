@@ -95,6 +95,34 @@
                             </div>
 
                             <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Kendaraan</span>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-6">
+                                    @if (count($kendaraan) > 0)
+                                        <label for="kendaraan">Nopol / Kode Unit</label>
+                                        <select class="form-select form-control" name="kendaraan" id="kendaraan" onchange="updateMerk()">
+                                            <option value="">...</option>
+                                            @foreach ($kendaraan as $k)
+                                                <option value="{{ $k->id_kendaraan }}" data-merk="{{ $k->merk }}">{{ $k->nopol }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <label>Nopol / Kode Unit</label>
+                                        <select class="form-control" disabled>
+                                            <option value="">Tidak ada data</option>
+                                        </select>
+                                    @endif
+                                </div>
+                                <div class="col-6">
+                                    <label for="merk">Merk</label>
+                                    <input type="text" class="form-control" name="merk" id="merk" placeholder="Masukkan merk.." 
+                                    oninput="this.value = this.value.toUpperCase()" style="background-color: #fff !important;" readonly />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <span class="h5 fw-mediumbold">Informasi Pemesanan</span>
                             </div>
 
@@ -249,6 +277,34 @@
                                 <label for="lokasi">Lokasi</label>
                                 <input type="text" class="form-control" name="lokasi" id="edit-lokasi" placeholder="Masukkan lokasi.." 
                                 oninput="this.value = this.value.toUpperCase()" required />
+                            </div>
+
+                            <div class="form-group">
+                                <span class="h5 fw-mediumbold">Informasi Kendaraan</span>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-6">
+                                    @if (count($kendaraan) > 0)
+                                        <label for="kendaraan">Nopol / Kode Unit</label>
+                                        <select class="form-select form-control" name="kendaraan" id="edit-kendaraan" onchange="updateEditMerk()">
+                                            <option value="">...</option>
+                                            @foreach ($kendaraan as $k)
+                                                <option value="{{ $k->id_kendaraan }}" data-merk="{{ $k->merk }}">{{ $k->nopol }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <label>Nopol / Kode Unit</label>
+                                        <select class="form-control" disabled>
+                                            <option value="">Tidak ada data</option>
+                                        </select>
+                                    @endif
+                                </div>
+                                <div class="col-6">
+                                    <label for="merk">Merk</label>
+                                    <input type="text" class="form-control" name="merk" id="edit-merk" placeholder="Masukkan merk.." 
+                                    oninput="this.value = this.value.toUpperCase()" style="background-color: #fff !important;" readonly />
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -549,6 +605,7 @@
                                         </th>
                                         <th class="text-xxs-bold">No.</th>
                                         <th class="text-xxs-bold">Lokasi</th>
+                                        <th class="text-xxs-bold">Nopol <br> / Kode Unit</th>
                                         <!-- <th class="text-xxs-bold">Nopol</th>
                                         <th class="text-xxs-bold">Kode Unit</th>
                                         <th class="text-xxs-bold">Merk</th> -->
@@ -572,6 +629,8 @@
                                     @foreach($ac as $a)
                                     <tr data-id="{{ $a->id_tagihan_amb }}" 
                                         data-lokasi="{{ $a->lokasi }}" 
+                                        data-kendaraan="{{ $a->id_kendaraan }}"
+                                        data-merk="{{ $merkKendaraan[$a->id_kendaraan] ?? '-' }}"
                                         data-pemesan="{{ $a->pemesan }}"
                                         data-tgl_order="{{ $a->tgl_order }}"
                                         data-tgl_invoice="{{ $a->tgl_invoice }}"
@@ -589,6 +648,7 @@
                                         <td><input type="checkbox" class="select-checkbox"></td>
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ $a->lokasi ?? '-' }}</td>
+                                        <td>{{ $nopolKendaraan[$a->id_kendaraan] ?? '-' }}</td>
                                         <!-- <td>{{ $a->nopol ?? '-' }}</td>
                                         <td>{{ $a->kode_unit ?? '-' }}</td>
                                         <td>{{ $a->merk ?? '-' }}</td> -->
@@ -730,6 +790,24 @@
         dateError.classList.add('d-none');
         radioError.classList.add('d-none');
         return true;
+    }
+
+    function updateMerk() {
+        var kendaraanSelect = document.getElementById('kendaraan');
+        var selectedOption = kendaraanSelect.options[kendaraanSelect.selectedIndex];
+        var merk = selectedOption.getAttribute('data-merk');
+        
+        var merkInput = document.getElementById('merk');
+        merkInput.value = merk ? merk.toUpperCase() : '';
+    }
+
+    function updateEditMerk() {
+        var kendaraanEditSelect = document.getElementById('edit-kendaraan');
+        var selectedEditOption = kendaraanEditSelect.options[kendaraanEditSelect.selectedIndex];
+        var merk = selectedEditOption.getAttribute('data-merk');
+        
+        var merkEditInput = document.getElementById('edit-merk');
+        merkEditInput.value = merk ? merk.toUpperCase() : '';
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -1048,6 +1126,8 @@
                     
                     $('#edit-id').val(selectedId);
                     $('#edit-lokasi').val(row.data('lokasi'));
+                    $('#edit-kendaraan').val(row.data('kendaraan'));
+                    $('#edit-merk').val(row.data('merk'));
                     $('#edit-pemesan').val(row.data('pemesan'));
                     $('#edit-tgl_order').val(row.data('tgl_order'));
                     $('#edit-tgl_invoice').val(row.data('tgl_invoice'));

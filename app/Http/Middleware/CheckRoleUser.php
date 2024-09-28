@@ -42,6 +42,8 @@ class CheckRoleUser
         switch ($role) {
             case 1:
                 return redirect('dashboard');
+            case 2:
+                return redirect('stok');
             default:
                 return redirect('dashboard');
         }

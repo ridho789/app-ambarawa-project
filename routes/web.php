@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PermintaanBarangController;
+use App\Http\Controllers\BarangKeluarController;
+use App\Http\Controllers\StokController;
 use App\Http\Controllers\ACController;
 use App\Http\Controllers\BubutController;
 use App\Http\Controllers\BBMController;
@@ -235,4 +237,21 @@ Route::group(['middleware' => ['auth', 'check.role.user:0,1']], function () {
     Route::post('toko-store', [TokoController::class, 'store']);
     Route::post('toko-update', [TokoController::class, 'update']);
     Route::post('toko-delete', [TokoController::class, 'delete']);
+});
+
+Route::group(['middleware' => ['auth', 'check.role.user:0,2']], function () {
+    // Barang Keluar
+    Route::get('/barang_keluar', [BarangKeluarController::class, 'index']);
+    Route::post('barang_keluar-store', [BarangKeluarController::class, 'store']);
+    Route::post('barang_keluar-update', [BarangKeluarController::class, 'update']);
+    Route::post('barang_keluar-delete', [BarangKeluarController::class, 'delete']);
+    Route::post('barang_keluar-export', [BarangKeluarController::class, 'export']);
+
+    // Stok
+    Route::get('/stok', [StokController::class, 'index']);
+    Route::post('stok-store', [StokController::class, 'store']);
+    Route::post('stok-update', [StokController::class, 'update']);
+    Route::post('stok-delete', [StokController::class, 'delete']);
+    Route::post('stok-import', [StokController::class, 'import']);
+    Route::post('stok-export', [StokController::class, 'export']);
 });

@@ -768,7 +768,7 @@
 
         calculateTotal();
 
-        var batasKarakter = 55;
+        var batasKarakter = 35;
         var cells = document.querySelectorAll('td.uraian');
 
         cells.forEach(function(cell) {

@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
+use App\Models\Kendaraan;
 use App\Models\Satuan;
 use App\Models\Toko;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\TagihanExport;
+use App\Exports\TagihanNopolExport;
 use Carbon\Carbon;
 use DateTime;
 
@@ -21,11 +22,14 @@ class BubutController extends Controller
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
+        $kendaraan = Kendaraan::all();
+        $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
+        $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
         $toko = Toko::all();
         $namaToko = Toko::pluck('nama', 'id_toko');
-        return view('contents.bubut', compact('bubut', 'periodes', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
+        return view('contents.bubut', compact('bubut', 'periodes', 'kendaraan', 'nopolKendaraan', 'merkKendaraan', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
     }
 
     public function store(Request $request) {
@@ -51,6 +55,7 @@ class BubutController extends Controller
         $dataBubut = [
             'keterangan' => 'tagihan bubut',
             'lokasi' => $request->lokasi,
+            'id_kendaraan' => $request->kendaraan,
             'pemesan' => $request->pemesan,
             'tgl_order' => $request->tgl_order,
             'tgl_invoice' => $request->tgl_invoice,
@@ -73,7 +78,8 @@ class BubutController extends Controller
             $namaToko = $dataToko->nama;
         }
 
-        $exitingBubut = TagihanAMB::where('keterangan', 'tagihan bubut')->where('lokasi', $request->lokasi)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
+        $exitingBubut = TagihanAMB::where('keterangan', 'tagihan bubut')->where('lokasi', $request->lokasi)->where('id_kendaraan', $request->kendaraan)
+            ->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
             ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
             ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
             ->where('harga', $numericHarga)->where('total', $numericTotal)->where('id_toko', $request->toko)
@@ -115,6 +121,7 @@ class BubutController extends Controller
         $tagihanBubut = TagihanAMB::find($request->id_tagihan_amb);
         if ($tagihanBubut) {
             $tagihanBubut->lokasi = $request->lokasi;
+            $tagihanBubut->id_kendaraan = $request->kendaraan;
             $tagihanBubut->pemesan = $request->pemesan;
             $tagihanBubut->tgl_order = $request->tgl_order;
             $tagihanBubut->tgl_invoice = $request->tgl_invoice;
@@ -217,7 +224,7 @@ class BubutController extends Controller
                 ? 'Report Bubut Online ' . $rangeDate . '.xlsx' 
                 : 'Report Bubut ' . $rangeDate . '.xlsx');
     
-        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
+        return Excel::download(new TagihanNopolExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
     }
 
     // Update status

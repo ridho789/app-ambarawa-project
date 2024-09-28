@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
+use App\Models\Kendaraan;
 use App\Models\Satuan;
 use App\Models\Toko;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\TagihanExport;
+use App\Exports\TagihanNopolExport;
 use Carbon\Carbon;
 use DateTime;
 
@@ -15,11 +16,14 @@ class ACController extends Controller
 {
     public function index() {
         $ac = TagihanAMB::where('keterangan', 'tagihan ac')->orderBy('lokasi')->orderBy('tgl_order', 'asc')->get();
+        $kendaraan = Kendaraan::all();
+        $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
+        $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
         $toko = Toko::all();
         $namaToko = Toko::pluck('nama', 'id_toko');
-        return view('contents.ac', compact('ac', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
+        return view('contents.ac', compact('ac', 'kendaraan', 'nopolKendaraan', 'merkKendaraan', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
     }
 
     public function store(Request $request) {
@@ -45,6 +49,7 @@ class ACController extends Controller
         $dataSparepartAMB = [
             'keterangan' => 'tagihan ac',
             'lokasi' => $request->lokasi,
+            'id_kendaraan' => $request->kendaraan,
             'pemesan' => $request->pemesan,
             'tgl_order' => $request->tgl_order,
             'tgl_invoice' => $request->tgl_invoice,
@@ -67,7 +72,8 @@ class ACController extends Controller
             $namaToko = $dataToko->nama;
         }
 
-        $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan ac')->where('lokasi', $request->lokasi)->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
+        $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan ac')->where('lokasi', $request->lokasi)->where('id_kendaraan', $request->kendaraan)
+            ->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
             ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
             ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
             ->where('harga', $numericHarga)->where('total', $numericTotal)->where('id_toko', $request->toko)
@@ -109,6 +115,7 @@ class ACController extends Controller
         $tagihanAC = TagihanAMB::find($request->id_tagihan_amb);
         if ($tagihanAC) {
             $tagihanAC->lokasi = $request->lokasi;
+            $tagihanAC->id_kendaraan = $request->kendaraan;
             $tagihanAC->pemesan = $request->pemesan;
             $tagihanAC->tgl_order = $request->tgl_order;
             $tagihanAC->tgl_invoice = $request->tgl_invoice;
@@ -211,7 +218,7 @@ class ACController extends Controller
                 ? 'Report AC Online ' . $rangeDate . '.xlsx' 
                 : 'Report AC ' . $rangeDate . '.xlsx');
     
-        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
+        return Excel::download(new TagihanNopolExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
     }
 
     // Update status
