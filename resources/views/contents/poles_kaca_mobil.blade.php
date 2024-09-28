@@ -211,7 +211,7 @@
 
                             <div class="form-group">
                                 <label for="file">Upload file</label>
-                                <input type="file" name="file" accept="application/pdf, image/png, image/jpeg">
+                                <input type="file" class="form-control" name="file" accept="application/pdf, image/png, image/jpeg">
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
@@ -368,7 +368,7 @@
 
                             <div class="form-group">
                                 <label for="file">Upload file</label>
-                                <input type="file" name="file" accept="application/pdf, image/png, image/jpeg">
+                                <input type="file" class="form-control" name="file" accept="application/pdf, image/png, image/jpeg">
 
                                 <!-- Menampilkan file yang sudah diunggah -->
                                 <div id="current-file" style="margin-top: 10px;">
