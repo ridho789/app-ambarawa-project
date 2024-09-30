@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TagihanAMB;
+use App\Models\Kendaraan;
 use App\Models\Satuan;
 use App\Models\Toko;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\TagihanExport;
+use App\Exports\TagihanNopolExport;
 use Carbon\Carbon;
 use DateTime;
 
@@ -43,11 +44,14 @@ class CatController extends Controller
                             ->where('status', 'approved');
                 });
         })->get();
+        $kendaraan = Kendaraan::all();
+        $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
+        $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
         $satuan = Satuan::all();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
         $toko = Toko::all();
         $namaToko = Toko::pluck('nama', 'id_toko');
-        return view('contents.cat_amb', compact('cat', 'catOnline', 'catOffline', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
+        return view('contents.cat_amb', compact('cat', 'catOnline', 'catOffline', 'kendaraan', 'nopolKendaraan', 'merkKendaraan', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
     }
 
     public function store(Request $request) {
@@ -82,6 +86,7 @@ class CatController extends Controller
             $dataCatAMB = [
                 'keterangan' => 'tagihan cat',
                 'lokasi' => $request->lokasi,
+                'id_kendaraan' => $request->kendaraan,
                 'pemesan' => $request->pemesan,
                 'tgl_order' => $request->tgl_order,
                 'tgl_invoice' => $request->tgl_invoice,
@@ -104,7 +109,7 @@ class CatController extends Controller
                 'file' => $filePath
             ];
     
-            $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')->where('lokasi', $request->lokasi)->where('pemesan', $request->pemesan)
+            $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')->where('lokasi', $request->lokasi)->where('id_kendaraan', $request->kendaraan)->where('pemesan', $request->pemesan)
                 ->where('tgl_order', $request->tgl_order)->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)
                 ->where('nama', $request->nama)->where('kategori', $request->kategori)->where('dipakai_untuk', $request->dipakai_untuk)
                 ->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
@@ -136,6 +141,7 @@ class CatController extends Controller
             $dataCatAMB = [
                 'keterangan' => 'tagihan cat online',
                 'lokasi' => $request->lokasi,
+                'id_kendaraan' => $request->kendaraan,
                 'pemesan' => $request->pemesan,
                 'tgl_order' => $request->tgl_order,
                 'tgl_invoice' => $request->tgl_invoice,
@@ -159,7 +165,7 @@ class CatController extends Controller
                 'file' => $filePath
             ];
     
-            $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat online')->where('lokasi', $request->lokasi)
+            $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat online')->where('lokasi', $request->lokasi)->where('id_kendaraan', $request->kendaraan)
                 ->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
                 ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
                 ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml_onl)->where('id_satuan', $request->unit_onl)
@@ -185,6 +191,7 @@ class CatController extends Controller
         $dataCatAMB = [
             'keterangan' => 'tagihan cat',
             'lokasi' => $request->lokasi,
+            'id_kendaraan' => $request->kendaraan,
             'pemesan' => $request->pemesan,
             'tgl_order' => $request->tgl_order,
             'tgl_invoice' => $request->tgl_invoice,
@@ -207,7 +214,7 @@ class CatController extends Controller
             'file' => $filePath
         ];
 
-        $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')->where('lokasi', $request->lokasi)
+        $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')->where('lokasi', $request->lokasi)->where('id_kendaraan', $request->kendaraan)
             ->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
             ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
             ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('total', $numericTotal)->where('id_toko', $request->toko)
@@ -252,6 +259,7 @@ class CatController extends Controller
             if ($tagihanCat) {
                 $tagihanCat->keterangan = 'tagihan cat';
                 $tagihanCat->lokasi = $request->lokasi;
+                $tagihanCat->id_kendaraan = $request->kendaraan;
                 $tagihanCat->pemesan = $request->pemesan;
                 $tagihanCat->tgl_order = $request->tgl_order;
                 $tagihanCat->tgl_invoice = $request->tgl_invoice;
@@ -292,6 +300,7 @@ class CatController extends Controller
             if ($tagihanCat) {
                 $tagihanCat->keterangan = 'tagihan cat online';
                 $tagihanCat->lokasi = $request->lokasi;
+                $tagihanCat->id_kendaraan = $request->kendaraan;
                 $tagihanCat->pemesan = $request->pemesan;
                 $tagihanCat->tgl_order = $request->tgl_order;
                 $tagihanCat->tgl_invoice = $request->tgl_invoice;
@@ -325,6 +334,7 @@ class CatController extends Controller
         if ($tagihanCat) {
             $tagihanCat->keterangan = 'tagihan cat';
             $tagihanCat->lokasi = $request->lokasi;
+            $tagihanCat->id_kendaraan = $request->kendaraan;
             $tagihanCat->pemesan = $request->pemesan;
             $tagihanCat->tgl_order = $request->tgl_order;
             $tagihanCat->tgl_invoice = $request->tgl_invoice;
@@ -446,7 +456,7 @@ class CatController extends Controller
                 ? 'Report Cat Online ' . $rangeDate . '.xlsx' 
                 : 'Report Cat ' . $rangeDate . '.xlsx');
     
-        return Excel::download(new TagihanExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
+        return Excel::download(new TagihanNopolExport($mode, $tagihan, $infoTagihan, $metode_pembelian, $rangeDate), $fileName);
     }
 
     // Update status
