@@ -91,7 +91,7 @@
                                             </td>
                                             <td style="padding: 7.5px 2.5px !important;" width=20%>
                                                 @if (count($stok) > 0)
-                                                    <select class="form-select form-control" name="id_stok_barang[]" id="stok" style="border: 0px;" required>
+                                                    <select class="form-select form-control select2" name="id_stok_barang[]" required>
                                                         <option class="text-center" value="">...</option>
                                                         @foreach ($stok as $s)
                                                             <option class="text-center" value="{{ $s->id_stok_barang }}" data-jumlah="{{ $s->jumlah }}" data-satuan="{{ $s->id_satuan }}"
@@ -141,7 +141,7 @@
                                             </td>
                                             <td style="padding: 7.5px 2.5px !important;" width=17.5%>
                                                 <input type="text" class="form-control text-center" name="lokasi[]" id="lokasi" 
-                                                oninput="this.value = this.value.toUpperCase()" style="border: 0px; padding: .1rem 0.5rem;" placeholder="...">
+                                                oninput="this.value = this.value.toUpperCase()" style="border: 0px; padding: .1rem 0.5rem;" placeholder="..." required>
                                             </td>
                                             <td style="padding: 7.5px 2.5px !important;" width=22.5%>
                                                 <input type="text" class="form-control" name="ket[]" placeholder="..." 
@@ -503,7 +503,7 @@
                                             <td>-</td>
                                         @endif
                                         <td>{{ $bk->lokasi ?? '-' }}</td>
-                                        <td>{{ $bk->ket ?? '-' }}</td>
+                                        <td class="ket">{{ $bk->ket ?? '-' }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -589,70 +589,79 @@
         return true;
     }
 
+    // Fungsi untuk menginisialisasi Select2
+    function initializeSelect2(element) {
+        $(element).select2({
+            width: '100%',
+            dropdownParent: $('#barangKeluarModal'),
+            placeholder: 'Pilih barang',
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+        // Inisialisasi Select2 pada semua elemen select2 yang sudah ada
+        initializeSelect2('.select2');
+
         const satuanData = @json($satuan);
+        $('#dataBarangKeluar').on('change', 'select[name="id_stok_barang[]"]', function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const satuanId = selectedOption.getAttribute('data-satuan');
+            let jumlahStok = selectedOption.getAttribute('data-jumlah');
 
-        document.querySelectorAll('select[name="id_stok_barang[]"]').forEach(function (selectElement) {
-            selectElement.addEventListener('change', function () {
-                const selectedOption = this.options[this.selectedIndex];
-                const satuanId = selectedOption.getAttribute('data-satuan');
-                let jumlahStok = selectedOption.getAttribute('data-jumlah');
+            // Find the satuan name based on the satuanId
+            const satuanName = satuanData.find(satuan => satuan.id_satuan === parseInt(satuanId))?.nama;
 
-                // Find the satuan name based on the satuanId
-                const satuanName = satuanData.find(satuan => satuan.id_satuan === parseInt(satuanId))?.nama;
+            // Find the associated inputs in the same row
+            const currentRow = this.closest('tr');
+            const satuanInput = currentRow.querySelector('input#satuan');
+            const sisaStokInput = currentRow.querySelector('input#stok_tersisa');
+            const jumlahInput = currentRow.querySelector('input[name="jumlah[]"]');
 
-                // Find the associated inputs in the same row
-                const currentRow = this.closest('tr');
-                const satuanInput = currentRow.querySelector('input#satuan');
-                const sisaStokInput = currentRow.querySelector('input#stok_tersisa');
-                const jumlahInput = currentRow.querySelector('input[name="jumlah[]"]');
+            // Update the satuan field with the retrieved name
+            satuanInput.value = satuanName || '...';
 
-                // Update the satuan field with the retrieved name
-                satuanInput.value = satuanName || '...';
+            // Update the sisa stok field with the selected stock amount
+            sisaStokInput.value = jumlahStok || '...';
 
-                // Update the sisa stok field with the selected stock amount
-                sisaStokInput.value = jumlahStok || '...';
+            // Reset the jumlah field when the barang is changed
+            jumlahInput.value = '';
 
-                // Reset the jumlah field when the barang is changed
-                jumlahInput.value = '';
+            // Remove any previous event listener to prevent duplication
+            jumlahInput.removeEventListener('input', jumlahInput._listener);
 
-                // Remove any previous event listener to prevent duplication
-                jumlahInput.removeEventListener('input', jumlahInput._listener);
+            // Create a new event listener for the jumlah input
+            const jumlahInputListener = function () {
+                const inputJumlah = parseFloat(this.value);
+                const availableStok = parseFloat(jumlahStok);  // Get the latest jumlahStok from the current selection
 
-                // Create a new event listener for the jumlah input
-                const jumlahInputListener = function () {
-                    const inputJumlah = parseFloat(this.value);
-                    const availableStok = parseFloat(jumlahStok);  // Get the latest jumlahStok from the current selection
-
-                    if (inputJumlah) {
-                        if (inputJumlah > availableStok) {
-                            // If the inputted jumlah exceeds the available stock, show an alert and reset the field
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Jumlah yang di input tidak bisa melebihi sisa stok.',
-                                confirmButtonColor: '#d33',
-                                confirmButtonText: 'OK'
-                            });
-                            this.value = '';
-                            sisaStokInput.value = jumlahStok;
-                        } else {
-                            // Otherwise, update the sisa stok
-                            const sisaStok = availableStok - inputJumlah;
-                            sisaStokInput.value = sisaStok;
-                        }
-                    } else {
-                        // Reset sisa stok if input is empty
+                if (inputJumlah) {
+                    if (inputJumlah > availableStok) {
+                        // If the inputted jumlah exceeds the available stock, show an alert and reset the field
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Jumlah yang di input tidak bisa melebihi sisa stok.',
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'OK'
+                        });
+                        this.value = '';
                         sisaStokInput.value = jumlahStok;
+                    } else {
+                        // Otherwise, update the sisa stok
+                        const sisaStok = availableStok - inputJumlah;
+                        sisaStokInput.value = sisaStok;
                     }
-                };
+                } else {
+                    // Reset sisa stok if input is empty
+                    sisaStokInput.value = jumlahStok;
+                }
+            };
 
-                // Assign the new listener to a custom property to allow removal later
-                jumlahInput._listener = jumlahInputListener;
+            // Assign the new listener to a custom property to allow removal later
+            jumlahInput._listener = jumlahInputListener;
 
-                // Add the event listener for the jumlah input
-                jumlahInput.addEventListener('input', jumlahInputListener);
-            });
+            // Add the event listener for the jumlah input
+            jumlahInput.addEventListener('input', jumlahInputListener);
         });
 
         // Datepicker
@@ -692,6 +701,29 @@
         }
 
         applyDateRangePicker();
+
+        // Max-Width td
+        var batasKarakter = 35;
+        var cells = document.querySelectorAll('td.ket');
+
+        cells.forEach(function(cell) {
+            var text = cell.textContent;
+            var words = text.split(' ');
+            var newText = '';
+            var line = '';
+
+            words.forEach(function(word) {
+                if ((line + word).length > batasKarakter) {
+                    newText += line.trim() + '<br>';
+                    line = word + ' ';
+                } else {
+                    line += word + ' ';
+                }
+            });
+
+            newText += line.trim();
+            cell.innerHTML = newText;
+        });
         
         // Checkbox
         var table = $('#basic-datatables').DataTable();
@@ -824,7 +856,7 @@
         </td>
         <td style="padding: 7.5px 2.5px !important;" width=20%>
             @if (count($stok) > 0)
-                <select class="form-select form-control" name="id_stok_barang[]" id="stok" style="border: 0px;" required>
+                <select class="form-select form-control select2" name="id_stok_barang[]" required>
                     <option class="text-center" value="">...</option>
                     @foreach ($stok as $s)
                         <option class="text-center" value="{{ $s->id_stok_barang }}" data-jumlah="{{ $s->jumlah }}" data-satuan="{{ $s->id_satuan }}">
@@ -890,6 +922,9 @@
         // Update row numbers for all rows
         updateRowNumbers();
 
+        // Inisialisasi Select2 hanya pada elemen select2 dalam baris baru
+        initializeSelect2($(newRow).find('.select2'));
+
         function updateRowNumbers() {
             const rows = document.querySelectorAll('#dataBarangKeluar tr');
             rows.forEach((row, index) => {
@@ -899,70 +934,6 @@
                 }
             });
         }
-
-        const satuanData = @json($satuan);
-        document.querySelectorAll('select[name="id_stok_barang[]"]').forEach(function (selectElement) {
-            selectElement.addEventListener('change', function () {
-                const selectedOption = this.options[this.selectedIndex];
-                const satuanId = selectedOption.getAttribute('data-satuan');
-                let jumlahStok = selectedOption.getAttribute('data-jumlah');
-
-                // Find the satuan name based on the satuanId
-                const satuanName = satuanData.find(satuan => satuan.id_satuan === parseInt(satuanId))?.nama;
-
-                // Find the associated inputs in the same row
-                const currentRow = this.closest('tr');
-                const satuanInput = currentRow.querySelector('input#satuan');
-                const sisaStokInput = currentRow.querySelector('input#stok_tersisa');
-                const jumlahInput = currentRow.querySelector('input[name="jumlah[]"]');
-
-                // Update the satuan field with the retrieved name
-                satuanInput.value = satuanName || '...';
-
-                // Update the sisa stok field with the selected stock amount
-                sisaStokInput.value = jumlahStok || '...';
-
-                // Reset the jumlah field when the barang is changed
-                jumlahInput.value = '';
-
-                // Remove any previous event listener to prevent duplication
-                jumlahInput.removeEventListener('input', jumlahInput._listener);
-
-                // Create a new event listener for the jumlah input
-                const jumlahInputListener = function () {
-                    const inputJumlah = parseFloat(this.value);
-                    const availableStok = parseFloat(jumlahStok);  // Get the latest jumlahStok from the current selection
-
-                    if (inputJumlah) {
-                        if (inputJumlah > availableStok) {
-                            // If the inputted jumlah exceeds the available stock, show an alert and reset the field
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Jumlah yang di input tidak bisa melebihi sisa stok.',
-                                confirmButtonColor: '#d33',
-                                confirmButtonText: 'OK'
-                            });
-                            this.value = '';
-                            sisaStokInput.value = jumlahStok;
-                        } else {
-                            // Otherwise, update the sisa stok
-                            const sisaStok = availableStok - inputJumlah;
-                            sisaStokInput.value = sisaStok;
-                        }
-                    } else {
-                        // Reset sisa stok if input is empty
-                        sisaStokInput.value = jumlahStok;
-                    }
-                };
-
-                // Assign the new listener to a custom property to allow removal later
-                jumlahInput._listener = jumlahInputListener;
-
-                // Add the event listener for the jumlah input
-                jumlahInput.addEventListener('input', jumlahInputListener);
-            });
-        });
     });
 
     function confirmNewLineDelete(element) {

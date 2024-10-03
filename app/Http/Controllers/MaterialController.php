@@ -9,7 +9,7 @@ use App\Models\Satuan;
 use App\Models\Toko;
 use App\Models\KategoriMaterial;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\PembangunanExport;
+use App\Exports\MaterialExport;
 use Carbon\Carbon;
 use DateTime;
 
@@ -35,12 +35,12 @@ class MaterialController extends Controller
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        $proyek = Proyek::all();
+        $proyek = Proyek::orderBy('nama')->get();
         $namaProyek = Proyek::pluck('nama', 'id_proyek');
-        $satuan = Satuan::all();
+        $satuan = Satuan::orderBy('nama')->get();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        $kategori = KategoriMaterial::all();
-        $toko = Toko::all();
+        $kategori = KategoriMaterial::orderBy('nama')->get();
+        $toko = Toko::orderBy('nama')->get();
         $namaToko = Toko::pluck('nama', 'id_toko');
         return view('contents.pembangunan.kontruksi.material', compact('material', 'proyek', 'namaProyek', 'satuan', 'namaSatuan', 'toko', 'namaToko', 'kategori', 'periodes'));
     }
@@ -48,6 +48,11 @@ class MaterialController extends Controller
     public function store(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+
+        $masa_pakai = null;
+        if ($request->masa && $request->waktu) {
+            $masa_pakai = $request->masa . ' ' . $request->waktu;
+        }
 
         // File
         $request->validate([
@@ -73,9 +78,12 @@ class MaterialController extends Controller
         $dataMaterial = [
             'ket' => 'pengeluaran ' . strtolower($namaKategori),
             'id_proyek' => $request->proyek,
+            'pemesan' => $request->pemesan,
+            'kategori_barang' => $request->kategori_barang,
+            'masa_pakai' => $masa_pakai,
+            'no_inventaris' => $request->no_inventaris,
             'tanggal' => $request->tanggal,
             'nama' => $request->nama,
-            'ukuran' => $request->ukuran,
             'deskripsi' => $request->deskripsi,
             'jumlah' => $request->jumlah,
             'id_satuan' => $request->satuan,
@@ -98,14 +106,34 @@ class MaterialController extends Controller
             $namaToko = $dataToko->nama;
         }
 
-        $exitingMaterial = Pembangunan::where('tanggal', $request->tanggal)->where('nama', $request->nama)->where('ukuran', $request->ukuran)->where('deskripsi', $request->deskripsi)
-            ->where('jumlah', $request->jumlah)->where('id_satuan', $request->satuan)->where('harga', $numericHarga)->where('tot_harga', $numericTotal)->where('id_proyek', $request->proyek)
-            ->where('id_kategori', $request->kategori)->where('id_toko', $request->toko)->first();
+        $existingMaterial = Pembangunan::where('ket', 'pengeluaran ' . $namaKategori)
+            ->where('tanggal', $request->tanggal)
+            ->where('pemesan', $request->pemesan)
+            ->where('kategori_barang', $request->kategori_barang)
+            ->where('masa_pakai', $masa_pakai)
+            ->where('no_inventaris', $request->no_inventaris)
+            ->where('nama', $request->nama)
+            ->where('deskripsi', $request->deskripsi)
+            ->where('jumlah', $request->jumlah)
+            ->where('id_satuan', $request->satuan)
+            ->where('harga', $numericHarga)
+            ->where('tot_harga', $numericTotal)
+            ->where('id_proyek', $request->proyek)
+            ->where('id_kategori', $request->kategori)
+            ->where('id_toko', $request->toko)
+            ->first();
 
-        if ($exitingMaterial) {
-            $logErrors = 'Proyek: ' . $namaProyek . ' - ' . 'Pengeluaran ' . $namaKategori . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 
-            'Nama (Barang): ' . $request->nama . ' - ' . 'Jumlah: ' . $request->jumlah . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
-            ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
+        if ($existingMaterial) {
+            $logErrors = 
+                'Proyek: ' . $namaProyek . ' - ' . 
+                'Pengeluaran ' . $namaKategori . ' ' . 
+                'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 
+                'Pemesan: ' . $request->pemesan . ' - ' . 
+                'Nama Barang: ' . $request->nama . ' - ' . 
+                'Jumlah: ' . $request->jumlah . ' - ' . 
+                'Total Harga: ' . $request->total . ' - ' . 
+                'Toko: ' . $namaToko . 
+                ', data tersebut sudah ada di sistem';
 
             return redirect('material')->with('logErrors', $logErrors);
 
@@ -118,6 +146,11 @@ class MaterialController extends Controller
     public function update(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
+
+        $masa_pakai = null;
+        if ($request->masa && $request->waktu) {
+            $masa_pakai = $request->masa . ' ' . $request->waktu;
+        }
 
         // File
         $request->validate([
@@ -138,8 +171,11 @@ class MaterialController extends Controller
         if ($tagihanMaterial) {
             $tagihanMaterial->id_proyek = $request->proyek;
             $tagihanMaterial->tanggal = $request->tanggal;
+            $tagihanMaterial->pemesan = $request->pemesan;
+            $tagihanMaterial->kategori_barang = $request->kategori_barang;
+            $tagihanMaterial->no_inventaris = $request->no_inventaris;
+            $tagihanMaterial->masa_pakai = $masa_pakai;
             $tagihanMaterial->nama = $request->nama;
-            $tagihanMaterial->ukuran = $request->ukuran;
             $tagihanMaterial->deskripsi = $request->deskripsi;
             $tagihanMaterial->jumlah = $request->jumlah;
             $tagihanMaterial->id_satuan = $request->satuan;
@@ -223,7 +259,7 @@ class MaterialController extends Controller
                     });
             })
             ->orderBy('id_kategori', 'asc')->orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
-            return Excel::download(new PembangunanExport($mode, $material, $nama, $rangeDate), 'Report Material.xlsx');
+            return Excel::download(new MaterialExport($mode, $material, $nama, $rangeDate), 'Report Material.xlsx');
 
         } else {
             $material = Pembangunan::whereNotNull('id_kategori')
@@ -242,7 +278,7 @@ class MaterialController extends Controller
             ->get();
 
             $fileName = 'Report Material ' . $rangeDate . '.xlsx';
-            return Excel::download(new PembangunanExport($mode, $material, $nama, $rangeDate), $fileName);
+            return Excel::download(new MaterialExport($mode, $material, $nama, $rangeDate), $fileName);
         }
     }
 

@@ -19,7 +19,7 @@ class TripController extends Controller
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        $kendaraan = Kendaraan::all();
+        $kendaraan = Kendaraan::orderBy('nopol')->get();
         $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
         $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
         return view('contents.trip', compact('trips', 'periodes', 'kendaraan', 'nopolKendaraan', 'merkKendaraan'));

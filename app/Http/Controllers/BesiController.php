@@ -28,11 +28,11 @@ class BesiController extends Controller
             ->orderBy('nama')
             ->get();
 
-        $proyek = Proyek::all();
+        $proyek = Proyek::orderBy('nama')->get();
         $namaProyek = Proyek::pluck('nama', 'id_proyek');
-        $satuan = Satuan::all();
+        $satuan = Satuan::orderBy('nama')->get();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        $toko = Toko::all();
+        $toko = Toko::orderBy('nama')->get();
         $namaToko = Toko::pluck('nama', 'id_toko');
         return view('contents.pembangunan.kontruksi.besi', compact('besi', 'proyek', 'namaProyek', 'satuan', 'toko', 'namaToko', 'namaSatuan'));
     }

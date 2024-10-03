@@ -20,7 +20,7 @@ class SembakoController extends Controller
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        $satuan = Satuan::all();
+        $satuan = Satuan::orderBy('nama')->get();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
         return view('contents.sembako', compact('sembako', 'periodes', 'satuan', 'namaSatuan'));
     }

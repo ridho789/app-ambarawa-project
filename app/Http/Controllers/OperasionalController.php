@@ -18,10 +18,10 @@ class OperasionalController extends Controller
         $operasional = Operasional::orderBy('tanggal', 'asc')->orderBy('nama', 'asc')->get();
         $opsOnline = Operasional::where('metode_pembelian', 'online')->get();
         $opsOffline = Operasional::where('metode_pembelian', 'offline')->get();
-        $barang = Barang::all();
-        $satuan = Satuan::all();
+        $barang = Barang::orderBy('nama')->get();
+        $satuan = Satuan::orderBy('nama')->get();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        $toko = Toko::all();
+        $toko = Toko::orderBy('nama')->get();
         $namaToko = Toko::pluck('nama', 'id_toko');
         return view('contents.operasional', compact('operasional', 'opsOnline', 'opsOffline', 'barang', 'satuan', 'toko', 'namaToko', 'namaSatuan'));
     }

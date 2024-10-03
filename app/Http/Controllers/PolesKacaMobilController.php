@@ -21,9 +21,9 @@ class PolesKacaMobilController extends Controller
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        $satuan = Satuan::all();
+        $satuan = Satuan::orderBy('nama')->get();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        $toko = Toko::all();
+        $toko = Toko::orderBy('nama')->get();
         $namaToko = Toko::pluck('nama', 'id_toko');
         return view('contents.poles_kaca_mobil', compact('poles', 'periodes', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
     }

@@ -44,12 +44,12 @@ class SparepartController extends Controller
                             ->where('status', 'approved');
                 });
         })->get();
-        $kendaraan = Kendaraan::all();
+        $kendaraan = Kendaraan::orderBy('nopol')->get();
         $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
         $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
-        $satuan = Satuan::all();
+        $satuan = Satuan::orderBy('nama')->get();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        $toko = Toko::all();
+        $toko = Toko::orderBy('nama')->get();
         $namaToko = Toko::pluck('nama', 'id_toko');
         $periodes = TagihanAMB::whereIn('keterangan', ['tagihan sparepart', 'tagihan sparepart online'])
             ->select(TagihanAMB::raw('DATE_FORMAT(tgl_order, "%Y-%m") as periode'))

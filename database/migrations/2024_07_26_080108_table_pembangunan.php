@@ -18,6 +18,10 @@ class TablePembangunan extends Migration
             $table->string('noform')->nullable();
             $table->string('ket');
             $table->date('tanggal')->nullable();
+            $table->string('pemesan')->nullable();
+            $table->string('kategori_barang')->nullable();
+            $table->string('no_inventaris')->nullable();
+            $table->string('masa_pakai')->nullable();
             $table->string('nama');
             $table->string('ukuran')->nullable();
             $table->string('deskripsi');

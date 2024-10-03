@@ -22,12 +22,12 @@ class BubutController extends Controller
             ->orderBy('periode', 'desc')
             ->get()
             ->pluck('periode');
-        $kendaraan = Kendaraan::all();
+        $kendaraan = Kendaraan::orderBy('nopol')->get();
         $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
         $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
-        $satuan = Satuan::all();
+        $satuan = Satuan::orderBy('nama')->get();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        $toko = Toko::all();
+        $toko = Toko::orderBy('nama')->get();
         $namaToko = Toko::pluck('nama', 'id_toko');
         return view('contents.bubut', compact('bubut', 'periodes', 'kendaraan', 'nopolKendaraan', 'merkKendaraan', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
     }

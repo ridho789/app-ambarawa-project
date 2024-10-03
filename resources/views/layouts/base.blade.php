@@ -34,6 +34,8 @@
     <link rel="stylesheet" href="{{ asset('') }}assets/css/plugins.min.css" />
     <link rel="stylesheet" href="{{ asset('') }}assets/css/kaiadmin.min.css" />
 
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <!-- Daterange picker -->
     <link rel="stylesheet" href="{{ asset('') }}assets/vendor/bootstrap-daterangepicker/daterangepicker.css">
 
@@ -53,6 +55,25 @@
             z-index: 1050;
             min-width: 300px;
             display: none;
+        }
+    </style>
+
+    <style>
+        .select2-container--default .select2-selection--single {
+            border: none;
+            font-size: small;
+        }
+
+        .select2-container--default .select2-selection--multiple {
+            border: none;
+            border-bottom: 1px solid #ced4da;
+            border-radius: 0px;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border: none;
+            border-bottom: 1px solid #ced4da;
+            border-radius: 0px;
         }
     </style>
 </head>
@@ -150,6 +171,9 @@
 
     <!-- Daterangepicker -->
     <script src="{{ asset('') }}assets/js/plugins-init/bs-daterange-picker-init.js"></script>
+
+    <!-- select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 </body>
 

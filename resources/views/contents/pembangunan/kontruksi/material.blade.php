@@ -130,21 +130,53 @@
                                 @endif
                             </div>
 
+                            <div class="form-group">
+                                <label for="pemesan">Pemesan / Dipesan oleh</label>
+                                <input type="text" class="form-control" name="pemesan" id="pemesan" placeholder="Masukkan nama pemesan.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
+                            </div>
+
                             <div class="form-group row">
                                 <div class="col-6">
                                     <label for="tanggal">Tanggal</label>
                                     <input type="date" class="form-control" name="tanggal" id="tanggal" required />
                                 </div>
                                 <div class="col-6">
-                                    <label for="nama">Nama (Barang)</label>
+                                    <label for="nama">Nama Barang</label>
                                     <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." 
                                     oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="ukuran">Ukuran</label>
-                                <input type="text" class="form-control" name="ukuran" id="ukuran" placeholder="Masukkan ukuran.." required />
+                            <div class="form-group row">
+                                <div class="col-4">
+                                    <label for="kategori_barang">Kategori Barang</label>
+                                    <select class="form-select form-control" id="kategori_barang" name="kategori_barang" required>
+                                        <option value="">...</option>
+                                        <option value="Aset">Aset</option>
+                                        <option value="Stok">Stok</option>
+                                        <option value="Langsung Pakai">Langsung Pakai</option>
+                                        <option value="Jasa">Jasa</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label for="no_inventaris">No. Inventaris</label>
+                                    <input type="text" class="form-control" name="no_inventaris" id="no_inventaris" placeholder="Masukkan no. inventaris.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="masa_pakai">Masa Pakai <span class="text-info">(Opsional)</span></label>
+                                    <div class="d-flex">
+                                        <input type="number" class="form-control" name="masa" id="masa" placeholder="..." />
+                                        <select class="form-control ms-2" name="waktu" id="waktu">
+                                            <option value="" disabled selected>...</option>
+                                            <option value="HARI">HARI</option>
+                                            <option value="MINGGU">MINGGU</option>
+                                            <option value="BULAN">BULAN</option>
+                                            <option value="TAHUN">TAHUN</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -283,21 +315,53 @@
                                 @endif
                             </div>
 
+                            <div class="form-group">
+                                <label for="pemesan">Pemesan / Dipesan oleh</label>
+                                <input type="text" class="form-control" name="pemesan" id="edit-pemesan" placeholder="Masukkan nama pemesan.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
+                            </div>
+
                             <div class="form-group row">
                                 <div class="col-6">
                                     <label for="tanggal">Tanggal</label>
                                     <input type="date" class="form-control" name="tanggal" id="edit-tanggal" required />
                                 </div>
                                 <div class="col-6">
-                                    <label for="nama">Nama (Barang)</label>
+                                    <label for="nama">Nama Barang</label>
                                     <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." 
                                     oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="ukuran">Ukuran</label>
-                                <input type="text" class="form-control" name="ukuran" id="edit-ukuran" placeholder="Masukkan ukuran.." required />
+                            <div class="form-group row">
+                                <div class="col-4">
+                                    <label for="kategori_barang">Kategori Barang</label>
+                                    <select class="form-select form-control" id="edit-kategori_barang" name="kategori_barang" required>
+                                        <option value="">...</option>
+                                        <option value="Aset">Aset</option>
+                                        <option value="Stok">Stok</option>
+                                        <option value="Langsung Pakai">Langsung Pakai</option>
+                                        <option value="Jasa">Jasa</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label for="no_inventaris">No. Inventaris</label>
+                                    <input type="text" class="form-control" name="no_inventaris" id="edit-no_inventaris" placeholder="Masukkan no. inventaris.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="masa_pakai">Masa Pakai <span class="text-info">(Opsional)</span></label>
+                                    <div class="d-flex">
+                                        <input type="number" class="form-control" name="masa" id="edit-masa" placeholder="..." />
+                                        <select class="form-control ms-2" name="waktu" id="edit-waktu">
+                                            <option value="" disabled selected>...</option>
+                                            <option value="HARI">HARI</option>
+                                            <option value="MINGGU">MINGGU</option>
+                                            <option value="BULAN">BULAN</option>
+                                            <option value="TAHUN">TAHUN</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -545,9 +609,12 @@
                                         <th class="text-xxs-bold">No. Form</th>
                                         <th class="text-xxs-bold">Proyek</th>
                                         <th class="text-xxs-bold">Tanggal</th>
-                                        <th class="text-xxs-bold">Nama (Barang)</th>
-                                        <th class="text-xxs-bold">Ukuran</th>
+                                        <th class="text-xxs-bold">Pemesan</th>
+                                        <th class="text-xxs-bold">Nama Barang</th>
                                         <th class="text-xxs-bold">Deskripsi</th>
+                                        <th class="text-xxs-bold">Kategori <br> Barang</th>
+                                        <th class="text-xxs-bold">No. <br> Inventaris</th>
+                                        <th class="text-xxs-bold">Masa <br> Pakai</th>
                                         <th class="text-xxs-bold">Jumlah</th>
                                         <th class="text-xxs-bold">Satuan</th>
                                         <!-- <th class="text-xxs-bold">Harga</th> -->
@@ -562,11 +629,15 @@
                                     data-noform="{{ $m->noform }}"
                                     data-ket="{{ $m->ket }}"
                                     data-tanggal="{{ $m->tanggal }}" 
+                                    data-pemesan="{{ $m->pemesan }}"
                                     data-proyek="{{ $m->id_proyek }}"
                                     data-kategori="{{ $m->id_kategori }}"
                                     data-nama="{{ $m->nama }}" 
                                     data-ukuran="{{ $m->ukuran }}" 
                                     data-deskripsi="{{ $m->deskripsi }}" 
+                                    data-kategori_barang="{{ $m->kategori_barang }}"
+                                    data-no_inventaris="{{ $m->no_inventaris }}"
+                                    data-masa_pakai="{{ $m->masa_pakai }}"
                                     data-jumlah="{{ $m->jumlah }}" 
                                     data-satuan="{{ $m->id_satuan }}" 
                                     data-harga="{{ 'Rp ' . number_format($m->harga ?? 0, 0, ',', '.') }}" 
@@ -578,6 +649,7 @@
                                         <td>{{ $m->noform ?? '-' }}</td>
                                         <td>{{ $namaProyek[$m->id_proyek] ?? '-' }}</td>
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $m->tanggal)->format('d-M-Y') ?? '-' }}</td>
+                                        <td>{{ $m->pemesan ?? '-' }}</td>
                                         @if ($m->file)
                                             <td>
                                                 <a href="{{ asset('storage/' . $m->file) }}" target="_blank">{{ $m->nama ?? '-' }}</a>
@@ -585,8 +657,10 @@
                                         @else
                                             <td>{{ $m->nama ?? '-' }}</td>
                                         @endif
-                                        <td>{{ $m->ukuran ?? '-' }}</td>
                                         <td class="deskripsi">{{ $m->deskripsi ?? '-' }}</td>
+                                        <td>{{ $m->kategori_barang ?? '-' }}</td>
+                                        <td>{{ $m->no_inventaris ?? '-' }}</td>
+                                        <td>{{ $m->masa_pakai ?? '-' }}</td>
                                         <td>{{ $m->jumlah ?? '-' }}</td>
                                         <td>{{ $namaSatuan[$m->id_satuan] ?? '-' }}</td>
                                         <!-- <td>{{ 'Rp ' . number_format($m->harga ?? 0, 0, ',', '.') }}</td> -->
@@ -652,8 +726,8 @@
     function calculateTotal() {
         let totalSum = 0;
         document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
-            if (row.querySelector('td:nth-child(11)')) {
-                const totalText = row.querySelector('td:nth-child(11)').innerText;
+            if (row.querySelector('td:nth-child(14)')) {
+                const totalText = row.querySelector('td:nth-child(14)').innerText;
                 const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
                 totalSum += totalValue;
             }
@@ -755,18 +829,26 @@
         });
 
         // Mengatur deskripsi
-        const descriptionCells = document.querySelectorAll('#basic-datatables td:nth-child(7)');
-        const maxLength = 50; // Ganti dengan panjang maksimum yang diinginkan
+        var batasKarakter = 40;
+        var cells = document.querySelectorAll('td.deskripsi');
 
-        descriptionCells.forEach(cell => {
-            let text = cell.innerText;
-            if (text.length > maxLength) {
-                let formattedText = '';
-                for (let i = 0; i < text.length; i += maxLength) {
-                    formattedText += text.substring(i, i + maxLength) + '<br>';
+        cells.forEach(function(cell) {
+            var text = cell.textContent;
+            var words = text.split(' ');
+            var newText = '';
+            var line = '';
+
+            words.forEach(function(word) {
+                if ((line + word).length > batasKarakter) {
+                    newText += line.trim() + '<br>';
+                    line = word + ' ';
+                } else {
+                    line += word + ' ';
                 }
-                cell.innerHTML = formattedText;
-            }
+            });
+
+            newText += line.trim();
+            cell.innerHTML = newText;
         });
 
         // Ambil elemen harga, jumlah, dan total
@@ -1033,12 +1115,23 @@
                 if (selectedId) {
                     var row = $('tr[data-id="' + selectedId + '"]');
 
+                    var masaPakai = row.data('masa_pakai');
+
+                    // Memisahkan nilai menjadi jumlah dan unit
+                    var parts = masaPakai.split(' ');
+                    var jumlah = parts[0];
+                    var waktu = parts[1];
+
                     $('#edit-id').val(selectedId);
                     $('#edit-proyek').val(row.data('proyek'));
                     $('#edit-kategori').val(row.data('kategori'));
                     $('#edit-tanggal').val(row.data('tanggal'));
+                    $('#edit-pemesan').val(row.data('pemesan'));
+                    $('#edit-kategori_barang').val(row.data('kategori_barang'));
+                    $('#edit-no_inventaris').val(row.data('no_inventaris'));
+                    $('#edit-masa').val(jumlah);
+                    $('#edit-waktu').val(waktu);
                     $('#edit-nama').val(row.data('nama'));
-                    $('#edit-ukuran').val(row.data('ukuran'));
                     $('#edit-deskripsi').val(row.data('deskripsi'));
                     $('#edit-jumlah').val(row.data('jumlah'));
                     $('#edit-satuan').val(row.data('satuan'));
