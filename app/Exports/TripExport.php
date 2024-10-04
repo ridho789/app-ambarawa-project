@@ -63,6 +63,7 @@ class TripExport implements WithMultipleSheets
                             return [
                                 'tanggal' => $item->tanggal,
                                 'kota' => $item->kota,
+                                'nama' => $item->nama,
                                 'ket' => $item->ket,
                                 'uraian' => $item->uraian,
                                 'nopol' => $kendaraan->nopol ?? '-',
@@ -83,6 +84,7 @@ class TripExport implements WithMultipleSheets
                         $data->push([
                             'tanggal' => 'Total Keseluruhan',
                             'kota' => '',
+                            'nama' => '',
                             'ket' => '',
                             'uraian' => '',
                             'nopol' => '',
@@ -107,6 +109,7 @@ class TripExport implements WithMultipleSheets
                             ['Pengeluaran Trip ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y')],
                             ['Tanggal',
                             'Kota',
+                            'Nama',
                             'Keterangan',
                             'Uraian',
                             'Nopol / Kode Unit',
@@ -126,26 +129,26 @@ class TripExport implements WithMultipleSheets
                     public function styles(Worksheet $sheet)
                     {
                         // Header
-                        $sheet->mergeCells("A1:O1");
-                        $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+                        $sheet->mergeCells("A1:P1");
+                        $sheet->getStyle('A1:P1')->getFont()->setBold(true);
 
-                        $sheet->getStyle('A2:O2')->getFont()->setBold(true);
-                        $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
+                        $sheet->getStyle('A2:P2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle('Trip Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
                         // Mengatur kolom
-                        $sheet->getColumnDimension('J')->setWidth(15);
-                        $sheet->getStyle('J2:J2')->getAlignment()->setWrapText(true);
-
                         $sheet->getColumnDimension('K')->setWidth(15);
                         $sheet->getStyle('K2:K2')->getAlignment()->setWrapText(true);
 
-                        $sheet->getColumnDimension('D')->setWidth(50);
-                        $sheet->getStyle('D3:D' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+                        $sheet->getColumnDimension('L')->setWidth(15);
+                        $sheet->getStyle('L2:L2')->getAlignment()->setWrapText(true);
+
+                        $sheet->getColumnDimension('E')->setWidth(50);
+                        $sheet->getStyle('E3:E' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
 
                         // Menyesuaikan lebar kolom lainnya
-                        foreach (range('A', 'O') as $column) {
-                            if (!in_array($column, ['D', 'J', 'K'])) {
+                        foreach (range('A', 'P') as $column) {
+                            if (!in_array($column, ['E', 'K', 'L'])) {
                                 $sheet->getColumnDimension($column)->setAutoSize(true);
                             }
                             $sheet->getStyle($column . '2:' . $column . '2') ->getAlignment()->setHorizontal('center')->setVertical('center');
@@ -157,10 +160,10 @@ class TripExport implements WithMultipleSheets
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
                     }
                 };
             }
@@ -195,6 +198,7 @@ class TripExport implements WithMultipleSheets
                         return [
                             'tanggal' => $item->tanggal,
                             'kota' => $item->kota,
+                            'nama' => $item->nama,
                             'ket' => $item->ket,
                             'uraian' => $item->uraian,
                             'nopol' => $kendaraan->nopol ?? '-',
@@ -215,6 +219,7 @@ class TripExport implements WithMultipleSheets
                     $data->push([
                         'tanggal' => 'Total Keseluruhan',
                         'kota' => '',
+                        'nama' => '',
                         'ket' => '',
                         'uraian' => '',
                         'nopol' => '',
@@ -239,6 +244,7 @@ class TripExport implements WithMultipleSheets
                         ['Pengeluaran Trip ' . $this->rangeDate],
                         ['Tanggal',
                         'Kota',
+                        'Nama',
                         'Keterangan',
                         'Uraian',
                         'Nopol / Kode Unit',
@@ -258,26 +264,26 @@ class TripExport implements WithMultipleSheets
                 public function styles(Worksheet $sheet)
                 {
                     // Header
-                    $sheet->mergeCells("A1:O1");
-                    $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+                    $sheet->mergeCells("A1:P1");
+                    $sheet->getStyle('A1:P1')->getFont()->setBold(true);
 
-                    $sheet->getStyle('A2:O2')->getFont()->setBold(true);
-                    $sheet->getStyle('A:O')->getAlignment()->setHorizontal('center');
+                    $sheet->getStyle('A2:P2')->getFont()->setBold(true);
+                    $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
                     $sheet->setTitle('Pengeluaran Trip');
 
                     // Mengatur kolom
-                    $sheet->getColumnDimension('J')->setWidth(15);
-                    $sheet->getStyle('J2:J2')->getAlignment()->setWrapText(true);
-
                     $sheet->getColumnDimension('K')->setWidth(15);
                     $sheet->getStyle('K2:K2')->getAlignment()->setWrapText(true);
+
+                    $sheet->getColumnDimension('L')->setWidth(15);
+                    $sheet->getStyle('L2:L2')->getAlignment()->setWrapText(true);
                     
-                    $sheet->getColumnDimension('D')->setWidth(50);
-                    $sheet->getStyle('D3:D' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
+                    $sheet->getColumnDimension('E')->setWidth(50);
+                    $sheet->getStyle('E3:E' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
 
                     // Menyesuaikan lebar kolom lainnya
-                    foreach (range('A', 'O') as $column) {
-                        if (!in_array($column, ['D', 'J', 'K'])) {
+                    foreach (range('A', 'P') as $column) {
+                        if (!in_array($column, ['E', 'K', 'L'])) {
                             $sheet->getColumnDimension($column)->setAutoSize(true);
                         }
                         $sheet->getStyle($column . '2:' . $column . '2') ->getAlignment()->setHorizontal('center')->setVertical('center');
@@ -289,10 +295,10 @@ class TripExport implements WithMultipleSheets
 
                     // Menyempurnakan styling baris total
                     $totalRowIndex = $sheet->getHighestRow();
-                    $sheet->mergeCells("A$totalRowIndex:N$totalRowIndex");
-                    $sheet->getStyle("A$totalRowIndex:N$totalRowIndex")->getFont()->setBold(true);
-                    $sheet->getStyle("O$totalRowIndex")->getFont()->setBold(true);
-                    $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getAlignment()->setHorizontal('center');
+                    $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
+                    $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
+                    $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
+                    $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
                 }
             }
         ];

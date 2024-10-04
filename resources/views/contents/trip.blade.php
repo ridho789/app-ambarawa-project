@@ -12,7 +12,7 @@
         width: 100%;
         margin: 0 auto;
     }
-
+    
     .status-process {
         display: inline-block;
         padding: 5px 10px;
@@ -91,28 +91,32 @@
                             <div class="form-group">
                                 <span class="h5 fw-mediumbold">Informasi Perjalanan</span>
                             </div>
+                            
+                            <div class="form-group">
+                                <label for="nama">Nama</label>
+                                <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.."
+                                 oninput="this.value = this.value.toUpperCase()" required />
+                            </div>
 
                             <div class="form-group row">
                                 <div class="col-4">
                                     <label for="tanggal">Tanggal</label>
                                     <input type="date" class="form-control" name="tanggal" id="tanggal" required />
                                 </div>
-                                <div class="col-8">
+                                <div class="col-4">
                                     <label for="kota">Kota Tujuan</label>
-                                    <input type="text" class="form-control" name="kota" id="kota" placeholder="Masukkan kota tujuan.." 
+                                    <input type="text" class="form-control" name="kota" id="kota" placeholder="Kota tujuan.." 
                                     oninput="this.value = this.value.toUpperCase()" required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="ket">Keterangan</label>
+                                    <input type="text" class="form-control" name="ket" id="ket" placeholder="Keterangan.." required />
                                 </div>
                             </div>
 
-                            <div class="form-group row">
-                                <div class="col-4">
-                                    <label for="ket">Keterangan</label>
-                                    <input type="text" class="form-control" name="ket" id="ket" placeholder="Masukkan keterangan.." required />
-                                </div>
-                                <div class="col-8">
-                                    <label for="uraian">Uraian</label>
-                                    <input type="text" class="form-control" name="uraian" id="uraian" placeholder="Masukkan uraian.." required />
-                                </div>
+                            <div class="form-group">
+                                <label for="uraian">Uraian</label>
+                                <input type="text" class="form-control" name="uraian" id="uraian" placeholder="Masukkan uraian.." required />
                             </div>
 
                             <div class="form-group">
@@ -196,7 +200,7 @@
                                     <input type="text" class="form-control" name="total" id="total" placeholder="Nilai total harga.." style="background-color: #fff !important;" required />
                                 </div>
                             </div>
-
+                            
                             <div class="form-group">
                                 <label for="file">Upload file</label>
                                 <input type="file" class="form-control" name="file" accept="application/pdf, image/png, image/jpeg">
@@ -236,28 +240,32 @@
                             <div class="form-group">
                                 <span class="h5 fw-mediumbold">Informasi Perjalanan</span>
                             </div>
+                            
+                            <div class="form-group">
+                                <label for="nama">Nama</label>
+                                <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.."
+                                 oninput="this.value = this.value.toUpperCase()" required />
+                            </div>
 
                             <div class="form-group row">
                                 <div class="col-4">
                                     <label for="tanggal">Tanggal</label>
                                     <input type="date" class="form-control" name="tanggal" id="edit-tanggal" required />
                                 </div>
-                                <div class="col-8">
+                                <div class="col-4">
                                     <label for="kota">Kota Tujuan</label>
-                                    <input type="text" class="form-control" name="kota" id="edit-kota" placeholder="Masukkan kota tujuan.." 
+                                    <input type="text" class="form-control" name="kota" id="edit-kota" placeholder="Kota tujuan.." 
                                     oninput="this.value = this.value.toUpperCase()" required />
+                                </div>
+                                <div class="col-4">
+                                    <label for="ket">Keterangan</label>
+                                    <input type="text" class="form-control" name="ket" id="edit-ket" placeholder="Keterangan.." required />
                                 </div>
                             </div>
 
-                            <div class="form-group row">
-                                <div class="col-4">
-                                    <label for="ket">Keterangan</label>
-                                    <input type="text" class="form-control" name="ket" id="edit-ket" placeholder="Masukkan keterangan.." required />
-                                </div>
-                                <div class="col-8">
-                                    <label for="uraian">Uraian</label>
-                                    <input type="text" class="form-control" name="uraian" id="edit-uraian" placeholder="Masukkan uraian.." required />
-                                </div>
+                            <div class="form-group">
+                                <label for="uraian">Uraian</label>
+                                <input type="text" class="form-control" name="uraian" id="edit-uraian" placeholder="Masukkan uraian.." required />
                             </div>
 
                             <div class="form-group">
@@ -340,7 +348,7 @@
                                     <input type="text" class="form-control" name="total" id="edit-total" placeholder="Nilai total harga.." style="background-color: #fff !important;" required />
                                 </div>
                             </div>
-
+                            
                             <div class="form-group">
                                 <label for="file">Upload file</label>
                                 <input type="file" class="form-control" name="file" accept="application/pdf, image/png, image/jpeg">
@@ -525,9 +533,10 @@
                                         <th class="text-xxs-bold">No.</th>
                                         <th class="text-xxs-bold">Tanggal</th>
                                         <th class="text-xxs-bold">Kota</th>
-                                        <!-- <th class="text-xxs-bold">Keterangan</th> -->
+                                        <th class="text-xxs-bold">Nama</th>
+                                        <th class="text-xxs-bold">Keterangan</th>
                                         <th class="text-xxs-bold">Uraian</th>
-                                        <th class="text-xxs-bold">Nopol / Kode Unit</th>
+                                        <th class="text-xxs-bold">Nopol <br> / Kode Unit</th>
                                         <th class="text-xxs-bold">Merk</th>
                                         <th class="text-xxs-bold">Jumlah</th>
                                         <!-- <th class="text-xxs-bold">Satuan</th> -->
@@ -546,6 +555,7 @@
                                     <tr data-id="{{ $t->id_trip }}" 
                                         data-tanggal="{{ $t->tanggal }}" 
                                         data-kota="{{ $t->kota }}"
+                                        data-nama="{{ $t->nama }}"
                                         data-ket="{{ $t->ket }}"
                                         data-uraian="{{ $t->uraian }}"
                                         data-kendaraan="{{ $t->id_kendaraan }}"
@@ -564,7 +574,8 @@
                                         <td>{{ $loop->iteration }}.</td>
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $t->tanggal)->format('d-M-Y') ?? '-' }}</td>
                                         <td>{{ $t->kota ?? '-' }}</td>
-                                        <!-- <td>{{ $t->ket ?? '-' }}</td> -->
+                                        <td>{{ $t->nama ?? '-' }}</td>
+                                        <td>{{ $t->ket ?? '-' }}</td>
                                         <td class="uraian">{{ $t->uraian ?? '-' }}</td>
                                         @if ($t->file)
                                             <td>
@@ -643,8 +654,8 @@
     function calculateTotal() {
         let totalSum = 0;
         document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
-            if (row.querySelector('td:nth-child(14)')) {
-                const totalText = row.querySelector('td:nth-child(14)').innerText;
+            if (row.querySelector('td:nth-child(16)')) {
+                const totalText = row.querySelector('td:nth-child(16)').innerText;
                 const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
                 totalSum += totalValue;
             }
@@ -711,7 +722,7 @@
         
         var merkInput = document.getElementById('merk');
         merkInput.value = merk ? merk.toUpperCase() : '';
-
+        
         // Cari data kendaraan pada tabel berdasarkan ID kendaraan yang dipilih
         const kendaraanId = selectedOption.value;
         var table = $('#basic-datatables').DataTable();
@@ -1006,7 +1017,7 @@
                     }
                 });
             });
-
+            
             // Event listener untuk tombol update status
             if (pendingButton) {
                 pendingButton.addEventListener('click', function() {
@@ -1070,6 +1081,7 @@
                     $('#edit-id').val(selectedId);
                     $('#edit-tanggal').val(row.data('tanggal'));
                     $('#edit-kota').val(row.data('kota'));
+                    $('#edit-nama').val(row.data('nama'));
                     $('#edit-ket').val(row.data('ket'));
                     $('#edit-uraian').val(row.data('uraian'));
                     $('#edit-kendaraan').val(row.data('kendaraan'));
@@ -1083,7 +1095,7 @@
                     $('#edit-km_ltr').val(row.data('km_ltr'));
                     $('#edit-harga').val(row.data('harga'));
                     $('#edit-total').val(row.data('total'));
-
+                    
                     // Menampilkan file yang diunggah
                     var file = row.data('file');
                     if (file) {

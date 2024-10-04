@@ -28,7 +28,7 @@ class TripController extends Controller
     public function store(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
-
+        
         // File
         $request->validate([
             'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
@@ -47,6 +47,7 @@ class TripController extends Controller
         $dataTrip = [
             'tanggal' => $request->tanggal,
             'kota' => $request->kota,
+            'nama' => $request->nama,
             'ket' => $request->ket,
             'uraian' => $request->uraian,
             'id_kendaraan' => $request->kendaraan,
@@ -68,17 +69,35 @@ class TripController extends Controller
             $nopol = $dataKendaraan->nopol;
         }
 
-        $exitingTrip = Trip::where('tanggal', $request->tanggal)->where('kota', $request->kota)->where('ket', $request->ket)
-            ->where('km_isi_seb', $request->km_isi_seb)->where('km_isi_sek', $request->km_isi_sek)
-            ->where('uraian', $request->uraian)->where('id_kendaraan', $request->kendaraan)->where('qty', $request->qty)
-            ->where('unit', $request->unit)->where('km_awal', $request->km_awal)->where('km_akhir', $request->km_akhir)
-            ->where('km_ltr', $request->km_ltr)->where('harga', $numericHarga)->where('total', $numericTotal)
+        $exitingTrip = Trip::where('tanggal', $request->tanggal)
+            ->where('kota', $request->kota)
+            ->where('nama', $request->nama)
+            ->where('km_isi_seb', $request->km_isi_seb)
+            ->where('km_isi_sek', $request->km_isi_sek)
+            ->where('ket', $request->ket)
+            ->where('uraian', $request->uraian)
+            ->where('id_kendaraan', $request->kendaraan)
+            ->where('qty', $request->qty)
+            ->where('unit', $request->unit)
+            ->where('km_awal', $request->km_awal)
+            ->where('km_akhir', $request->km_akhir)
+            ->where('km_ltr', $request->km_ltr)
+            ->where('harga', $numericHarga)
+            ->where('total', $numericTotal)
             ->first();
 
         if ($exitingTrip) {
-            $logErrors = 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Kota: ' . $request->kota . ' - ' . 'Ket: ' . $request->ket . ' - ' . 'Uraian: ' . $request->uraian . ' - ' . 
-            'Nopol / Kode Unit: ' . $nopol . ' - ' . 'Qty: ' . $request->qty . ' - ' . 'Unit: ' . $request->unit . ' - ' . 
-            'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . ', data tersebut sudah ada di sistem';
+            $logErrors = 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 
+                'Kota: ' . $request->kota . ' - ' . 
+                'Nama: ' . $request->nama . ' - ' . 
+                'Keterangan: ' . $request->ket . ' - ' . 
+                'Uraian: ' . $request->uraian . ' - ' . 
+                'Nopol / Kode Unit: ' . $nopol . ' - ' . 
+                'Qty: ' . $request->qty . ' - ' . 
+                'Unit: ' . $request->unit . ' - ' . 
+                'Harga: ' . $request->harga . ' - ' . 
+                'Total Harga: ' . $request->total . 
+                ', data tersebut sudah ada di sistem';
 
             return redirect('trip')->with('logErrors', $logErrors);
 
@@ -91,7 +110,7 @@ class TripController extends Controller
     public function update(Request $request) {
         $numericHarga = preg_replace("/[^0-9]/", "", explode(",", $request->harga)[0]);
         $numericTotal = preg_replace("/[^0-9]/", "", explode(",", $request->total)[0]);
-
+        
         // File
         $request->validate([
             'file' => 'mimes:pdf,png,jpeg,jpg|max:2048',
@@ -111,6 +130,7 @@ class TripController extends Controller
         if ($tagihanTrip) {
             $tagihanTrip->tanggal = $request->tanggal;
             $tagihanTrip->kota = $request->kota;
+            $tagihanTrip->nama = $request->nama;
             $tagihanTrip->ket = $request->ket;
             $tagihanTrip->uraian = $request->uraian;
             $tagihanTrip->id_kendaraan = $request->kendaraan;
@@ -123,7 +143,7 @@ class TripController extends Controller
             $tagihanTrip->km_ltr = $request->km_ltr;
             $tagihanTrip->harga = $numericHarga;
             $tagihanTrip->total = $numericTotal;
-
+            
             if ($filePath) {
                 $tagihanTrip->file = $filePath;
             }
@@ -195,6 +215,7 @@ class TripController extends Controller
         } else {
             $trip = Trip::where('tanggal', '>=', $start_date)
                 ->where('tanggal', '<=', $end_date)
+                ->orderBy('nama', 'asc')
                 ->orderBy('tanggal', 'asc')
                 ->orderBy('id_kendaraan', 'asc')
                 ->orderBy('kota', 'asc')
@@ -204,7 +225,7 @@ class TripController extends Controller
             return Excel::download(new TripExport($mode, $trip, $rangeDate), $fileName);
         }
     }
-
+    
     // Update status
     public function pending(Request $request) {
         // Convert comma-separated string to array

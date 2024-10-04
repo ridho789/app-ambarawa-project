@@ -15,6 +15,7 @@ class Trip extends Model
         'id_kendaraan',
         'tanggal',
         'kota',
+        'nama',
         'ket',
         'uraian',
         'qty',

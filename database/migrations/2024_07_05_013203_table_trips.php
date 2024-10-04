@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id('id_trip');
             $table->date('tanggal');
             $table->string('kota');
-            $table->string('ket');
+            $table->string('nama')->nullable();
+            $table->string('ket')->nullable();
             $table->string('uraian');
             $table->string('qty');
             $table->string('unit');
