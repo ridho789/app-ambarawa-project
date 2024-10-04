@@ -104,15 +104,21 @@
                             </div>
 
                             <div class="form-group row">
-                                <div class="col-8">
-                                    <label for="deskripsi">Deskripsi</label>
-                                    <input type="text" class="form-control" name="deskripsi" id="deskripsi" placeholder="Masukkan deskripsi.." required />
-                                </div>
                                 <div class="col-4">
                                     <label for="nama">Nama / Pemesan</label>
                                     <input type="text" class="form-control" name="nama" id="nama" placeholder="Masukkan nama.." 
                                     oninput="this.value = this.value.toUpperCase()" required />
                                 </div>
+                                <div class="col-8">
+                                    <label for="deskripsi">Deskripsi</label>
+                                    <input type="text" class="form-control" name="deskripsi" id="deskripsi" placeholder="Masukkan deskripsi.." required />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lokasi">Lokasi <span class="text-info">(Opsional)</span></label>
+                                <input type="text" class="form-control" name="lokasi" id="lokasi" placeholder="Masukkan lokasi.." 
+                                oninput="this.value = this.value.toUpperCase()" required />
                             </div>
 
                             <div class="form-group">
@@ -226,8 +232,8 @@
 
                             <div class="form-group">
                                 @if (count($toko) > 0)
-                                    <label for="toko">Toko</label>
-                                    <select class="form-select form-control" name="toko" id="toko" required>
+                                    <label for="toko">Toko <span class="text-info">(Opsional)</span></label>
+                                    <select class="form-select form-control" name="toko" id="toko">
                                         <option value="">...</option>
                                         @foreach ($toko as $s)
                                             <option value="{{ $s->id_toko }}">{{ $s->nama }}</option>
@@ -293,14 +299,21 @@
                             </div>
 
                             <div class="form-group row">
+                                <div class="col-4">
+                                    <label for="nama">Nama / Pemesan</label>
+                                    <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." 
+                                    oninput="this.value = this.value.toUpperCase()" required />
+                                </div>
                                 <div class="col-8">
                                     <label for="deskripsi">Deskripsi</label>
                                     <input type="text" class="form-control" name="deskripsi" id="edit-deskripsi" placeholder="Masukkan deskripsi.." required />
                                 </div>
-                                <div class="col-4">
-                                    <label for="nama">Nama / Pemesan</label>
-                                    <input type="text" class="form-control" name="nama" id="edit-nama" placeholder="Masukkan nama.." required />
-                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lokasi">Lokasi <span class="text-info">(Opsional)</span></label>
+                                <input type="text" class="form-control" name="lokasi" id="edit-lokasi" placeholder="Masukkan lokasi.." 
+                                oninput="this.value = this.value.toUpperCase()" />
                             </div>
 
                             <div class="form-group">
@@ -375,7 +388,7 @@
 
                             <div class="form-group">
                                 @if (count($toko) > 0)
-                                    <label for="toko">Toko</label>
+                                    <label for="toko">Toko <span class="text-info">(Opsional)</span></label>
                                     <select class="form-select form-control" name="toko" id="edit-toko" required>
                                         <option value="">...</option>
                                         @foreach ($toko as $s)
@@ -591,6 +604,7 @@
                                         <th class="text-xxs-bold">Tanggal</th>
                                         <th class="text-xxs-bold">Uraian</th>
                                         <th class="text-xxs-bold">Deskripsi</th>
+                                        <th class="text-xxs-bold">Lokasi</th>
                                         <th class="text-xxs-bold">Pemesan</th>
                                         <th class="text-xxs-bold">Barang</th>
                                         <!-- <th class="text-xxs-bold">Jumlah</th>
@@ -615,6 +629,7 @@
                                         data-tanggal="{{ $o->tanggal }}" 
                                         data-uraian="{{ $o->uraian }}"
                                         data-deskripsi="{{ $o->deskripsi }}"
+                                        data-lokasi="{{ $o->lokasi }}"
                                         data-nama="{{ $o->nama }}"
                                         data-diskon="{{ 'Rp ' . number_format($o->diskon ?? 0, 0, ',', '.') }}"
                                         data-ongkir="{{ 'Rp ' . number_format($o->ongkir ?? 0, 0, ',', '.') }}"
@@ -631,6 +646,7 @@
                                         <td>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $o->tanggal)->format('d-M-Y') ?? '-' }}</td>
                                         <td>{{ $o->uraian ?? '-' }}</td>
                                         <td class="deskripsi">{{ $o->deskripsi ?? '-' }}</td>
+                                        <td>{{ $o->lokasi ?? '-' }}</td>
                                         @if ($o->file)
                                             <td>
                                                 <a href="{{ asset('storage/' . $o->file) }}" target="_blank">{{ $o->nama ?? '-' }}</a>
@@ -723,8 +739,8 @@
     function calculateTotal() {
         let totalSum = 0;
         document.querySelectorAll('#basic-datatables tbody tr').forEach(row => {
-            if (row.querySelector('td:nth-child(8)')) {
-                const totalText = row.querySelector('td:nth-child(8)').innerText;
+            if (row.querySelector('td:nth-child(9)')) {
+                const totalText = row.querySelector('td:nth-child(9)').innerText;
                 const totalValue = parseInt(totalText.replace(/[^0-9,-]+/g, ""));
                 totalSum += totalValue;
             }
@@ -1406,6 +1422,7 @@
                     $('#edit-tanggal').val(row.data('tanggal'));
                     $('#edit-uraian').val(row.data('uraian'));
                     $('#edit-deskripsi').val(row.data('deskripsi'));
+                    $('#edit-lokasi').val(row.data('lokasi'));
                     $('#edit-nama').val(row.data('nama'));
                     $('#edit-total').val(row.data('total'));
                     $('#edit-toko').val(row.data('toko'));

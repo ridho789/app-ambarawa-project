@@ -26,6 +26,7 @@ class Operasional extends Model
         'b_aplikasi',
         'total',
         'status',
+        'lokasi',
         'file'
     ];
 }

@@ -91,6 +91,7 @@ class OperasionalExport implements WithMultipleSheets
                                             'tanggal' => $item->tanggal,
                                             'uraian' => $item->uraian,
                                             'deskripsi' => $item->deskripsi,
+                                            'lokasi' => $item->lokasi ?? '-',
                                             'nama' => $item->nama,
                                             'barang' => $data->nama,
                                             'qty' => $data->jumlah,
@@ -112,6 +113,7 @@ class OperasionalExport implements WithMultipleSheets
                                             'tanggal' => $item->tanggal,
                                             'uraian' => $item->uraian,
                                             'deskripsi' => $item->deskripsi,
+                                            'lokasi' => $item->lokasi ?? '-',
                                             'nama' => $item->nama,
                                             'barang' => $data->nama,
                                             'qty' => $data->jumlah,
@@ -127,6 +129,7 @@ class OperasionalExport implements WithMultipleSheets
                                             'tanggal' => $item->tanggal,
                                             'uraian' => $item->uraian,
                                             'deskripsi' => $item->deskripsi,
+                                            'lokasi' => $item->lokasi ?? '-',
                                             'nama' => $item->nama,
                                             'barang' => $data->nama,
                                             'qty' => $data->jumlah,
@@ -152,6 +155,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'tanggal' => $item->tanggal,
                                         'uraian' => $item->uraian,
                                         'deskripsi' => $item->deskripsi,
+                                        'lokasi' => $item->lokasi ?? '-',
                                         'nama' => $item->nama,
                                         'barang' => '-',
                                         'qty' => '-',
@@ -175,6 +179,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'tanggal' => $item->tanggal,
                                         'uraian' => $item->uraian,
                                         'deskripsi' => $item->deskripsi,
+                                        'lokasi' => $item->lokasi ?? '-',
                                         'nama' => $item->nama,
                                         'barang' => '-',
                                         'qty' => '-',
@@ -192,6 +197,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'tanggal' => $item->tanggal,
                                         'uraian' => $item->uraian,
                                         'deskripsi' => $item->deskripsi,
+                                        'lokasi' => $item->lokasi ?? '-',
                                         'nama' => $item->nama,
                                         'barang' => '-',
                                         'qty' => '-',
@@ -215,6 +221,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'tanggal' => 'Total Keseluruhan',
                                 'uraian' => '',
                                 'deskripsi' => '',
+                                'lokasi' => '',
                                 'nama' => '',
                                 'barang' => '',
                                 'qty' => '',
@@ -236,6 +243,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'tanggal' => 'Total Keseluruhan',
                                 'uraian' => '',
                                 'deskripsi' => '',
+                                'lokasi' => '',
                                 'nama' => '',
                                 'barang' => '',
                                 'qty' => '',
@@ -251,6 +259,7 @@ class OperasionalExport implements WithMultipleSheets
                                 'tanggal' => 'Total Keseluruhan',
                                 'uraian' => '',
                                 'deskripsi' => '',
+                                'lokasi' => '',
                                 'nama' => '',
                                 'barang' => '',
                                 'qty' => '',
@@ -278,6 +287,7 @@ class OperasionalExport implements WithMultipleSheets
                                 ['Tanggal',
                                 'Uraian',
                                 'Deskripsi',
+                                'Lokasi',
                                 'Pemesan',
                                 'Nama Barang',
                                 'Jumlah',
@@ -300,6 +310,7 @@ class OperasionalExport implements WithMultipleSheets
                                 ['Tanggal',
                                 'Uraian',
                                 'Deskripsi',
+                                'Lokasi',
                                 'Pemesan',
                                 'Nama Barang',
                                 'Jumlah',
@@ -316,6 +327,7 @@ class OperasionalExport implements WithMultipleSheets
                                 ['Tanggal',
                                 'Uraian',
                                 'Deskripsi',
+                                'Lokasi',
                                 'Pemesan',
                                 'Nama Barang',
                                 'Jumlah',
@@ -337,11 +349,11 @@ class OperasionalExport implements WithMultipleSheets
                     {
                         if ($this->metode_pembelian == 'online') {
                             // Header
-                            $sheet->mergeCells("A1:P1");
-                            $sheet->getStyle('A1:P1')->getFont()->setBold(true);
+                            $sheet->mergeCells("A1:Q1");
+                            $sheet->getStyle('A1:Q1')->getFont()->setBold(true);
 
-                            $sheet->getStyle('A2:P2')->getFont()->setBold(true);
-                            $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
+                            $sheet->getStyle('A2:Q2')->getFont()->setBold(true);
+                            $sheet->getStyle('A:Q')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Online ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
                             // Mengatur kolom C
@@ -349,7 +361,7 @@ class OperasionalExport implements WithMultipleSheets
                             $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
 
                             // Menyesuaikan lebar kolom lainnya
-                            foreach (range('A', 'P') as $column) {
+                            foreach (range('A', 'Q') as $column) {
                                 if ($column !== 'C') {
                                     $sheet->getColumnDimension($column)->setAutoSize(true);
                                     $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
@@ -358,19 +370,19 @@ class OperasionalExport implements WithMultipleSheets
 
                             // Menyempurnakan styling baris total
                             $totalRowIndex = $sheet->getHighestRow();
-                            $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
-                            $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
+                            $sheet->mergeCells("A$totalRowIndex:P$totalRowIndex");
+                            $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("Q$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("A$totalRowIndex:Q$totalRowIndex")->getAlignment()->setHorizontal('center');
                         } 
                         
                         if ($this->metode_pembelian == 'offline') {
                             // Header
-                            $sheet->mergeCells("A1:J1");
-                            $sheet->getStyle('A1:J1')->getFont()->setBold(true);
+                            $sheet->mergeCells("A1:K1");
+                            $sheet->getStyle('A1:K1')->getFont()->setBold(true);
 
-                            $sheet->getStyle('A2:J2')->getFont()->setBold(true);
-                            $sheet->getStyle('A:J')->getAlignment()->setHorizontal('center');
+                            $sheet->getStyle('A2:K2')->getFont()->setBold(true);
+                            $sheet->getStyle('A:K')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Periode ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
                             // Mengatur kolom C
@@ -378,7 +390,7 @@ class OperasionalExport implements WithMultipleSheets
                             $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
 
                             // Menyesuaikan lebar kolom lainnya
-                            foreach (range('A', 'J') as $column) {
+                            foreach (range('A', 'K') as $column) {
                                 if ($column !== 'C') {
                                     $sheet->getColumnDimension($column)->setAutoSize(true);
                                     $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
@@ -387,19 +399,19 @@ class OperasionalExport implements WithMultipleSheets
 
                             // Menyempurnakan styling baris total
                             $totalRowIndex = $sheet->getHighestRow();
-                            $sheet->mergeCells("A$totalRowIndex:I$totalRowIndex");
-                            $sheet->getStyle("A$totalRowIndex:I$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("J$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("A$totalRowIndex:J$totalRowIndex")->getAlignment()->setHorizontal('center');
+                            $sheet->mergeCells("A$totalRowIndex:J$totalRowIndex");
+                            $sheet->getStyle("A$totalRowIndex:J$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("K$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("A$totalRowIndex:K$totalRowIndex")->getAlignment()->setHorizontal('center');
                         }
 
                         if ($this->metode_pembelian == 'online_dan_offline') {
                             // Header
-                            $sheet->mergeCells("A1:P1");
-                            $sheet->getStyle('A1:P1')->getFont()->setBold(true);
+                            $sheet->mergeCells("A1:Q1");
+                            $sheet->getStyle('A1:Q1')->getFont()->setBold(true);
 
-                            $sheet->getStyle('A2:P2')->getFont()->setBold(true);
-                            $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
+                            $sheet->getStyle('A2:Q2')->getFont()->setBold(true);
+                            $sheet->getStyle('A:Q')->getAlignment()->setHorizontal('center');
                             $sheet->setTitle($this->infoTagihan . ' Online dan Offline ' . Carbon::createFromFormat('Y-m', $this->period)->format('M-Y'));
 
                             // Mengatur kolom C
@@ -407,7 +419,7 @@ class OperasionalExport implements WithMultipleSheets
                             $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
 
                             // Menyesuaikan lebar kolom lainnya
-                            foreach (range('A', 'P') as $column) {
+                            foreach (range('A', 'Q') as $column) {
                                 if ($column !== 'C') {
                                     $sheet->getColumnDimension($column)->setAutoSize(true);
                                     $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
@@ -416,10 +428,10 @@ class OperasionalExport implements WithMultipleSheets
 
                             // Menyempurnakan styling baris total
                             $totalRowIndex = $sheet->getHighestRow();
-                            $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
-                            $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
-                            $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
+                            $sheet->mergeCells("A$totalRowIndex:P$totalRowIndex");
+                            $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("Q$totalRowIndex")->getFont()->setBold(true);
+                            $sheet->getStyle("A$totalRowIndex:Q$totalRowIndex")->getAlignment()->setHorizontal('center');
                         }
 
                         // Merge cells based on tanggal
@@ -430,15 +442,15 @@ class OperasionalExport implements WithMultipleSheets
                     {
                         $highestRow = $sheet->getHighestRow();
                         $dateColumn = 'A'; // Kolom tanggal
-                        $columnsToMerge = ['A', 'B', 'C', 'D']; // Kolom yang ingin digabungkan
+                        $columnsToMerge = ['A', 'B', 'C', 'D', 'E']; // Kolom yang ingin digabungkan
 
                         // Tambahkan kolom I dan J jika metode pembelian adalah 'offline'
                         if ($metode_pembelian == 'offline') {
-                            $columnsToMerge = array_merge($columnsToMerge, ['I', 'J']);
+                            $columnsToMerge = array_merge($columnsToMerge, ['J', 'K']);
                         }
 
                         if ($metode_pembelian == 'online' || $metode_pembelian == 'online_dan_offline') {
-                            $columnsToMerge = array_merge($columnsToMerge, ['I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']);
+                            $columnsToMerge = array_merge($columnsToMerge, ['J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q']);
                         }
 
                         $startRow = 2; // Assuming header starts at row 2
@@ -446,6 +458,7 @@ class OperasionalExport implements WithMultipleSheets
                         $currentDate = '';
                         $currentUraian = '';
                         $currentDeskripsi = '';
+                        $currentLokasi = '';
                         $currentPemesan = '';
                         $currentToko = '';
                         $startMergeRow = $startRow;
@@ -454,13 +467,15 @@ class OperasionalExport implements WithMultipleSheets
                             $cellDateValue = $sheet->getCell("$dateColumn$row")->getValue();
                             $cellUraianValue = $sheet->getCell("B$row")->getValue();
                             $cellDeskripsiValue = $sheet->getCell("C$row")->getValue();
-                            $cellPemesanValue = $sheet->getCell("D$row")->getValue();
+                            $cellLokasiValue = $sheet->getCell("D$row")->getValue();
+                            $cellPemesanValue = $sheet->getCell("E$row")->getValue();
                             $cellTokoValue = $metode_pembelian == 'offline' ? $sheet->getCell("I$row")->getValue() : '';
 
                             // Check if the date or other columns change
                             if ($cellDateValue != $currentDate || 
                                 $cellUraianValue != $currentUraian || 
                                 $cellDeskripsiValue != $currentDeskripsi || 
+                                $cellLokasiValue != $currentLokasi || 
                                 $cellPemesanValue != $currentPemesan || 
                                 ($metode_pembelian == 'offline' && $cellTokoValue != $currentToko)) {
 
@@ -477,6 +492,7 @@ class OperasionalExport implements WithMultipleSheets
                                 $currentDate = $cellDateValue;
                                 $currentUraian = $cellUraianValue;
                                 $currentDeskripsi = $cellDeskripsiValue;
+                                $currentLokasi = $cellLokasiValue;
                                 $currentPemesan = $cellPemesanValue;
                                 $currentToko = $cellTokoValue;
                                 $startMergeRow = $row;
@@ -549,6 +565,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'tanggal' => $item->tanggal,
                                         'uraian' => $item->uraian,
                                         'deskripsi' => $item->deskripsi,
+                                        'lokasi' => $item->lokasi ?? '-',
                                         'nama' => $item->nama,
                                         'barang' => $data->nama,
                                         'qty' => $data->jumlah,
@@ -570,6 +587,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'tanggal' => $item->tanggal,
                                         'uraian' => $item->uraian,
                                         'deskripsi' => $item->deskripsi,
+                                        'lokasi' => $item->lokasi ?? '-',
                                         'nama' => $item->nama,
                                         'barang' => $data->nama,
                                         'qty' => $data->jumlah,
@@ -585,6 +603,7 @@ class OperasionalExport implements WithMultipleSheets
                                         'tanggal' => $item->tanggal,
                                         'uraian' => $item->uraian,
                                         'deskripsi' => $item->deskripsi,
+                                        'lokasi' => $item->lokasi ?? '-',
                                         'nama' => $item->nama,
                                         'barang' => $data->nama,
                                         'qty' => $data->jumlah,
@@ -610,6 +629,7 @@ class OperasionalExport implements WithMultipleSheets
                                     'tanggal' => $item->tanggal,
                                     'uraian' => $item->uraian,
                                     'deskripsi' => $item->deskripsi,
+                                    'lokasi' => $item->lokasi ?? '-',
                                     'nama' => $item->nama,
                                     'barang' => '-',
                                     'qty' => '-',
@@ -633,6 +653,7 @@ class OperasionalExport implements WithMultipleSheets
                                     'tanggal' => $item->tanggal,
                                     'uraian' => $item->uraian,
                                     'deskripsi' => $item->deskripsi,
+                                    'lokasi' => $item->lokasi ?? '-',
                                     'nama' => $item->nama,
                                     'barang' => '-',
                                     'qty' => '-',
@@ -650,6 +671,7 @@ class OperasionalExport implements WithMultipleSheets
                                     'tanggal' => $item->tanggal,
                                     'uraian' => $item->uraian,
                                     'deskripsi' => $item->deskripsi,
+                                    'lokasi' => $item->lokasi ?? '-',
                                     'nama' => $item->nama,
                                     'barang' => '-',
                                     'qty' => '-',
@@ -673,6 +695,7 @@ class OperasionalExport implements WithMultipleSheets
                             'tanggal' => 'Total Keseluruhan',
                             'uraian' => '',
                             'deskripsi' => '',
+                            'lokasi' => '',
                             'nama' => '',
                             'barang' => '',
                             'qty' => '',
@@ -694,6 +717,7 @@ class OperasionalExport implements WithMultipleSheets
                             'tanggal' => 'Total Keseluruhan',
                             'uraian' => '',
                             'deskripsi' => '',
+                            'lokasi' => '',
                             'nama' => '',
                             'barang' => '',
                             'qty' => '',
@@ -709,6 +733,7 @@ class OperasionalExport implements WithMultipleSheets
                             'tanggal' => 'Total Keseluruhan',
                             'uraian' => '',
                             'deskripsi' => '',
+                            'lokasi' => '',
                             'nama' => '',
                             'barang' => '',
                             'qty' => '',
@@ -736,6 +761,7 @@ class OperasionalExport implements WithMultipleSheets
                             ['Tanggal',
                             'Uraian',
                             'Deskripsi',
+                            'Lokasi',
                             'Pemesan',
                             'Nama Barang',
                             'Jumlah',
@@ -758,6 +784,7 @@ class OperasionalExport implements WithMultipleSheets
                             ['Tanggal',
                             'Uraian',
                             'Deskripsi',
+                            'Lokasi',
                             'Pemesan',
                             'Nama Barang',
                             'Jumlah',
@@ -774,6 +801,7 @@ class OperasionalExport implements WithMultipleSheets
                             ['Tanggal',
                             'Uraian',
                             'Deskripsi',
+                            'Lokasi',
                             'Pemesan',
                             'Nama Barang',
                             'Jumlah',
@@ -795,11 +823,11 @@ class OperasionalExport implements WithMultipleSheets
                 {
                     if ($this->metode_pembelian == 'online') {
                         // Header
-                        $sheet->mergeCells("A1:P1");
-                        $sheet->getStyle('A1:P1')->getFont()->setBold(true);
+                        $sheet->mergeCells("A1:Q1");
+                        $sheet->getStyle('A1:Q1')->getFont()->setBold(true);
 
-                        $sheet->getStyle('A2:P2')->getFont()->setBold(true);
-                        $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
+                        $sheet->getStyle('A2:Q2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:Q')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan . ' Online');
 
                         // Mengatur kolom C
@@ -807,7 +835,7 @@ class OperasionalExport implements WithMultipleSheets
                         $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
 
                         // Menyesuaikan lebar kolom lainnya
-                        foreach (range('A', 'P') as $column) {
+                        foreach (range('A', 'Q') as $column) {
                             if ($column !== 'C') {
                                 $sheet->getColumnDimension($column)->setAutoSize(true);
                                 $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
@@ -816,19 +844,19 @@ class OperasionalExport implements WithMultipleSheets
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:P$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("Q$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:Q$totalRowIndex")->getAlignment()->setHorizontal('center');
                     } 
                     
                     if ($this->metode_pembelian == 'offline') {
                         // Header
-                        $sheet->mergeCells("A1:J1");
-                        $sheet->getStyle('A1:J1')->getFont()->setBold(true);
+                        $sheet->mergeCells("A1:K1");
+                        $sheet->getStyle('A1:K1')->getFont()->setBold(true);
 
-                        $sheet->getStyle('A2:J2')->getFont()->setBold(true);
-                        $sheet->getStyle('A:J')->getAlignment()->setHorizontal('center');
+                        $sheet->getStyle('A2:K2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:K')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan);
 
                         // Mengatur kolom C
@@ -836,7 +864,7 @@ class OperasionalExport implements WithMultipleSheets
                         $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
 
                         // Menyesuaikan lebar kolom lainnya
-                        foreach (range('A', 'j') as $column) {
+                        foreach (range('A', 'K') as $column) {
                             if ($column !== 'C') {
                                 $sheet->getColumnDimension($column)->setAutoSize(true);
                                 $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
@@ -845,19 +873,19 @@ class OperasionalExport implements WithMultipleSheets
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:I$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:I$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("J$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:J$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:J$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:J$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("K$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:K$totalRowIndex")->getAlignment()->setHorizontal('center');
                     }
 
                     if ($this->metode_pembelian == 'online_dan_offline') {
                         // Header
-                        $sheet->mergeCells("A1:P1");
-                        $sheet->getStyle('A1:P1')->getFont()->setBold(true);
+                        $sheet->mergeCells("A1:Q1");
+                        $sheet->getStyle('A1:Q1')->getFont()->setBold(true);
 
-                        $sheet->getStyle('A2:P2')->getFont()->setBold(true);
-                        $sheet->getStyle('A:P')->getAlignment()->setHorizontal('center');
+                        $sheet->getStyle('A2:Q2')->getFont()->setBold(true);
+                        $sheet->getStyle('A:Q')->getAlignment()->setHorizontal('center');
                         $sheet->setTitle($this->infoTagihan . ' Online dan Offline');
 
                         // Mengatur kolom C
@@ -865,7 +893,7 @@ class OperasionalExport implements WithMultipleSheets
                         $sheet->getStyle('C3:C' . $sheet->getHighestRow())->getAlignment()->setWrapText(true);
 
                         // Menyesuaikan lebar kolom lainnya
-                        foreach (range('A', 'P') as $column) {
+                        foreach (range('A', 'Q') as $column) {
                             if ($column !== 'C') {
                                 $sheet->getColumnDimension($column)->setAutoSize(true);
                                 $sheet->getStyle($column . '3:' . $column . $sheet->getHighestRow())->getAlignment()->setHorizontal('center')->setVertical('center');
@@ -874,10 +902,10 @@ class OperasionalExport implements WithMultipleSheets
 
                         // Menyempurnakan styling baris total
                         $totalRowIndex = $sheet->getHighestRow();
-                        $sheet->mergeCells("A$totalRowIndex:O$totalRowIndex");
-                        $sheet->getStyle("A$totalRowIndex:O$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("P$totalRowIndex")->getFont()->setBold(true);
-                        $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getAlignment()->setHorizontal('center');
+                        $sheet->mergeCells("A$totalRowIndex:P$totalRowIndex");
+                        $sheet->getStyle("A$totalRowIndex:P$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("Q$totalRowIndex")->getFont()->setBold(true);
+                        $sheet->getStyle("A$totalRowIndex:Q$totalRowIndex")->getAlignment()->setHorizontal('center');
                     }
 
                     // Merge cells based on tanggal
@@ -888,15 +916,15 @@ class OperasionalExport implements WithMultipleSheets
                 {
                     $highestRow = $sheet->getHighestRow();
                     $dateColumn = 'A'; // Kolom tanggal
-                    $columnsToMerge = ['A', 'B', 'C', 'D']; // Kolom yang ingin digabungkan
+                    $columnsToMerge = ['A', 'B', 'C', 'D', 'E']; // Kolom yang ingin digabungkan
 
                     // Tambahkan kolom I dan J jika metode pembelian adalah 'offline'
                     if ($metode_pembelian == 'offline') {
-                        $columnsToMerge = array_merge($columnsToMerge, ['I', 'J']);
+                        $columnsToMerge = array_merge($columnsToMerge, ['J', 'K']);
                     }
 
                     if ($metode_pembelian == 'online' || $metode_pembelian == 'online_dan_offline') {
-                        $columnsToMerge = array_merge($columnsToMerge, ['I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']);
+                        $columnsToMerge = array_merge($columnsToMerge, ['J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q']);
                     }
 
                     $startRow = 2; // Assuming header starts at row 2
@@ -904,6 +932,7 @@ class OperasionalExport implements WithMultipleSheets
                     $currentDate = '';
                     $currentUraian = '';
                     $currentDeskripsi = '';
+                    $currentLokasi = '';
                     $currentPemesan = '';
                     $currentToko = '';
                     $startMergeRow = $startRow;
@@ -912,13 +941,15 @@ class OperasionalExport implements WithMultipleSheets
                         $cellDateValue = $sheet->getCell("$dateColumn$row")->getValue();
                         $cellUraianValue = $sheet->getCell("B$row")->getValue();
                         $cellDeskripsiValue = $sheet->getCell("C$row")->getValue();
-                        $cellPemesanValue = $sheet->getCell("D$row")->getValue();
+                        $cellLokasiValue = $sheet->getCell("D$row")->getValue();
+                        $cellPemesanValue = $sheet->getCell("E$row")->getValue();
                         $cellTokoValue = $metode_pembelian == 'offline' ? $sheet->getCell("I$row")->getValue() : '';
 
                         // Check if the date or other columns change
                         if ($cellDateValue != $currentDate || 
                             $cellUraianValue != $currentUraian || 
                             $cellDeskripsiValue != $currentDeskripsi || 
+                            $cellLokasiValue != $currentLokasi || 
                             $cellPemesanValue != $currentPemesan || 
                             ($metode_pembelian == 'offline' && $cellTokoValue != $currentToko)) {
 
@@ -935,6 +966,7 @@ class OperasionalExport implements WithMultipleSheets
                             $currentDate = $cellDateValue;
                             $currentUraian = $cellUraianValue;
                             $currentDeskripsi = $cellDeskripsiValue;
+                            $currentLokasi = $cellLokasiValue;
                             $currentPemesan = $cellPemesanValue;
                             $currentToko = $cellTokoValue;
                             $startMergeRow = $row;

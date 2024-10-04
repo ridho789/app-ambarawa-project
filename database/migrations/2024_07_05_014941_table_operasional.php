@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('b_aplikasi')->nullable();
             $table->string('total');
             $table->string('status')->default('processing');
+            $table->string('lokasi')->nullable();
             $table->string('file')->nullable();
             $table->timestamps();
         });
