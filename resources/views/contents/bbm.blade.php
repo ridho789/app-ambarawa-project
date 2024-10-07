@@ -415,6 +415,39 @@
             </div>
         </div>
 
+        <!-- Modal Import data -->
+        <div class="modal fade" id="BBMImportModal" tabindex="-1" role="dialog" aria-labelledby="BBMImportModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0 mx-2" style="margin-bottom: -25px;">
+                        <h5 class="modal-title" id="BBMImportModal">
+                            <span class="fw-light"> Import Data</span>
+                            <span class="fw-mediumbold"> Pengeluaran BBM </span>
+                        </h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="{{ url('bbm-import') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-body">
+                            <p class="small mx-2">
+                                Pilih file dengan format .xlsx
+                            </p>
+                            <div class="form-group">
+                                <label for="file">Upload file</label>
+                                <input class="form-control" type="file" name="file" accept=".xlsx">
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 mx-2">
+                            <button type="submit" class="btn btn-primary btn-sm">Import</button>
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- LogError -->
         @if(session()->has('logErrors'))
         <div class="row">
@@ -497,6 +530,10 @@
                                         Export data
                                     </button>
                                 @endif
+                                <button class="btn btn-black btn-round ms-3 btn-sm" data-bs-toggle="modal" data-bs-target="#BBMImportModal">
+                                    <i class="fa fa-file-excel"></i>
+                                    Import data
+                                </button>
                                 <button class="btn btn-primary btn-round ms-3 btn-sm" data-bs-toggle="modal" data-bs-target="#bbmModal">
                                     <i class="fa fa-plus"></i>
                                     Tambah data
@@ -569,7 +606,7 @@
                                         <td>{{ $b->km_isi_seb ? $b->km_isi_seb : '-' }}</td>
                                         <td>{{ $b->km_isi_sek ? $b->km_isi_sek : '-' }}</td>
                                         <td>{{ $b->km_akhir ? $b->km_akhir : '-' }}</td>
-                                        <td>{{ $b->km_ltr ? $b->km_ltr : '-' }}</td>
+                                        <td>{{ $b->km_ltr ? number_format($b->km_ltr, 3, ',', '.') : '-' }}</td>
                                         <td>{{ $b->tot_km ? $b->tot_km : '-' }}</td>
                                         <!-- <td>{{ 'Rp ' . number_format($b->harga ?? 0, 0, ',', '.') }}</td> -->
                                         <td>{{ 'Rp ' . number_format($b->tot_harga ?? 0, 0, ',', '.') }}</td>

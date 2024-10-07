@@ -9,6 +9,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\BBMExport;
 use Carbon\Carbon;
 use DateTime;
+use App\Imports\BBMImport;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class BBMController extends Controller
 {
@@ -199,6 +201,37 @@ class BBMController extends Controller
 
             $fileName = 'Report BBM ' . $rangeDate . '.xlsx';
             return Excel::download(new BBMExport($mode, $bbm, $rangeDate), $fileName);
+        }
+    }
+
+    public function import(Request $request) {
+        $request->validate([
+            'file' => 'required|mimes:xlsx|max:2048',
+        ]);
+    
+        try {
+            $file = $request->file('file');
+            $spreadsheet = IOFactory::load($file);
+            $sheetNames = $spreadsheet->getSheetNames();
+    
+            $import = new BBMImport($sheetNames);
+            Excel::import($import, $file);
+            $logErrors = $import->getLogErrors();
+    
+            if ($logErrors) {
+                return redirect('bbm')->with('logErrors', $logErrors);
+            } else {
+                return redirect('bbm');
+            }
+    
+        } catch (\Exception $e) {
+            $sqlErrors = $e->getMessage();
+    
+            if (!empty($sqlErrors)){
+                $logErrors = $sqlErrors;
+            }
+    
+            return redirect('bbm')->with('logErrors', $logErrors);
         }
     }
 

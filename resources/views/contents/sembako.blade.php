@@ -301,7 +301,7 @@
                             </p>
                             <div class="form-group">
                                 <label for="file">Upload file</label>
-                                <input type="file" name="file" accept=".xlsx">
+                                <input class="form-control" type="file" name="file" accept=".xlsx">
                             </div>
                         </div>
                         <div class="modal-footer border-0 mx-2">
