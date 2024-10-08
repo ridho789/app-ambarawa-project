@@ -38,8 +38,12 @@ class SembakoController extends Controller
             'total' => $numericTotal
         ];
 
-        $exitingSembako = Sembako::where('tanggal', $request->tanggal)->where('nama', $request->nama)
-            ->where('qty', $request->qty)->where('id_satuan', $request->unit)->where('harga', $numericHarga)->where('total', $numericTotal)
+        $exitingSembako = Sembako::where('tanggal', $request->tanggal)
+            ->where('nama', $request->nama)
+            ->where('qty', $request->qty)
+            ->where('id_satuan', $request->unit)
+            ->where('harga', $numericHarga)
+            ->where('total', $numericTotal)
             ->first();
 
         if ($exitingSembako) {

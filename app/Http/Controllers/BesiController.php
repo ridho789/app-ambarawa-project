@@ -83,15 +83,27 @@ class BesiController extends Controller
             $namaToko = $dataToko->nama;
         }
 
-        $exitingBesi = Pembangunan::where('tanggal', $request->tanggal)->where('nama', $request->nama)->where('ukuran', $request->ukuran)->where('deskripsi', $request->deskripsi)
-            ->where('jumlah', $request->jumlah)->where('id_satuan', $request->satuan)->where('harga', $numericHarga)->where('tot_harga', $numericTotal)->where('id_proyek', $request->proyek)
-            ->where('id_toko', $request->toko)->first();
+        $exitingBesi = Pembangunan::where('tanggal', $request->tanggal)
+            ->where('nama', $request->nama)
+            ->where('ukuran', $request->ukuran)
+            ->where('deskripsi', $request->deskripsi)
+            ->where('jumlah', $request->jumlah)
+            ->where('id_satuan', $request->satuan)
+            ->where('harga', $numericHarga)
+            ->where('tot_harga', $numericTotal)
+            ->where('id_proyek', $request->proyek)
+            ->where('id_toko', $request->toko)
+            ->first();
 
         if ($exitingBesi) {
-            $logErrors = 'Proyek: ' . $namaProyek . ' - ' . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Nama (Barang): ' . $request->nama . ' - ' . 
-            'Jumlah: ' . $request->jumlah . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
-            ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
-
+            $logErrors = 'Proyek: ' . $namaProyek . 
+                ' - Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . 
+                ' - Nama Barang: ' . $request->nama . 
+                ' - Jumlah: ' . $request->jumlah . 
+                ' - Harga: ' . $request->harga . 
+                ' - Total Harga: ' . $request->total . 
+                ' - Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
+        
             return redirect('besi')->with('logErrors', $logErrors);
 
         } else {

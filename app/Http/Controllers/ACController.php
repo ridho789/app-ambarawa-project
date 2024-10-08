@@ -16,12 +16,12 @@ class ACController extends Controller
 {
     public function index() {
         $ac = TagihanAMB::where('keterangan', 'tagihan ac')->orderBy('lokasi')->orderBy('tgl_order', 'asc')->get();
-        $kendaraan = Kendaraan::all();
+        $kendaraan = Kendaraan::orderBy('nopol')->get();
         $nopolKendaraan = Kendaraan::pluck('nopol', 'id_kendaraan');
         $merkKendaraan = Kendaraan::pluck('merk', 'id_kendaraan');
-        $satuan = Satuan::all();
+        $satuan = Satuan::orderBy('nama')->get();
         $namaSatuan = Satuan::pluck('nama', 'id_satuan');
-        $toko = Toko::all();
+        $toko = Toko::orderBy('nama')->get();
         $namaToko = Toko::pluck('nama', 'id_toko');
         return view('contents.ac', compact('ac', 'kendaraan', 'nopolKendaraan', 'merkKendaraan', 'satuan', 'namaSatuan', 'toko', 'namaToko'));
     }
@@ -46,7 +46,7 @@ class ACController extends Controller
             $filePath = $file->storeAs('AC', $fileName, 'public');
         }
 
-        $dataSparepartAMB = [
+        $dataAC = [
             'keterangan' => 'tagihan ac',
             'lokasi' => $request->lokasi,
             'id_kendaraan' => $request->kendaraan,
@@ -72,22 +72,39 @@ class ACController extends Controller
             $namaToko = $dataToko->nama;
         }
 
-        $exitingSparepart = TagihanAMB::where('keterangan', 'tagihan ac')->where('lokasi', $request->lokasi)->where('id_kendaraan', $request->kendaraan)
-            ->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
-            ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
-            ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
-            ->where('harga', $numericHarga)->where('total', $numericTotal)->where('id_toko', $request->toko)
+        $exitingAC = TagihanAMB::where('keterangan', 'tagihan ac')
+            ->where('lokasi', $request->lokasi)
+            ->where('id_kendaraan', $request->kendaraan)
+            ->where('pemesan', $request->pemesan)
+            ->where('tgl_order', $request->tgl_order)
+            ->where('tgl_invoice', $request->tgl_invoice)
+            ->where('no_inventaris', $request->no_inventaris)
+            ->where('nama', $request->nama)
+            ->where('kategori', $request->kategori)
+            ->where('dipakai_untuk', $request->dipakai_untuk)
+            ->where('masa_pakai', $masa_pakai)
+            ->where('jml', $request->jml)
+            ->where('id_satuan', $request->unit)
+            ->where('harga', $numericHarga)
+            ->where('total', $numericTotal)
+            ->where('id_toko', $request->toko)
             ->first();
 
-        if ($exitingSparepart) {
-            $logErrors = 'Keterangan: ' . 'Tagihan AC' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
-            'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-            'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $namaToko . ', data yang di input sudah ada di sistem';
-
+        if ($exitingAC) {
+            $logErrors = 'Keterangan: Tagihan AC - Lokasi: ' . $request->lokasi . 
+                ' - Pemesan: ' . $request->pemesan . 
+                ' - Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . 
+                ' - Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . 
+                ' - Nama: ' . $request->nama . 
+                ' - Kategori: ' . $request->kategori . 
+                ' - Dipakai untuk: ' . $request->dipakai_untuk . 
+                ' - Harga: ' . $request->harga . 
+                ' - Toko: ' . $namaToko . ', data yang di input sudah ada di sistem';
+        
             return redirect('ac')->with('logErrors', $logErrors);
 
         } else {
-            TagihanAMB::create($dataSparepartAMB);
+            TagihanAMB::create($dataAC);
             return redirect('ac');
         }
     }

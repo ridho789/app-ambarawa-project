@@ -109,25 +109,41 @@ class CatController extends Controller
                 'file' => $filePath
             ];
     
-            $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')->where('lokasi', $request->lokasi)->where('id_kendaraan', $request->kendaraan)->where('pemesan', $request->pemesan)
-                ->where('tgl_order', $request->tgl_order)->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)
-                ->where('nama', $request->nama)->where('kategori', $request->kategori)->where('dipakai_untuk', $request->dipakai_untuk)
-                ->where('masa_pakai', $masa_pakai)->where('jml', $request->jml)->where('id_satuan', $request->unit)
-                ->where('harga', $numericHarga)->where('total', $numericTotal)->where('id_toko', $request->toko)
+            $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')
+                ->where('lokasi', $request->lokasi)
+                ->where('id_kendaraan', $request->kendaraan)
+                ->where('pemesan', $request->pemesan)
+                ->where('tgl_order', $request->tgl_order)
+                ->where('tgl_invoice', $request->tgl_invoice)
+                ->where('no_inventaris', $request->no_inventaris)
+                ->where('nama', $request->nama)
+                ->where('kategori', $request->kategori)
+                ->where('dipakai_untuk', $request->dipakai_untuk)
+                ->where('masa_pakai', $masa_pakai)
+                ->where('jml', $request->jml)
+                ->where('id_satuan', $request->unit)
+                ->where('harga', $numericHarga)
+                ->where('total', $numericTotal)
+                ->where('id_toko', $request->toko)
                 ->first();
     
             if ($exitingCat) {
-                $logErrors = 'Keterangan: ' . 'Tagihan Cat (Offline)' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
-                'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-                'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
-    
+                $logErrors = 'Keterangan: Tagihan Cat (Offline) - Lokasi: ' . $request->lokasi . 
+                    ' - Pemesan: ' . $request->pemesan . 
+                    ' - Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . 
+                    ' - Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . 
+                    ' - Nama: ' . $request->nama . 
+                    ' - Kategori: ' . $request->kategori . 
+                    ' - Dipakai untuk: ' . $request->dipakai_untuk . 
+                    ' - Harga: ' . $request->harga . 
+                    ' - Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
+            
                 return redirect('cat')->with('logErrors', $logErrors);
     
             } else {
                 TagihanAMB::create($dataCatAMB);
                 return redirect('cat');
             }
-
         }
 
         if ($request->metode_pembelian == 'online') {
@@ -165,27 +181,46 @@ class CatController extends Controller
                 'file' => $filePath
             ];
     
-            $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat online')->where('lokasi', $request->lokasi)->where('id_kendaraan', $request->kendaraan)
-                ->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
-                ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
-                ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $masa_pakai)->where('jml', $request->jml_onl)->where('id_satuan', $request->unit_onl)
-                ->where('harga_online', $numericHargaOnline)->where('ongkir', $numericOngkir)->where('diskon_ongkir', $numericDiskonOngkir)
-                ->where('asuransi', $numericAsuransi)->where('b_proteksi', $numericProteksi)->where('b_jasa_aplikasi', $numericAplikasi)
-                ->where('total', $numericTotal)->where('id_toko', $request->toko)
+            $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat online')
+                ->where('lokasi', $request->lokasi)
+                ->where('id_kendaraan', $request->kendaraan)
+                ->where('pemesan', $request->pemesan)
+                ->where('tgl_order', $request->tgl_order)
+                ->where('tgl_invoice', $request->tgl_invoice)
+                ->where('no_inventaris', $request->no_inventaris)
+                ->where('nama', $request->nama)
+                ->where('kategori', $request->kategori)
+                ->where('dipakai_untuk', $request->dipakai_untuk)
+                ->where('masa_pakai', $masa_pakai)
+                ->where('jml', $request->jml_onl)
+                ->where('id_satuan', $request->unit_onl)
+                ->where('harga_online', $numericHargaOnline)
+                ->where('ongkir', $numericOngkir)
+                ->where('diskon_ongkir', $numericDiskonOngkir)
+                ->where('asuransi', $numericAsuransi)
+                ->where('b_proteksi', $numericProteksi)
+                ->where('b_jasa_aplikasi', $numericAplikasi)
+                ->where('total', $numericTotal)
+                ->where('id_toko', $request->toko)
                 ->first();
     
             if ($exitingCat) {
-                $logErrors = 'Keterangan: ' . 'Tagihan Cat (Online)' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
-                'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-                'Harga : ' . $request->harga_online . ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
-    
+                $logErrors = 'Keterangan: Tagihan Cat (Online) - Lokasi: ' . $request->lokasi . 
+                    ' - Pemesan: ' . $request->pemesan . 
+                    ' - Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . 
+                    ' - Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . 
+                    ' - Nama: ' . $request->nama . 
+                    ' - Kategori: ' . $request->kategori . 
+                    ' - Dipakai untuk: ' . $request->dipakai_untuk . 
+                    ' - Harga: ' . $request->harga_online . 
+                    ' - Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
+            
                 return redirect('cat')->with('logErrors', $logErrors);
     
             } else {
                 TagihanAMB::create($dataCatAMB);
                 return redirect('cat');
             }
-
         }
 
         $dataCatAMB = [
@@ -214,17 +249,31 @@ class CatController extends Controller
             'file' => $filePath
         ];
 
-        $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')->where('lokasi', $request->lokasi)->where('id_kendaraan', $request->kendaraan)
-            ->where('pemesan', $request->pemesan)->where('tgl_order', $request->tgl_order)
-            ->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)->where('nama', $request->nama)->where('kategori', $request->kategori)
-            ->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)->where('total', $numericTotal)->where('id_toko', $request->toko)
+        $exitingCat = TagihanAMB::where('keterangan', 'tagihan cat')
+            ->where('lokasi', $request->lokasi)
+            ->where('id_kendaraan', $request->kendaraan)
+            ->where('pemesan', $request->pemesan)
+            ->where('tgl_order', $request->tgl_order)
+            ->where('tgl_invoice', $request->tgl_invoice)
+            ->where('no_inventaris', $request->no_inventaris)
+            ->where('nama', $request->nama)
+            ->where('kategori', $request->kategori)
+            ->where('dipakai_untuk', $request->dipakai_untuk)
+            ->where('masa_pakai', $request->masa_pakai)
+            ->where('total', $numericTotal)
+            ->where('id_toko', $request->toko)
             ->first();
 
         if ($exitingCat) {
-            $logErrors = 'Keterangan: ' . 'Tagihan Cat (Offline)' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
-            'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-            'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
-
+            $logErrors = 'Keterangan: Tagihan Cat (Offline) - Lokasi: ' . $request->lokasi . 
+                ' - Pemesan: ' . $request->pemesan . 
+                ' - Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . 
+                ' - Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . 
+                ' - Nama: ' . $request->nama . 
+                ' - Kategori: ' . $request->kategori . 
+                ' - Dipakai untuk: ' . $request->dipakai_untuk . 
+                ' - Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
+        
             return redirect('cat')->with('logErrors', $logErrors);
 
         } else {

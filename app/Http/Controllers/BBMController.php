@@ -70,17 +70,30 @@ class BBMController extends Controller
             $nopol = $dataKendaraan->nopol;
         }
 
-        $exitingBBM = BBM::where('nama', $request->nama)->where('tanggal', $request->tanggal)->where('id_kendaraan', $request->kendaraan)
-            ->where('liter', $request->liter)->where('km_awal', $request->km_awal)->where('km_isi_seb', $request->km_isi_seb)->where('km_isi_sek', $request->km_isi_sek)
-            ->where('km_akhir', $request->km_akhir)->where('km_ltr', $request->km_ltr)->where('harga', $numericHarga)->where('tot_harga', $numericTotalHarga)
-            ->where('ket', $request->ket)->where('tot_km', $request->tot_km)
+        $exitingBBM = BBM::where('nama', $request->nama)
+            ->where('tanggal', $request->tanggal)
+            ->where('id_kendaraan', $request->kendaraan)
+            ->where('liter', $request->liter)
+            ->where('km_awal', $request->km_awal)
+            ->where('km_isi_seb', $request->km_isi_seb)
+            ->where('km_isi_sek', $request->km_isi_sek)
+            ->where('km_akhir', $request->km_akhir)
+            ->where('km_ltr', $request->km_ltr)
+            ->where('harga', $numericHarga)
+            ->where('tot_harga', $numericTotalHarga)
+            ->where('ket', $request->ket)
+            ->where('tot_km', $request->tot_km)
             ->first();
 
         if ($exitingBBM) {
-            $logErrors = 'Nama: ' . $request->nama . ' - ' . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Nopol / Kode Unit: ' . $nopol . ' - ' . 
-            'KM/Liter: ' . $request->km_ltr . ' - ' . 'Total Harga: ' . $request->tot_harga . ' - ' . 'Total KM: ' . $request->tot_km . ' - ' .
-            'Ket: ' . $request->ket . ', data tersebut sudah ada di sistem';
-
+            $logErrors = 'Nama: ' . $request->nama . 
+                ' - Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . 
+                ' - Nopol / Kode Unit: ' . $nopol . 
+                ' - KM/Liter: ' . $request->km_ltr . 
+                ' - Total Harga: ' . $request->tot_harga . 
+                ' - Total KM: ' . $request->tot_km . 
+                ' - Ket: ' . $request->ket . ', data tersebut sudah ada di sistem';
+        
             return redirect('bbm')->with('logErrors', $logErrors);
 
         } else {

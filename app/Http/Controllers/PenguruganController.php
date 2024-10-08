@@ -77,16 +77,24 @@ class PenguruganController extends Controller
             $namaToko = $dataToko->nama;
         }
 
-        $exitingUrug = Pembangunan::where('tanggal', $request->tanggal)->where('nama', $request->nama)->where('deskripsi', $request->deskripsi)->where('ukuran', $request->ukuran)
-            ->where('jumlah', $request->jumlah)->where('id_satuan', $request->satuan)->where('harga', $numericHarga)->where('tot_harga', $numericTotal)->where('id_proyek', $request->proyek)
+        $exitingUrug = Pembangunan::where('tanggal', $request->tanggal)
+            ->where('nama', $request->nama)
+            ->where('deskripsi', $request->deskripsi)
+            ->where('ukuran', $request->ukuran)
+            ->where('jumlah', $request->jumlah)
+            ->where('id_satuan', $request->satuan)
+            ->where('harga', $numericHarga)
+            ->where('tot_harga', $numericTotal)
+            ->where('id_proyek', $request->proyek)
             ->where('id_toko', $request->toko)
             ->first();
 
         if ($exitingUrug) {
-            $logErrors = 'Proyek: ' . $namaProyek . ' - ' . 'Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 
-            'Jumlah: ' . $request->jumlah . ' - ' . 'Harga: ' . $request->harga . ' - ' . 'Total Harga: ' . $request->total . 
-            ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
-
+            $logErrors = 'Proyek: ' . $namaProyek . ' - Tanggal: ' . date('d-M-Y', strtotime($request->tanggal)) . 
+                ' - Nama: ' . $request->nama . ' - Jumlah: ' . $request->jumlah . 
+                ' - Harga: ' . $request->harga . ' - Total Harga: ' . $request->total . 
+                ' - Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
+        
             return redirect('pengurugan')->with('logErrors', $logErrors);
 
         } else {

@@ -73,17 +73,31 @@ class PolesKacaMobilController extends Controller
             $namaToko = $dataToko->nama;
         }
 
-        $exitingPoles = TagihanAMB::where('keterangan', 'tagihan poles kaca mobil')->where('lokasi', $request->lokasi)->where('pemesan', $request->pemesan)
-            ->where('tgl_order', $request->tgl_order)->where('tgl_invoice', $request->tgl_invoice)->where('no_inventaris', $request->no_inventaris)
-            ->where('nama', $request->nama)->where('kategori', $request->kategori)->where('dipakai_untuk', $request->dipakai_untuk)->where('masa_pakai', $request->masa_pakai)
-            ->where('jml', $request->jml)->where('id_satuan', $request->unit)->where('harga', $numericHarga)->where('total', $numericTotal)->where('id_toko', $request->toko)
+        $exitingPoles = TagihanAMB::where('keterangan', 'tagihan poles kaca mobil')
+            ->where('lokasi', $request->lokasi)
+            ->where('pemesan', $request->pemesan)
+            ->where('tgl_order', $request->tgl_order)
+            ->where('tgl_invoice', $request->tgl_invoice)
+            ->where('no_inventaris', $request->no_inventaris)
+            ->where('nama', $request->nama)
+            ->where('kategori', $request->kategori)
+            ->where('dipakai_untuk', $request->dipakai_untuk)
+            ->where('masa_pakai', $request->masa_pakai)
+            ->where('jml', $request->jml)
+            ->where('id_satuan', $request->unit)
+            ->where('harga', $numericHarga)
+            ->where('total', $numericTotal)
+            ->where('id_toko', $request->toko)
             ->first();
 
         if ($exitingPoles) {
-            $logErrors = 'Keterangan: ' . 'Tagihan Poles Kaca Mobil' . ' - ' . 'Lokasi: ' . $request->lokasi . ' - ' . 'Pemesan: ' . $request->pemesan . ' - ' . 'Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . ' - ' . 
-            'Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . ' - ' . 'Nama: ' . $request->nama . ' - ' . 'Kategori: ' . $request->kategori . ' - ' . 'Dipakai untuk: ' . $request->dipakai_untuk . ' - ' . 
-            'Harga : ' . $request->harga . ' - ' . 'Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
-
+            $logErrors = 'Keterangan: ' . 'Tagihan Poles Kaca Mobil' . ' - Lokasi: ' . $request->lokasi . 
+                ' - Pemesan: ' . $request->pemesan . ' - Tgl. Order: ' . date('d-M-Y', strtotime($request->tgl_order)) . 
+                ' - Tgl. Invoice: ' . date('d-M-Y', strtotime($request->tgl_invoice)) . 
+                ' - Nama: ' . $request->nama . ' - Kategori: ' . $request->kategori . 
+                ' - Dipakai untuk: ' . $request->dipakai_untuk . ' - Harga: ' . $request->harga . 
+                ' - Toko: ' . $namaToko . ', data tersebut sudah ada di sistem';
+        
             return redirect('poles')->with('logErrors', $logErrors);
 
         } else {
