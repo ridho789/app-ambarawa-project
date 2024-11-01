@@ -334,7 +334,7 @@ class CatController extends Controller
                 }
     
                 $tagihanCat->save();
-                return redirect('cat')->with('success', 'Data berhasil diperbaharui!');
+                return redirect('cat?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
             }
         }
 

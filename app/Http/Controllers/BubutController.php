@@ -158,7 +158,7 @@ class BubutController extends Controller
             }
 
             $tagihanBubut->save();
-            return redirect('bubut')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('bubut?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('bubut');

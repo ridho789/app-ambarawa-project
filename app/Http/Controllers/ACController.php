@@ -152,7 +152,7 @@ class ACController extends Controller
             }
 
             $tagihanAC->save();
-            return redirect('ac')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('ac?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('ac');

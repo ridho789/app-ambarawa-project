@@ -142,7 +142,7 @@ class BBMController extends Controller
             }
 
             $dataBBM->save();
-            return redirect('bbm')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('bbm?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('bbm');

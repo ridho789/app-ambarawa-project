@@ -283,7 +283,7 @@ class OperasionalController extends Controller
                     }
                 }
 
-                return redirect('operasional')->with('success', 'Data berhasil diperbaharui!');
+                return redirect('operasional?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
             }
         }
 
@@ -333,7 +333,7 @@ class OperasionalController extends Controller
                     }
                 }
 
-                return redirect('operasional')->with('success', 'Data berhasil diperbaharui!');
+                return redirect('operasional?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
             }
         }
 
@@ -358,7 +358,7 @@ class OperasionalController extends Controller
             }
 
             $tagihanOperasional->save();
-            return redirect('operasional')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('operasional?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('operasional');

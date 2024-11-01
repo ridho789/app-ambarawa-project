@@ -354,7 +354,7 @@ class SparepartController extends Controller
                 }
     
                 $tagihanSparepart->save();
-                return redirect('sparepartamb')->with('success', 'Data berhasil diperbaharui!');
+                return redirect('sparepartamb?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
             }
         }
 
@@ -396,7 +396,7 @@ class SparepartController extends Controller
                 }
     
                 $tagihanSparepart->save();
-                return redirect('sparepartamb')->with('success', 'Data berhasil diperbaharui!');
+                return redirect('sparepartamb?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
             }
         }
 
@@ -429,7 +429,7 @@ class SparepartController extends Controller
             }
 
             $tagihanSparepart->save();
-            return redirect('sparepartamb')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('sparepartamb?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('sparepartamb');

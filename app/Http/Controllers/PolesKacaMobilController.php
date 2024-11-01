@@ -148,7 +148,7 @@ class PolesKacaMobilController extends Controller
             }
 
             $tagihanPoles->save();
-            return redirect('poles')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('poles?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('poles');

@@ -149,7 +149,7 @@ class TripController extends Controller
             }
 
             $tagihanTrip->save();
-            return redirect('trip')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('trip?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('trip');

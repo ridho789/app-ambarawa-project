@@ -244,6 +244,7 @@
                             </p>
 
                             <input type="hidden" id="edit-id" name="id_tagihan_amb">
+                            <input type="hidden" name="page" value="{{ request()->get('page', 1) }}">
 
                             <div class="form-group">
                                 <label for="lokasi">Lokasi</label>
@@ -861,6 +862,7 @@
         applyDateRangePicker();
 
         // Checkbox
+        var page = new URLSearchParams(window.location.search).get('page');
         var table = $('#basic-datatables').DataTable();
         var selectAllCheckbox = document.getElementById('selectAllCheckbox');
         var allSelectRowInput = document.getElementById('allSelectRow');
@@ -875,6 +877,10 @@
         var paidButton = document.getElementById('statusPaidButton');
 
         if (table && selectAllCheckbox) {
+            if (page) {
+                table.page(parseInt(page) - 1).draw(false);
+            }
+
             // Event listener untuk checkbox "Select All"
             selectAllCheckbox.addEventListener('change', function() {
                 table.rows({ page: 'current' }).nodes().to$().find('.select-checkbox').each(function() {
@@ -1036,6 +1042,10 @@
             }
 
             editButton.addEventListener('click', function () {
+                // Tambahkan nomor halaman ke form edit
+                var currentPage = table.page.info().page + 1;
+                document.querySelector('input[name="page"]').value = currentPage;
+                
                 var selectedId = allSelectRowInput.value.split(',')[0];
                 if (selectedId) {
                     var row = $('tr[data-id="' + selectedId + '"]');

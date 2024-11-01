@@ -73,7 +73,7 @@ class SembakoController extends Controller
             $tagihanSembako->total = $numericTotal;
 
             $tagihanSembako->save();
-            return redirect('sembako')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('sembako?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('sembako');
