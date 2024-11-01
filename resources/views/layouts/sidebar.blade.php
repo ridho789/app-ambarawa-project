@@ -236,16 +236,20 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const currentUrl = window.location.href;
-        const navLinks = document.querySelectorAll('.nav-item a, .sub-item');
+        // Mendapatkan URL dasar tanpa parameter tambahan
+        const baseUrl = window.location.origin + window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-item a, .nav-collapse a');
 
         navLinks.forEach(link => {
-            if (link.href === currentUrl) {
-                let navItem = link.closest('li');
-                navItem.classList.add('active');
+            if (link && link.href && link.href === baseUrl) { // Cocokkan link persis dengan baseUrl
+                // Menandai item yang sesuai sebagai aktif
+                let navItem = link.closest('li.nav-item');
+                if (navItem) {
+                    navItem.classList.add('active');
+                }
 
-                // Open all parent collapses
-                let parentCollapse = navItem.closest('.collapse');
+                // Membuka semua parent collapses dari item aktif
+                let parentCollapse = link.closest('.collapse');
                 while (parentCollapse) {
                     parentCollapse.classList.add('show');
                     const parentNavItem = parentCollapse.closest('li.nav-item');
