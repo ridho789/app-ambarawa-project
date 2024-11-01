@@ -66,7 +66,7 @@ class SatuanController extends Controller
 
             $dataSatuan->nama = $request->nama;
             $dataSatuan->save();
-            return redirect('satuan')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('satuan?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('satuan');

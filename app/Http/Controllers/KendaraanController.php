@@ -68,7 +68,7 @@ class KendaraanController extends Controller
             $dataKendaraan->merk = $request->merk;
             $dataKendaraan->jns_bbm = $request->jns_bbm;
             $dataKendaraan->save();
-            return redirect('kendaraan')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('kendaraan?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('kendaraan');

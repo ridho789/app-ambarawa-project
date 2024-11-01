@@ -66,7 +66,7 @@ class TokoController extends Controller
 
             $dataToko->nama = $request->nama;
             $dataToko->save();
-            return redirect('toko')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('toko?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('toko');

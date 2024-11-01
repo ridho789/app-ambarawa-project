@@ -67,7 +67,7 @@ class KategoriMaterialController extends Controller
             $dataKategori->nama = $request->nama;
             $dataKategori->save();
 
-            return redirect('kategori_material')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('kategori_material?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('kategori_material');

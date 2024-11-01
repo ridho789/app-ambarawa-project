@@ -82,7 +82,7 @@ class ProyekController extends Controller
             $dataProyek->nama = $request->nama;
             $dataProyek->subproyek = $request->subproyek;
             $dataProyek->save();
-            return redirect('proyek')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('proyek?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('proyek');
