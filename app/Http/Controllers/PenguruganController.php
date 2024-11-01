@@ -140,7 +140,7 @@ class PenguruganController extends Controller
             }
 
             $tagihanUrug->save();
-            return redirect('pengurugan')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('pengurugan?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('pengurugan');

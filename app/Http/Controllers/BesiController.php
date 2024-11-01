@@ -149,7 +149,7 @@ class BesiController extends Controller
             }
 
             $tagihanBesi->save();
-            return redirect('besi')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('besi?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('besi');

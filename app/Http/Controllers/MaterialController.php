@@ -189,7 +189,7 @@ class MaterialController extends Controller
             }
 
             $tagihanMaterial->save();
-            return redirect('material')->with('success', 'Data berhasil diperbaharui!');
+            return redirect('material?page=' . $request->page)->with('success', 'Data berhasil diperbaharui!');
         }
 
         return redirect('material');
